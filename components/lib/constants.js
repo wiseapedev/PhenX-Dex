@@ -60,6 +60,15 @@ const ETH_TOKENS = {
     logoURI:
       'https://www.dextools.io/resources/tokens/logos/ether/0x8248270620aa532e4d64316017be5e873e37cc09.png?1707335270850',
   },
+  dogecoin20: {
+    chainId: 1,
+    name: 'Dogecoin20',
+    address: '0x2541A36BE4cD39286ED61a3E6AFC2307602489d6',
+    symbol: 'DOGE20',
+    decimals: 18,
+    logoURI:
+      'https://www.dextools.io/resources/tokens/logos/ether/0x2541a36be4cd39286ed61a3e6afc2307602489d6.png?1712013377127',
+  },
 
   /*   bank: {
     chainId: 1,
@@ -948,7 +957,7 @@ const CHAINS = {
     uniswapFactoryAddressV2: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
     uniswapRouterAddressV3: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
     uniswapQuoterV3: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
-    udxRouterAddress: '0x1c4878739e0F6B1d6189eaD2eCb21419Ea4f03aF',
+    udxRouterAddress: '0xfa60C635dE9Ea9337C88e3Cb7b00d997bCD8e05c',
     rpcUrl: process.env.NEXT_PUBLIC_ETH_RPC,
   },
   8453: {

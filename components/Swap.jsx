@@ -859,6 +859,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                 isV2Only,
                 isV2ToV3,
                 isV3ToV2,
+                v3QuoteFee,
                 fee,
                 v3QuoteFeeIn,
                 v3QuoteFeeOut,
@@ -898,6 +899,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               v3QuoteFeeIn: bestQuote.v3QuoteFeeIn || 0,
               v3QuoteFeeOut: bestQuote.v3QuoteFeeOut || 0,
               fee: bestQuote.fee,
+              v3QuoteFee: bestQuote.v3QuoteFee,
             };
             console.log('--- data', data);
             return data;
@@ -933,6 +935,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           feeAddress: feeAddress,
           v3QuoteFeeIn: price.v3QuoteFeeIn,
           v3QuoteFeeOut: price.v3QuoteFeeOut,
+          v3QuoteFee: price.v3QuoteFee,
         };
         setSwapData(swapDataFormat);
 
@@ -1404,7 +1407,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                         gasLimit: addGasBuffer(estimatedGas),
                       }
                     );
-                } else {
+                } else if (swapData.swapType === 'TOKEN/TOKEN') {
                   let safeInputAmount = await preventOverMax(swapData.amountIn);
                   estimatedGas =
                     await routerContract.swapExactTokensForTokensSupportingFeeOnTransferTokens.estimateGas(
@@ -1417,11 +1420,9 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                       ],
                       swapData.to,
                       swapData.deadline,
-                      swapData.feeAddress,
                       {
-                        //     maxFeePerGas: gasFees.maxFeePerGas,
-                        //    maxPriorityFeePerGas: gasFees.priorityFeePerGas,
-                        gasPrice: gasFees.maxFeePerGas,
+                        maxFeePerGas: gasFees.maxFeePerGas,
+                        maxPriorityFeePerGas: gasFees.priorityFeePerGas,
                       }
                     );
                   transactionResponse =
@@ -1435,15 +1436,75 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                       ],
                       swapData.to,
                       swapData.deadline,
-                      swapData.feeAddress,
                       {
-                        //    maxFeePerGas: gasFees.maxFeePerGas,
-                        //   maxPriorityFeePerGas: gasFees.priorityFeePerGas,
-                        gasPrice: gasFees.maxFeePerGas,
+                        maxFeePerGas: gasFees.maxFeePerGas,
+                        maxPriorityFeePerGas: gasFees.priorityFeePerGas,
                         gasLimit: addGasBuffer(estimatedGas),
                       }
                     );
                 }
+              } else if (swapData.isV2ToV3 === true) {
+                console.log('swapData', swapData);
+                let safeInputAmount = await preventOverMax(swapData.amountIn);
+                estimatedGas =
+                  await routerContract.v2TokenToV3Token.estimateGas(
+                    swapData.tokenIn,
+                    swapData.tokenOut,
+                    swapData.v3QuoteFee,
+                    swapData.recipient,
+                    safeInputAmount,
+                    reduceAmountOut(swapData.amountOut),
+                    swapData.deadline,
+                    {
+                      maxFeePerGas: gasFeestr.maxFeePerGas,
+                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                    }
+                  );
+                transactionResponse = await routerContract.v2TokenToV3Token(
+                  swapData.tokenIn,
+                  swapData.tokenOut,
+                  swapData.v3QuoteFee,
+                  swapData.recipient,
+                  safeInputAmount,
+                  reduceAmountOut(swapData.amountOut),
+                  swapData.deadline,
+                  {
+                    maxFeePerGas: gasFees.maxFeePerGas,
+                    maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                    gasLimit: addGasBuffer(estimatedGas),
+                  }
+                );
+              } else if (swapData.isV3ToV2 === true) {
+                console.log('swapData', swapData);
+                let safeInputAmount = await preventOverMax(swapData.amountIn);
+                estimatedGas =
+                  await routerContract.v3TokenToV2Token.estimateGas(
+                    swapData.tokenIn,
+                    swapData.tokenOut,
+                    swapData.v3QuoteFee,
+                    swapData.recipient,
+                    safeInputAmount,
+                    reduceAmountOut(swapData.amountOut),
+                    swapData.deadline,
+                    {
+                      maxFeePerGas: gasFees.maxFeePerGas,
+                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                    }
+                  );
+                transactionResponse = await routerContract.v3TokenToV2Token(
+                  swapData.tokenIn,
+                  swapData.tokenOut,
+                  swapData.v3QuoteFee,
+                  swapData.recipient,
+                  safeInputAmount,
+                  reduceAmountOut(swapData.amountOut),
+                  swapData.deadline,
+                  {
+                    maxFeePerGas: gasFees.maxFeePerGas,
+                    maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                    gasLimit: addGasBuffer(estimatedGas),
+                  }
+                );
               }
             }
             toast.info('Trade pending');

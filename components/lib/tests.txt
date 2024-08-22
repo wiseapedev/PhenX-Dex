@@ -7,7 +7,7 @@ PhenX: gas units: 165,540
 difference: 3.20%
 
 v3
-token to eth
+eth to token
 Uniswap: https://etherscan.io/tx/0xf2e10664b1e09e2f547c5a7c75ca7a5341e4b51144d58d66e964e43176f2a78e
 Uniswap gas units: 137,464
 PhenX: https://etherscan.io/tx/0x2e4cb2ca6a5aaba0aa9a5593080337a3741d76c180627c42e328342a16e0aaf8
@@ -22,13 +22,44 @@ PhenX: https://etherscan.io/tx/0x1dc20319d485f0f35fc59c3fc3ce20025f713e1d27c3b01
 PhenX gas units: 241,668
 difference: 0.75%
 
-
 v2 
 eth to token
 Uniswap: https://etherscan.io/tx/0x2ea53910e5b8b5e7bd0d8271e2b11d9a852936a1cf13ffdba065820a33ff7e87
 Uniswap gas units: 186,408
-PhenX: https://etherscan.io/tx/0xcab8fb1fb7f09605eb8a1d6d00b33c89a40df52c6ae8d50653da583284a7a7aa
-phenx gas units: 135,222
-difference: 27.45%
+PhenX: https://etherscan.io/tx/0x8d9788773b3f4ba4fa95b946d0026bfa7507f46f390590a7f952d0db1dc6d549
+phenx gas units: 183,606
+difference: 1.50%
+
+v2 
+token to eth NEEDS IMPROVING
+Uniswap: https://etherscan.io/tx/0x59f17d79a5b3d7cbd9791d2124125dbadac13e0c79bd4c554d3b352cd8f97cfa
+Uniswap gas units: 219,602
+phenx: https://etherscan.io/tx/0xc1cbb4661e30785deac1daa25ffa836dad8247e10caf630532632280905111e1
+phenx gas units:  211,467
+difference: 3.70%
+
+
+v2
+token to token
+uniswap: https://etherscan.io/tx/0x2898ae47edfa67bbd202304bec43c9746fc8afe42c8fcb51461946f7419ea691
+uniswap gas units: 295,730
+phenx: https://etherscan.io/tx/0x63fff5c64f9932c9fbe6619ba1a79727d89d7b8a04402cc2d27b46a4c10d4115
+phenx gas units: 248,710
+difference: 15.90%
+
+v2 -> v3
+token to token
+uniswap: down
+uniswap gas units: down
+phenx: https://etherscan.io/tx/0x54224cfad1b4a3e5824a5cf0c48d359266e9e040a3f727814fbf3def2f08b502
+phenx gas units: 292,810
+
+v3 -> v2
+token to token
+uniswap: down
+uniswap gas units: down
+phenx: https://etherscan.io/tx/0x1c2aeb4864ef542a4b08d0a073d03949589536d9d9a234bcee8d8b13c20cb00f
+phenx gas units: 272,676
+
 
 
