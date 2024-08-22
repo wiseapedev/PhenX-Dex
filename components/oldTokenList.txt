@@ -1,0 +1,143 @@
+/* eslint-disable @next/next/no-img-element */
+import DollarValue from './DollarValue';
+
+function TokenList({
+  ALL_TOKENS,
+  type,
+  handleSellTokenChange,
+  handleBuyTokenChange,
+  handleShowTokenList,
+}) {
+
+  function handleTokenRemoval(symbol) {
+    try {
+      console.log('handleTokenRemoval called with symbol:', symbol);
+      if (!symbol) {
+        console.error('No symbol provided for token removal.');
+        return;
+      }
+
+      // Retrieve the stored list of custom tokens
+      const storedTokens =
+        JSON.parse(localStorage.getItem('customTokens')) || {};
+      const lowerCaseSymbol = symbol.toLowerCase();
+      console.log('Removing token', lowerCaseSymbol);
+      // Check if the token exists
+      if (storedTokens[lowerCaseSymbol]) {
+        // Token exists, delete it from the stored list
+        delete storedTokens[lowerCaseSymbol];
+        localStorage.setItem('customTokens', JSON.stringify(storedTokens));
+      } else {
+        // Token does not exist in the stored list
+        console.warn(`Token ${symbol} does not exist in custom tokens.`);
+      }
+    } catch (error) {
+      console.error('Error removing token:', error);
+    }
+  }
+
+  const CloseIcon = ({symbol}) => {
+    console.log('handleTokenRemoval called with symbol:', symbol);
+    return (
+      <svg
+        onClick={() => handleTokenRemoval(symbol)}
+        stroke='currentColor'
+        fill='rgba(255, 0, 0, 0.7)'
+        strokeWidth='0'
+        viewBox='0 0 24 24'
+        className='text-highlight'
+        height='20'
+        width='20'
+        xmlns='http://www.w3.org/2000/svg'>
+        <path d='M18.3,5.71a1,1,0,0,0-1.41,0L12,10.59,7.11,5.7A1,1,0,0,0,5.7,7.11L10.59,12,5.7,16.89a1,1,0,1,0,1.41,1.41L12,13.41l4.89,4.89a1,1,0,0,0,1.41-1.41L13.41,12l4.89-4.89A1,1,0,0,0,18.3,5.71Z' />
+      </svg>
+    );
+  };
+  const handleHideToken = (key) => {
+    const itemToHide = document.querySelector(`.token-list-item.${key}`);
+    if (itemToHide) {
+      itemToHide.style.display = 'none'; // Hide the item
+    }
+  };
+  const {dollarRef} = useContext(BlockchainContext);
+
+  return (
+    <div className='token-list'>
+      <div className='base-tokens-section'>
+        <div className='base-tokens'>
+          {Object.entries(ALL_TOKENS)
+            .filter(([key, token]) => token.isPartner)
+            .map(([key, token]) => (
+              <div
+                className={`base-item ${token.isPartner ? 'partner' : ''}`}
+                key={key}
+                onClick={() => {
+                  // Now you can use the key here if needed
+                  if (type === 'sellToken') {
+                    handleSellTokenChange(key);
+                  } else if (type === 'buyToken') {
+                    handleBuyTokenChange(key);
+                  }
+                  handleShowTokenList(false);
+                }}>
+                {/* Token details with logo */}
+                <img
+                  src={token.logoURI}
+                  alt={token.name}
+                  className='token-logo'
+                  width={24}
+                  height={24}
+                  style={{objectFit: 'contain', borderRadius: '50%'}}
+                />
+                <div className='base-symbol'>{token.symbol}</div>
+                {/* More token details can go here */}
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {Object.entries(ALL_TOKENS).map(([key, token]) => (
+        <div
+          className={`token-list-item ${key}`}
+          key={key} // Use the key from the object as the React key
+          onClick={() => {
+            // Now you can use the key here if needed
+            if (type === 'sellToken') {
+              handleSellTokenChange(key);
+            } else if (type === 'buyToken') {
+              handleBuyTokenChange(key);
+            }
+            handleShowTokenList(false);
+          }}>
+          <div className='token-list-item-image'>
+            <img
+              src={token.logoURI}
+              alt={token.name}
+              width={32}
+              height={32}
+              style={{objectFit: 'contain', borderRadius: '50%'}}
+              loading='lazy'
+            />
+          </div>
+          <div className='token-list-item-text'>
+            <div className='token-list-item-text-name'>
+              {token.name} <DollarValue Token={token} isTokenList={true} />
+            </div>
+            <div className='token-list-item-text-symbol'>{key}</div>
+            {/*             <div className='token-list-item-text-symbol'>{token.symbol} </div>
+             */}{' '}
+          </div>
+          <div
+            className='token-list-remove'
+            onClick={(event) => {
+              event.stopPropagation(); // This stops the click event from bubbling up.
+              handleHideToken(key);
+            }}>
+            <CloseIcon symbol={key} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+export default TokenList;

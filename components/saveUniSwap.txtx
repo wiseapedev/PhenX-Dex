@@ -1,0 +1,70 @@
+  const sellToUniswapABI = [
+    {
+      inputs: [
+        {internalType: 'address[]', name: 'tokens', type: 'address[]'},
+        {internalType: 'uint256', name: 'sellAmount', type: 'uint256'},
+        {internalType: 'uint256', name: 'minBuyAmount', type: 'uint256'},
+        {internalType: 'bool', name: 'isSushi', type: 'bool'},
+      ],
+      name: 'sellToUniswap',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+  ];
+
+  const proxy = '0xDef1C0ded9bec7F1a1670819833240f027b25EfF';
+  const uniV2Router = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
+  const executeUniSwap = async () => {
+    if (!signer) return;
+    const contract = new ethers.Contract(proxy, sellToUniswapABI, signer);
+
+    // Fetch current base fee and calculate maxFeePerGas and maxPriorityFeePerGas
+    // Note: These are example calculations. Adjust logic based on network conditions.
+    const UDX = '0xce3ee7435a5bEdBE73b92f39828b0CFD9D0FF568';
+    const ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+    const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+    const block = await provider.getBlock('latest');
+    const baseFeePerGas = block.baseFeePerGas;
+    const maxPriorityFeePerGas = ethers.utils.parseUnits('2', 'gwei');
+    const maxFeePerGas = baseFeePerGas.add(maxPriorityFeePerGas);
+    const addresses = [UDX, WETH];
+    const inputAmount = ethers.utils.parseUnits('0.0001', 'ether');
+    const outputAmount = ethers.utils.parseUnits('0', 'ether');
+    console.log(baseFeePerGas.toString());
+    console.log(maxPriorityFeePerGas.toString());
+    console.log(maxFeePerGas.toString());
+    console.log(addresses);
+    console.log(inputAmount.toString());
+    console.log(outputAmount.toString());
+
+    const estimatedGasLimit = await contract.estimateGas.sellToUniswap(
+      addresses,
+      inputAmount,
+      outputAmount,
+      false,
+      {
+        maxFeePerGas: maxFeePerGas,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+      }
+    );
+
+    try {
+      const tx = await contract.sellToUniswap(
+        addresses,
+        inputAmount,
+        outputAmount,
+        false,
+        {
+          gasLimit: estimatedGasLimit,
+          maxFeePerGas: maxFeePerGas,
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+        }
+      );
+      console.log('Transaction submitted:', tx);
+      const receipt = await tx.wait();
+      console.log('Transaction receipt:', receipt);
+    } catch (error) {
+      console.error('Swap transaction failed:', error);
+    }
+  }; 

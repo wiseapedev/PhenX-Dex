@@ -1,0 +1,1187 @@
+  function QuoteView() {
+    console.log('➡️➡️ Rendering QuoteView');
+    const {
+      account,
+      savedInputAmount,
+      updateData,
+      signer,
+      provider,
+      savedSlippage,
+      savedPriorityGas,
+      savedOutputAmount,
+      useAutoGas,
+      useAutoSlippage,
+      savedAddedPriority,
+    } = useContext(BlockchainContext);
+    const [price, setPrice] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [sellAmount, setSellAmount] = useState(null);
+    const [buyAmount, setBuyAmount] = useState('');
+    const [slippage, setSlippage] = useState(
+      Number(savedSlippage.current) / 100
+    );
+    const gasLevelRef = useRef(null);
+
+    useEffect(() => {
+      const handle = setInterval(() => {
+        const inputAmount = String(savedInputAmount.current);
+        const OutputAmount = String(savedOutputAmount.current);
+        const Slippage = String(savedSlippage.current);
+        const PriorityGas = String(savedPriorityGas.current);
+
+        if (inputAmount !== sellAmount) {
+          console.log('✅ new sell amount', inputAmount);
+          setSellAmount(inputAmount);
+        }
+        if (Number(Number(inputAmount) > 0 && Number(OutputAmount) === 0)) {
+          setSellAmount(inputAmount);
+        }
+        if (Number(Slippage) / 100 !== Number(slippage)) {
+          setSlippage(Number(Slippage) / 100);
+          console.log('new slippage', Slippage);
+        }
+        if (PriorityGas !== gasLevelRef.current) {
+          console.log('new gas', PriorityGas);
+          console.log('gasLevel', gasLevelRef.current);
+
+          gasLevelRef.current = PriorityGas;
+        }
+      }, RATE_LIMIT);
+      return () => clearInterval(handle);
+    }, [savedInputAmount, sellAmount, savedSlippage, slippage]);
+
+    useEffect(() => {
+      if (sellAmount > 0 && sellToken && buyToken) {
+        console.log('✅ fetchPrice');
+        fetchPrice();
+      }
+    }, [sellAmount, sellToken, buyToken]);
+
+    const blockNumberRef = useRef(0);
+
+    useEffect(() => {
+      let intervalId;
+
+      const fetchNewBlockNumber = async () => {
+        if (!provider) return;
+
+        try {
+          const blockNumber = await provider.getBlockNumber();
+
+          if (blockNumberRef.current !== blockNumber) {
+            if (chainId !== 1) {
+              const isMoreThan3 = blockNumber > blockNumberRef.current + 3;
+              if (!isMoreThan3) {
+                return;
+              }
+            }
+            blockNumberRef.current = blockNumber;
+            if (sellAmount > 0 && sellToken && buyToken) {
+              fetchPrice();
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch new block number:', error);
+        }
+      };
+
+      const startPolling = () => {
+        intervalId = setInterval(fetchNewBlockNumber, 500);
+      };
+
+      const stopPolling = () => {
+        clearInterval(intervalId);
+      };
+
+      startPolling();
+
+      return () => {
+        stopPolling();
+      };
+    }, [sellAmount, sellToken, buyToken]);
+
+    const fetchPrice = async () => {
+      if (
+        !ALL_TOKENS[sellToken] ||
+        !ALL_TOKENS[buyToken] ||
+        !account ||
+        !sellAmount
+      ) {
+        return <div className='swap-button disable'>......</div>;
+      }
+
+      try {
+        const sellTokenDecimals = ALL_TOKENS[sellToken]?.decimals;
+        let parsedSellAmount = ethers.parseUnits(sellAmount, sellTokenDecimals);
+        console.log('➡️➡️ parsedSellAmount', parsedSellAmount);
+        parsedSellAmount = parsedSellAmount;
+
+        async function getPriceData() {
+          try {
+            const sellTokenIsETH = ALL_TOKENS[sellToken].symbol === 'ETH';
+            const buyTokenIsETH = ALL_TOKENS[buyToken].symbol === 'ETH';
+            const buyAddress = ALL_TOKENS[buyToken].address;
+            const sellAddress = ALL_TOKENS[sellToken].address;
+            console.log('buyTokenIsETH', buyTokenIsETH);
+            console.log('sellTokenIsETH', sellTokenIsETH);
+            let path;
+            let pathV3 = {};
+            if (buyTokenIsETH) {
+              path = [sellAddress, wethAddress];
+              pathV3 = {
+                tokenIn: sellAddress,
+                tokenOut: wethAddress,
+              };
+            } else if (sellTokenIsETH) {
+              path = [wethAddress, buyAddress];
+              pathV3 = {
+                tokenIn: wethAddress,
+                tokenOut: buyAddress,
+              };
+            } else if (
+              ALL_TOKENS[sellToken].symbol === 'WETH' ||
+              ALL_TOKENS[buyToken].symbol === 'WETH'
+            ) {
+              console.log('WETH');
+              path = [sellAddress, buyAddress];
+              pathV3 = {
+                tokenIn: sellAddress,
+                tokenOut: buyAddress,
+              };
+            } else {
+              path = [sellAddress, wethAddress, buyAddress];
+              pathV3 = {
+                tokenIn: sellAddress,
+                tokenOut: buyAddress,
+              };
+            }
+
+            const routerContract = new ethers.Contract(
+              uniswapRouterAddress,
+              uniswapRouterABI,
+              provider
+            );
+
+            let isV3 = false;
+            let amountOut;
+            let feeV3;
+            let amountsOutV2 = null;
+            let amountsOutV3 = null;
+
+            if (
+              (ALL_TOKENS[sellToken].symbol === 'WETH' &&
+                ALL_TOKENS[buyToken].symbol === 'ETH') ||
+              (ALL_TOKENS[sellToken].symbol === 'ETH' &&
+                ALL_TOKENS[buyToken].symbol === 'WETH')
+            ) {
+              amountOut = parsedSellAmount;
+            } else {
+              let dataV3;
+              if (
+                ALL_TOKENS[sellToken].symbol === 'NIVID' ||
+                ALL_TOKENS[buyToken].symbol === 'NIVIDAI'
+              ) {
+                dataV3 = null;
+              } else {
+                console.log('pathV3', pathV3);
+                dataV3 = await getQuoteV3(
+                  pathV3.tokenIn,
+                  pathV3.tokenOut,
+                  parsedSellAmount,
+                  chainId
+                );
+                console.log('➡️➡️➡️dataV3', dataV3);
+              }
+              try {
+                amountsOutV3 = dataV3.amountOut;
+                feeV3 = dataV3.fee;
+              } catch (err) {
+                amountOut = null;
+              }
+              try {
+                amountsOutV2 = await routerContract.getAmountsOut(
+                  parsedSellAmount,
+                  path
+                );
+                console.log('➡️➡️➡️amountsOutV2', amountsOutV2);
+                if (buyTokenIsETH) {
+                  amountsOutV2 = amountsOutV2[1];
+                } else if (sellTokenIsETH) {
+                  amountsOutV2 = amountsOutV2[1];
+                } else if (
+                  ALL_TOKENS[sellToken].symbol === 'WETH' ||
+                  ALL_TOKENS[buyToken].symbol === 'WETH'
+                ) {
+                  amountsOutV2 = amountsOutV2[1];
+                } else {
+                  amountsOutV2 = amountsOutV2[2];
+                }
+              } catch (err) {
+                amountOut = amountsOutV3;
+                isV3 = true;
+              }
+              try {
+                if (amountsOutV2 > amountsOutV3) {
+                  amountOut = amountsOutV2;
+                  isV3 = false;
+                } else {
+                  /*               amountOut = amountsOutV2;
+                  isV3 = false; */
+                  amountOut = amountsOutV3;
+                  isV3 = true;
+                }
+              } catch (e) {
+                console.log('error', e);
+              }
+            }
+            const data = {
+              fromTokenAddress: parsedSellAmount,
+              buyAmount: amountOut,
+              sellTokenAddress: ALL_TOKENS[sellToken].address,
+              buyTokenAddress: ALL_TOKENS[buyToken].address,
+              amount: parsedSellAmount,
+              isV3: isV3 /* TEMP V3 ONLY */,
+              fee: feeV3,
+            };
+            console.log('--- data', data);
+            return data;
+          } catch (error) {
+            console.log('error', error);
+          }
+        }
+        const data = await getPriceData();
+
+        // return data{}
+        setPrice(data);
+        console.log('response.ok');
+        let formatBuyAmount = ethers.formatUnits(
+          data.buyAmount,
+          ALL_TOKENS[buyToken]?.decimals
+        );
+        formatBuyAmount = Number(formatBuyAmount).toFixed(8);
+        console.log('➡️➡️formatBuyAmount', formatBuyAmount);
+        setBuyAmount(formatBuyAmount);
+        updateData('savedOutputAmount', formatBuyAmount);
+      } catch (e) {
+        console.log('error', e);
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (error || loading || !price) {
+      // updateData('savedOutputAmount', 0);
+      return <div className='swap-button disable'>Input Amount</div>;
+    }
+    let formattedData;
+
+    try {
+      // Check for undefined or null values and set defaults as needed
+      const safeSellAmount = sellAmount || '0'; // Provide a default value
+      const safeSlippage = slippage || '0'; // Provide a default value
+      const safeAccount = account || '0x0'; // Provide a default placeholder address
+
+      if (ethers && ALL_TOKENS && sellToken in ALL_TOKENS) {
+        formattedData = {
+          fromTokenAddress: price.sellTokenAddress || '0x0',
+          toTokenAddress: price.buyTokenAddress || '0x0',
+          amount: price.amount || '0',
+          amountOut: price.buyAmount || '0',
+          slippage: safeSlippage,
+          userWalletAddress: safeAccount,
+          isV3: price.isV3,
+          fee: price.fee,
+        };
+      } else {
+        // Handle the case where ethers or ALL_TOKENS is not defined or sellToken is not in ALL_TOKENS
+        console.error(
+          'Ethers library, ALL_TOKENS object, or the specified sellToken is undefined.'
+        );
+      }
+    } catch (e) {
+      console.error('Error constructing formattedData:', e);
+    }
+
+    function OkxSwap({formattedData, slippage, sellAmount}) {
+      const [data, setData] = useState(null);
+      let increaseAmount = 0.03;
+      const fromAddressETH = sellToken === 'eth';
+      const isV3 = formattedData.isV3;
+      if (fromAddressETH === true) {
+        increaseAmount = 0.1;
+      } else {
+        increaseAmount = 0.15;
+      }
+
+      const getSwapData = async () => {
+        let sellTokenAddress;
+        let buyTokenAddress;
+        if (sellToken === 'eth') {
+          sellTokenAddress = weth;
+          buyTokenAddress = formattedData.toTokenAddress;
+        } else if (buyToken === 'eth') {
+          sellTokenAddress = formattedData.fromTokenAddress;
+          buyTokenAddress = weth;
+        } else {
+          sellTokenAddress = formattedData.fromTokenAddress;
+          buyTokenAddress = formattedData.toTokenAddress;
+        }
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+        let minAmountOut = BigInt(formattedData.amountOut.toString()); // Convert to BigInt
+        console.log('----------- minAmountOut', minAmountOut.toString());
+
+        try {
+          console.log(slippage, ' slippage');
+
+          // Adjust slippage calculation for integer math.
+          // Assuming slippage is a float representing a percentage (e.g., 0.01 for 1%)
+          // First, convert slippage to an integer that represents the percentage accurately
+          let slippagePercentage = BigInt(Math.floor(slippage * 100));
+          // Perform multiplication first to avoid losing precision, then divide by 100
+          let slippageAmount =
+            (minAmountOut * slippagePercentage) / BigInt(100);
+
+          minAmountOut = minAmountOut - slippageAmount;
+          if (minAmountOut < BigInt(0)) {
+            minAmountOut = BigInt(0);
+          }
+        } catch (e) {
+          console.error('error', e);
+          minAmountOut = BigInt(0);
+        }
+
+        console.log('minAmountOut', minAmountOut.toString());
+
+        let swapParams;
+        if (isV3 === false) {
+          if (sellToken === 'eth') {
+            swapParams = {
+              amountOutMin: minAmountOut,
+              path: [sellTokenAddress, buyTokenAddress],
+              to: formattedData.userWalletAddress,
+              deadline: deadline,
+              feeAddress: feeAddress,
+              value: formattedData.amount,
+            };
+          } else if (buyToken === 'eth') {
+            swapParams = {
+              amountIn: formattedData.amount,
+              amountOutMin: minAmountOut,
+              path: [sellTokenAddress, buyTokenAddress],
+              to: formattedData.userWalletAddress,
+              deadline: deadline,
+              feeAddress: feeAddress,
+            };
+          } else if (
+            ALL_TOKENS[sellToken].symbol === 'WETH' ||
+            ALL_TOKENS[buyToken].symbol === 'WETH'
+          ) {
+            swapParams = {
+              amountIn: formattedData.amount,
+              amountOutMin: minAmountOut,
+              path: [sellTokenAddress, buyTokenAddress],
+              to: formattedData.userWalletAddress,
+              deadline: deadline,
+              feeAddress: feeAddress,
+            };
+          } else {
+            swapParams = {
+              amountIn: formattedData.amount,
+              amountOutMin: minAmountOut,
+              path: [sellTokenAddress, weth, buyTokenAddress],
+              to: formattedData.userWalletAddress,
+              deadline: deadline,
+              feeAddress: feeAddress,
+            };
+          }
+        } else if (isV3 === true) {
+          if (sellToken === 'eth') {
+            swapParams = {
+              value: formattedData.amount,
+              tokenIn: sellTokenAddress,
+              tokenOut: buyTokenAddress,
+              fee: formattedData.fee,
+              recipient: account,
+              deadline: deadline,
+              amountIn: formattedData.amount,
+              amountOutMinimum: minAmountOut,
+              sqrtPriceLimitX96: 0,
+            };
+          } else if (buyToken === 'eth') {
+            swapParams = {
+              value: 0,
+              tokenIn: sellTokenAddress,
+              tokenOut: buyTokenAddress,
+              fee: formattedData.fee,
+              recipient: account,
+              deadline: deadline,
+              amountIn: formattedData.amount,
+              amountOutMinimum: minAmountOut,
+              sqrtPriceLimitX96: 0,
+            };
+          } else {
+            swapParams = {
+              value: 0,
+              tokenIn: sellTokenAddress,
+              tokenOut: buyTokenAddress,
+              fee: formattedData.fee,
+              recipient: account,
+              deadline: deadline,
+              amountIn: formattedData.amount,
+              amountOutMinimum: minAmountOut,
+              sqrtPriceLimitX96: 0,
+            };
+          }
+        }
+
+        try {
+          setData(swapParams);
+          return data;
+        } catch (error) {
+          console.error('Failed to fetch swap data:', error);
+        }
+      };
+      useEffect(() => {
+        if (formattedData.fromTokenAddress && formattedData.toTokenAddress) {
+          getSwapData();
+        }
+      }, [formattedData]);
+
+      function ApproveOrSwap({data, formattedData}) {
+        const largeAmount = 11579208923731619542357098500868790n;
+
+        const {account, signer, updateData} = useContext(BlockchainContext);
+        const provider = new ethers.JsonRpcProvider(CHAINS[chainId].rpcUrl);
+        const [isApprovalNeeded, setIsApprovalNeeded] = useState(false);
+        const [underMaintenance, setUnderMaintenance] = useState(false);
+        useEffect(() => {
+          //  if (!data || !formattedData) return;
+          const getPairAddress = async (tokenAAddress, tokenBAddress) => {
+            // Initialize the factory contract with the provider and ABI
+            const factoryContract = new ethers.Contract(
+              uniswapFactoryV2Address,
+              uniswapFactoryV2ABI,
+              provider
+            );
+
+            try {
+              // Call the getPair method with the two token addresses
+              const pairAddress = await factoryContract.getPair(
+                tokenAAddress,
+                tokenBAddress
+              );
+
+              // Check if the returned address is not the zero address (meaning, the pair exists)
+              if (pairAddress === ethers.AddressZero) {
+                console.log('No LP pair exists for these tokens.');
+                return null;
+              }
+              console.log('pairAddress', pairAddress);
+
+              return pairAddress;
+            } catch (error) {
+              console.error('Error getting pair address:', error);
+              throw error; // Or handle this in a way that suits your application
+            }
+          };
+          const checkIfMixPairs = async () => {
+            console.log('formattedData', formattedData);
+            let sellTokenHasV3Pair = await getQuoteV3(
+              formattedData.fromTokenAddress,
+              formattedData.toTokenAddress,
+              1,
+              chainId
+            );
+            console.log('sellTokenHasV3Pair', sellTokenHasV3Pair);
+            let buyTokenHasV3Pair = await getQuoteV3(
+              formattedData.toTokenAddress,
+              formattedData.fromTokenAddress,
+              1,
+              chainId
+            );
+            console.log('buyTokenHasV3Pair', buyTokenHasV3Pair);
+
+            if (
+              (buyTokenHasV3Pair === null && sellTokenHasV3Pair !== null) ||
+              (buyTokenHasV3Pair !== null && sellTokenHasV3Pair === null)
+            ) {
+              // Fetch LP addresses from the factory contract for both pairs
+              const sellTokenPairAddress = await getPairAddress(
+                formattedData.fromTokenAddress,
+                wethAddress
+              );
+              const buyTokenPairAddress = await getPairAddress(
+                formattedData.toTokenAddress,
+                wethAddress
+              );
+
+              // Proceed only if both LP addresses were successfully retrieved
+              if (sellTokenPairAddress && buyTokenPairAddress) {
+                // Check V2 liquidity using the retrieved LP addresses
+                let sellTokenV2Liquidity = await getV2Liquidity(
+                  formattedData.fromTokenAddress,
+                  wethAddress,
+                  sellTokenPairAddress
+                );
+                let buyTokenV2Liquidity = await getV2Liquidity(
+                  formattedData.toTokenAddress,
+                  wethAddress,
+                  buyTokenPairAddress
+                );
+
+                // Assuming getV2Liquidity returns the liquidity amount in ETH or an equivalent representation
+                // Check if either liquidity is under 1 ETH
+                if (sellTokenV2Liquidity < 1 || buyTokenV2Liquidity < 1) {
+                  setUnderMaintenance(true);
+                } else {
+                  setUnderMaintenance(false);
+                }
+              } else {
+                // Handle the case where one or both LP addresses could not be found
+                console.log('One or both LP addresses could not be found.');
+                setUnderMaintenance(false);
+              }
+            } else {
+              setUnderMaintenance(false);
+            }
+          };
+
+          const getV2Liquidity = async (
+            tokenAAddress,
+            tokenBAddress,
+            pairAddress
+          ) => {
+            const lpContract = new ethers.Contract(
+              pairAddress,
+              pairV2ABI,
+              provider
+            );
+            try {
+              const reserves = await lpContract.getReserves();
+              const token0Address = await lpContract.token0();
+
+              // Fetch reserves
+              const reserve0 = ethers.formatEther(reserves._reserve0);
+              const reserve1 = ethers.formatEther(reserves._reserve1);
+
+              // Determine which reserve corresponds to ETH (or WETH)
+              let ethReserve;
+              if (tokenAAddress.toLowerCase() === wethAddress.toLowerCase()) {
+                ethReserve =
+                  tokenAAddress.toLowerCase() === token0Address.toLowerCase()
+                    ? reserve0
+                    : reserve1;
+              } else if (
+                tokenBAddress.toLowerCase() === wethAddress.toLowerCase()
+              ) {
+                ethReserve =
+                  tokenBAddress.toLowerCase() === token0Address.toLowerCase()
+                    ? reserve0
+                    : reserve1;
+              } else {
+                console.error('Neither token is ETH/WETH.');
+                return null; // Or handle this case as appropriate for your application
+              }
+
+              let ethReserveNumber = parseFloat(ethReserve);
+              ethReserveNumber = ethReserveNumber.toFixed(4);
+              ethReserveNumber = parseFloat(ethReserveNumber);
+              console.log('ethReserveNumber', ethReserveNumber);
+              return ethReserveNumber;
+            } catch (error) {
+              console.error('Error getting liquidity:', error);
+              throw error; // or return a default value
+            }
+          };
+
+          checkIfMixPairs();
+        }, [account, signer, data]);
+
+        useEffect(() => {
+          const checkAllowance = async () => {
+            try {
+              if (sellToken === 'eth') {
+                if (isApprovalNeeded) {
+                  // Check if the state needs updating
+                  setIsApprovalNeeded(false);
+                }
+                return;
+              }
+              const tokenContract = new ethers.Contract(
+                ALL_TOKENS[sellToken].address,
+                erc20Abi,
+                signer
+              );
+
+              let allowance;
+              if (isV3) {
+                console.log('isV3 true allowance');
+                allowance = await tokenContract.allowance(
+                  account,
+                  routerAddress
+                );
+              } else {
+                allowance = await tokenContract.allowance(
+                  account,
+                  routerAddress
+                );
+              }
+              console.log('✅ allowance', allowance);
+              const bigIntAllowance = BigInt(allowance);
+              console.log('bigIntAllowance', bigIntAllowance);
+
+              const fiftyPercentOfLargeAmount = largeAmount / 2n;
+              let newApprovalNeeded =
+                bigIntAllowance < fiftyPercentOfLargeAmount;
+              const inputAmount = formattedData.amount;
+              console.log('inputAmount', inputAmount);
+              if (bigIntAllowance < inputAmount) {
+                newApprovalNeeded = true;
+              } else if (bigIntAllowance >= inputAmount) {
+                newApprovalNeeded = false;
+              }
+
+              // Only update state if it has changed
+              setIsApprovalNeeded(newApprovalNeeded);
+            } catch (error) {
+              console.error('Failed to fetch allowance:', error);
+            }
+          };
+          checkAllowance();
+
+          const intervalId = setInterval(checkAllowance, 2000); // Set up the polling interval
+
+          return () => clearInterval(intervalId); // Clean up the interval on component unmount
+        }, [
+          account,
+          signer,
+          sellToken,
+          routerAddress,
+          largeAmount,
+          isApprovalNeeded,
+          setIsApprovalNeeded,
+          isV3,
+        ]);
+        const handleApprove = async () => {
+          try {
+            toast.info('Please approve the transaction in your wallet');
+            disableSwapContainer();
+
+            const tokenContract = new ethers.Contract(
+              ALL_TOKENS[sellToken].address,
+              erc20Abi,
+              signer
+            );
+            let requiredAmount = formattedData.amount;
+            requiredAmount = String(requiredAmount);
+
+            const approveTx = await tokenContract.approve(
+              isV3 ? routerAddress : routerAddress,
+              largeAmount
+            );
+            console.log('Transaction Hash:', approveTx.hash);
+
+            toast.info('Approval pending');
+            const approvalReceipt = await approveTx.wait();
+            if (approvalReceipt.status === 1) {
+              toast.success('Approval successful');
+              enableSwapContainer();
+              setIsApprovalNeeded(false);
+            } else {
+              enableSwapContainer();
+              setIsApprovalNeeded(true);
+              toast.error('Approval failed');
+              console.error('Failed to approve');
+              return;
+            }
+          } catch (error) {
+            console.error('Failed to approve:', error);
+          } finally {
+            enableSwapContainer();
+          }
+        };
+
+        const handleSwap = async () => {
+          try {
+            toast.info('Please confirm the transaction in your wallet');
+            disableSwapContainer();
+            const routerContract = new ethers.Contract(
+              routerAddress,
+              routerABI,
+              signer
+            );
+            let transactionResponse;
+            let estimatedGas;
+            function addGasBuffer(gasLimit) {
+              let gas = Number(gasLimit);
+              let buffer = gas * 0.1;
+              let totalGas = gas + buffer;
+              return Math.ceil(totalGas);
+              //      return gasLimit;
+            }
+            async function preventOverMax(inputAmount) {
+              try {
+                // Convert inputAmount to BigInt
+                let inputAmountBN = BigInt(inputAmount.toString());
+                let userBalanceBN;
+                let result;
+
+                if (sellToken === 'eth') {
+                  // Get balance as BigInt
+                  userBalanceBN = BigInt(await provider.getBalance(account));
+                } else {
+                  const tokenContract = new ethers.Contract(
+                    ALL_TOKENS[sellToken].address,
+                    erc20Abi,
+                    provider
+                  );
+                  // Get token balance as BigInt
+                  userBalanceBN = BigInt(
+                    await tokenContract.balanceOf(account)
+                  );
+                }
+
+                if (inputAmountBN > userBalanceBN) {
+                  // If the input amount is greater than the user's balance, use the user's balance
+                  result = userBalanceBN;
+                } else {
+                  // Otherwise, use the input amount
+                  result = inputAmountBN;
+                }
+
+                // Return the result as a string to maintain compatibility with functions expecting BigNumberish values
+                return result.toString();
+              } catch (error) {
+                console.error('Failed to preventOverMax:', error);
+              }
+            }
+
+            async function getGasFees() {
+              try {
+                console.log(savedAddedPriority);
+                let gasLevel = gasLevelRef.current;
+                const feeData = await provider.getFeeData();
+
+                const baseFeePerGas = new BigNumber(feeData.gasPrice);
+                console.log('baseFeePerGas', baseFeePerGas.toString());
+
+                let priorityFeePerGas;
+                if (chainId === 1) {
+                  priorityFeePerGas = new BigNumber('1000000000'); // 0.1 Gwei in Wei
+                } else {
+                  priorityFeePerGas = new BigNumber('200000000'); // 0.1 Gwei in Wei
+                }
+                if (savedAddedPriority.current > 0) {
+                  priorityFeePerGas = ethers.parseUnits(
+                    String(savedAddedPriority.current),
+                    'gwei'
+                  );
+                  console.log(
+                    'priorityFeePerGas',
+                    priorityFeePerGas.toString()
+                  );
+                }
+
+                let maxFeePerGas;
+                if (useAutoGas.current === true) {
+                  maxFeePerGas = baseFeePerGas.plus(priorityFeePerGas);
+                } else {
+                  if (gasLevel === undefined || Number(gasLevel) < 5) {
+                    maxFeePerGas = baseFeePerGas.plus(priorityFeePerGas);
+                  } else {
+                    maxFeePerGas = new BigNumber(gasLevel).multipliedBy(
+                      '1000000000'
+                    ); // Convert Gwei to Wei
+                  }
+                }
+
+                console.log('maxFeePerGas', maxFeePerGas.toString());
+
+                const maxFeePerGasInGwei = maxFeePerGas.dividedBy('1000000000');
+                console.log(
+                  'maxFeePerGasInGwei',
+                  maxFeePerGasInGwei.toString()
+                );
+
+                return {
+                  maxFeePerGas: maxFeePerGas.toString(),
+                  maxFeePerGasInGwei: maxFeePerGasInGwei.toString(),
+                };
+              } catch (error) {
+                console.error('Failed to getGasFees:', error);
+              }
+            }
+            const gasFees = await getGasFees();
+
+            async function reduceAmountOut(amountOut) {
+              try {
+                console.log('amountOut', amountOut.toString());
+
+                let amountOutBN = BigInt(amountOut.toString());
+                console.log('amountOutBN', amountOutBN);
+                // Perform the reduction; note that this will effectively floor the result
+                // due to the nature of integer division in BigInt
+                const reduction = (amountOutBN * BigInt(97)) / BigInt(100);
+
+                console.log('reduction', reduction);
+                return reduction.toString();
+              } catch (error) {
+                console.error(error);
+              }
+            }
+            async function depositEth() {
+              const wethContract = new ethers.Contract(
+                wethAddress,
+                wethABI,
+                signer
+              );
+              let estimatedGas = await wethContract.deposit.estimateGas({
+                value: formattedData.amount,
+              });
+              estimatedGas = addGasBuffer(estimatedGas);
+              transactionResponse = await wethContract.deposit({
+                value: formattedData.amount,
+                gasLimit: estimatedGas,
+              });
+
+              return;
+            }
+            async function withdrawEth() {
+              const wethContract = new ethers.Contract(
+                wethAddress,
+                wethABI,
+                signer
+              );
+              let estimatedGas = await wethContract.withdraw.estimateGas(
+                formattedData.amount
+              );
+              estimatedGas = addGasBuffer(estimatedGas);
+              transactionResponse = await wethContract.withdraw(
+                formattedData.amount,
+                {gasLimit: estimatedGas}
+              );
+              return;
+            }
+            if (
+              ALL_TOKENS[sellToken].symbol === 'ETH' &&
+              ALL_TOKENS[buyToken].symbol === 'WETH'
+            ) {
+              await depositEth();
+            } else if (
+              ALL_TOKENS[sellToken].symbol === 'WETH' &&
+              ALL_TOKENS[buyToken].symbol === 'ETH'
+            ) {
+              await withdrawEth();
+            } else {
+              if (isV3 === true) {
+                const uniswapRouterV3 = new ethers.Contract(
+                  routerAddressV3,
+                  uniswapRouterV3ABI,
+                  signer
+                );
+                let safeInputAmount = await preventOverMax(data.amountIn);
+                if (buyToken === 'eth') {
+                  console.log('data', data);
+                  estimatedGas = await routerContract.tokenToEthV3.estimateGas(
+                    data.tokenIn,
+                    data.tokenOut,
+                    data.fee,
+                    data.recipient,
+                    safeInputAmount,
+                    reduceAmountOut(data.amountOutMinimum),
+                    data.sqrtPriceLimitX96,
+                    feeAddress,
+                    {
+                      gasPrice: gasFees.maxFeePerGas,
+                    }
+                  );
+                  console.log('estimatedGas', estimatedGas);
+
+                  transactionResponse = await routerContract.tokenToEthV3(
+                    data.tokenIn,
+                    data.tokenOut,
+                    data.fee,
+                    data.recipient,
+                    safeInputAmount,
+                    reduceAmountOut(data.amountOutMinimum),
+                    data.sqrtPriceLimitX96,
+                    feeAddress,
+
+                    {
+                      gasPrice: gasFees.maxFeePerGas,
+                      gasLimit: addGasBuffer(estimatedGas),
+                    }
+                  );
+                } else if (sellToken === 'eth') {
+                  estimatedGas = await routerContract.ethToTokenV3.estimateGas(
+                    data.tokenIn,
+                    data.tokenOut,
+                    data.fee,
+                    data.recipient,
+                    //    deadline: data.deadline,
+                    //   safeInputAmount,
+                    reduceAmountOut(data.amountOutMinimum),
+                    data.sqrtPriceLimitX96,
+                    feeAddress,
+                    {
+                      gasPrice: gasFees.maxFeePerGas,
+                      value: safeInputAmount,
+                    }
+                  );
+
+                  transactionResponse = await routerContract.ethToTokenV3(
+                    data.tokenIn,
+                    data.tokenOut,
+                    data.fee,
+                    data.recipient,
+                    //  deadline: data.deadline,
+                    //      safeInputAmount,
+                    reduceAmountOut(data.amountOutMinimum),
+                    data.sqrtPriceLimitX96,
+                    feeAddress,
+                    {
+                      gasPrice: gasFees.maxFeePerGas,
+                      value: safeInputAmount,
+                      gasLimit: addGasBuffer(estimatedGas),
+                    }
+                  );
+                } else {
+                  estimatedGas =
+                    await routerContract.tokenToTokenV3.estimateGas(
+                      data.tokenIn,
+                      data.tokenOut,
+                      data.fee,
+                      data.recipient,
+                      safeInputAmount,
+                      //    deadline: data.deadline,
+                      //   safeInputAmount,
+                      reduceAmountOut(data.amountOutMinimum),
+                      data.sqrtPriceLimitX96,
+                      feeAddress,
+                      {
+                        gasPrice: gasFees.maxFeePerGas,
+                      }
+                    );
+
+                  transactionResponse = await routerContract.tokenToTokenV3(
+                    data.tokenIn,
+                    data.tokenOut,
+                    data.fee,
+                    data.recipient,
+                    safeInputAmount,
+                    //  deadline: data.deadline,
+                    //      safeInputAmount,
+                    reduceAmountOut(data.amountOutMinimum),
+                    data.sqrtPriceLimitX96,
+                    feeAddress,
+                    {
+                      gasPrice: gasFees.maxFeePerGas,
+                      gasLimit: addGasBuffer(estimatedGas),
+                    }
+                  );
+                }
+              } else {
+                if (sellToken === 'eth') {
+                  let safeInputAmount = await preventOverMax(data.value);
+                  console.log('data', data);
+                  estimatedGas =
+                    await routerContract.swapExactETHForTokensSupportingFeeOnTransferTokens.estimateGas(
+                      reduceAmountOut(data.amountOutMin),
+                      data.path,
+                      data.to,
+                      data.deadline,
+                      data.feeAddress,
+                      {
+                        //     maxFeePerGas: gasFees.maxFeePerGas,
+                        //     maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        gasPrice: gasFees.maxFeePerGas,
+                        value: safeInputAmount,
+                        type: 0,
+                      }
+                    );
+                  transactionResponse =
+                    await routerContract.swapExactETHForTokensSupportingFeeOnTransferTokens(
+                      reduceAmountOut(data.amountOutMin),
+                      data.path,
+                      data.to,
+                      data.deadline,
+                      data.feeAddress,
+                      {
+                        gasPrice: gasFees.maxFeePerGas,
+                        gasLimit: addGasBuffer(estimatedGas),
+                        value: safeInputAmount,
+                        type: 0,
+                      }
+                    );
+                } else if (buyToken === 'eth') {
+                  let safeInputAmount = await preventOverMax(data.amountIn);
+                  estimatedGas =
+                    await routerContract.swapExactTokensForETHSupportingFeeOnTransferTokens.estimateGas(
+                      safeInputAmount,
+                      reduceAmountOut(data.amountOutMin),
+                      data.path,
+                      data.to,
+                      data.deadline,
+                      data.feeAddress,
+                      {
+                        //     maxFeePerGas: gasFees.maxFeePerGas,
+                        //    maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        gasPrice: gasFees.maxFeePerGas,
+                        from: account,
+                      }
+                    );
+                  transactionResponse =
+                    await routerContract.swapExactTokensForETHSupportingFeeOnTransferTokens(
+                      safeInputAmount,
+                      reduceAmountOut(data.amountOutMin),
+                      data.path,
+                      data.to,
+                      data.deadline,
+                      data.feeAddress,
+                      {
+                        //    maxFeePerGas: gasFees.maxFeePerGas,
+                        //   maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        gasPrice: gasFees.maxFeePerGas,
+                        gasLimit: addGasBuffer(estimatedGas),
+                      }
+                    );
+                } else {
+                  let safeInputAmount = await preventOverMax(data.amountIn);
+                  estimatedGas =
+                    await routerContract.swapExactTokensForTokensSupportingFeeOnTransferTokens.estimateGas(
+                      safeInputAmount,
+                      reduceAmountOut(data.amountOutMin),
+                      data.path,
+                      data.to,
+                      data.deadline,
+                      data.feeAddress,
+                      {
+                        //     maxFeePerGas: gasFees.maxFeePerGas,
+                        //    maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        gasPrice: gasFees.maxFeePerGas,
+                      }
+                    );
+                  transactionResponse =
+                    await routerContract.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+                      safeInputAmount,
+                      reduceAmountOut(data.amountOutMin),
+                      data.path,
+                      data.to,
+                      data.deadline,
+                      data.feeAddress,
+                      {
+                        //    maxFeePerGas: gasFees.maxFeePerGas,
+                        //   maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        gasPrice: gasFees.maxFeePerGas,
+                        gasLimit: addGasBuffer(estimatedGas),
+                      }
+                    );
+                }
+              }
+            }
+            toast.info('Trade pending');
+            const sendTransaction = await transactionResponse.wait();
+            if (sendTransaction.status === 1) {
+              toast.success('Trade successful');
+              enableSwapContainer();
+              setTrigger(trigger + 1);
+              updateData('savedInputAmount', '');
+              updateData('savedOutputAmount', '');
+            }
+            if (sendTransaction.status === 0) {
+              toast.error('Trade failed');
+              setTrigger(trigger + 1);
+
+              enableSwapContainer();
+            }
+          } catch (error) {
+            enableSwapContainer();
+            console.error('Failed to swap:', error);
+            toast.error(
+              'Simulated trade failed, check eth input, gas or try increasing slippage'
+            );
+            //      toast.info('Increasing your slippage by 1%');
+            //   updateData('savedSlippage', Number(slippage * 100) + 1);
+            return;
+          }
+        };
+
+        /*         if (!data) {
+          return <p>Loading...</p>;
+        } */
+
+        return (
+          <>
+            {underMaintenance ? (
+              <div className='swap-button disable'>Under Maintenance</div>
+            ) : isApprovalNeeded === null ? (
+              <div className='swap-button'>Input Amount</div> // Empty div for null case, adjust as needed
+            ) : isApprovalNeeded ? (
+              <div className='swap-button' onClick={handleApprove}>
+                Approve
+              </div>
+            ) : (
+              <div className='swap-button' onClick={handleSwap}>
+                {sellToken === 'eth' ? 'Execute Trade' : 'Execute Trade'}
+              </div>
+            )}
+          </>
+        );
+      }
+
+      return (
+        <>
+          {data && (
+            <>
+              <ApproveOrSwap data={data} formattedData={formattedData} />
+              {/*            <div className='quote-line'>
+                <div className='quote-title'>Duo Aggregate Success</div>
+                <div className='quote-content'>✅</div>
+              </div> */}
+            </>
+          )}
+          {!data && (
+            <div className='swap-button disable'>Under Maintenance</div>
+          )}
+        </>
+      );
+    }
+    return (
+      <div className=''>
+        <OkxSwap
+          formattedData={formattedData}
+          signer={signer}
+          provider={provider}
+          slippage={slippage}
+          sellAmount={sellAmount}
+        />
+        {/*       <div className='quote-line'>
+          <div className='quote-title'>Total ETH Cost:</div>
+          <div className='quote-content'>{totalEthCost}</div>
+        </div>{' '} */}
+        {/*         <div className='quote-line'>
+          <div className='quote-title'>Price Impact:</div>
+          <div className='quote-content'>
+            {formattedData.estimatedPriceImpact}%
+          </div>
+        </div>
+        <div className='quote-line'>
+          <div className='quote-title'>Gas GWEI:</div>
+          <div className='quote-content'>{formattedData.gasPrice}</div>
+        </div>
+
+        <div className='quote-line'>
+          <div className='quote-title'>ST/ETH Rate:</div>
+          <div className='quote-content'>
+            {formattedData.sellTokenToEthRate}
+          </div>
+        </div>
+        <div className='quote-line'>
+          <div className='quote-title'>BT/ETH Rate:</div>
+          <div className='quote-content'>{formattedData.buyTokenToEthRate}</div>
+        </div> */}
+      </div>
+    );
+  }
