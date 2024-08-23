@@ -160,7 +160,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
     disableSwapContainer();
     const timeout = setTimeout(() => {
       enableSwapContainer();
-    }, 1000);
+    }, 2000);
     return () => clearTimeout(timeout);
   }, [buyToken, sellToken]);
 
@@ -407,7 +407,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           <div className='flex-row'>
             <input
               className='token-input'
-              placeholder={savedOutputAmount.current}
+              placeholder={savedOutputAmount.current || '0'}
               type='number'
               readOnly
             />
@@ -1667,9 +1667,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           } catch (error) {
             enableSwapContainer();
             console.error('Failed to swap:', error);
-            toast.error(
-              'Simulated trade failed, check eth input, gas or try increasing slippage'
-            );
+            toast.error('try increasing slippage');
             //      toast.info('Increasing your slippage by 1%');
             //   updateData('savedSlippage', Number(slippage * 100) + 1);
             return;
