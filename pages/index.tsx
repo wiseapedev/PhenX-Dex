@@ -8,8 +8,8 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>UniDexAI</title>
-        <meta content='UniDexAI' name='UniDexAI' />
+        <title>PhenX</title>
+        <meta content='PhenX' name='PhenX' />
       </Head>
       <Layout buyLink={undefined} buyLinkKey={undefined} />
     </>

@@ -151,7 +151,7 @@ const connectors = connectorsForWallets(
     },
   ],
   {
-    appName: 'UniDexAI',
+    appName: 'PhenX',
     projectId: '0aef2c24e12ca37c7ee7ee5f5bd8f56e',
   }
 );
@@ -245,12 +245,13 @@ function MyApp({Component, pageProps}: AppProps) {
         <RainbowKitProvider
           modalSize='compact'
           theme={darkTheme({
-            accentColor: '#235144',
-            accentColorForeground: 'white',
+            accentColor: 'rgb(255, 165, 0)',
+            accentColorForeground: 'black',
             borderRadius: 'large',
             fontStack: 'system',
             overlayBlur: 'small',
           })}>
+          {' '}
           <BlockchainProvider config={config}>
             <Component {...pageProps} />
           </BlockchainProvider>

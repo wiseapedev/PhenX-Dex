@@ -50,7 +50,7 @@ export const BlockchainProvider = ({children, config}) => {
         console.log('Chain ID changed!', chainId);
         const currentUrl = window.location.href;
         if (currentUrl.includes('/base' || currentUrl.includes('/eth'))) {
-          window.location.replace('https://unidexai.io/');
+          window.location.replace('https://PhenX.io/');
         }
         const newChainId = chainId;
         setChainId(newChainId);

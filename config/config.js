@@ -110,7 +110,7 @@ const connectors = connectorsForWallets(
     },
   ],
   {
-    appName: 'UniDexAI',
+    appName: 'PhenX',
     projectId: '0aef2c24e12ca37c7ee7ee5f5bd8f56e',
   }
 );

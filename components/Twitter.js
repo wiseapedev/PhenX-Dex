@@ -39,8 +39,8 @@ function Twitter() {
       data-width='600'
       data-height='500'
       data-theme='dark'
-      href='https://twitter.com/unidexai?ref_src=twsrc%5Etfw'>
-      Tweets by unidexai
+      href='https://twitter.com/PhenX?ref_src=twsrc%5Etfw'>
+      Tweets by PhenX
     </a>
     /*     </div>
      */
