@@ -163,7 +163,6 @@ export const BlockchainProvider = ({children, config}) => {
     if (!account) return;
 
     async function updateDollarRef() {
-      return;
       if (tokenListOpenRef.current === false) {
         return;
       }

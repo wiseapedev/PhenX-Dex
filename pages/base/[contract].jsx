@@ -66,7 +66,7 @@ export default function BuyContract() {
         const symbol = await tokenContract.symbol();
         const name = await tokenContract.name();
         const decimals = await tokenContract.decimals();
-        const logoURI = `https://i.ibb.co/nLdSWMh/plat.jpg`;
+        const logoURI = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
         const newToken = {
           chainId: 8453,
           name: name,

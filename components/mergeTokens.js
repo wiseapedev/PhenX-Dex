@@ -3,13 +3,13 @@ import {BASE_TOKENS} from './lib/constants';
 
 function mergeTokens(chainId) {
   let customTokens = {};
-  /*   if (typeof window !== 'undefined' && window.localStorage) {
+  if (typeof window !== 'undefined' && window.localStorage) {
     try {
       customTokens = JSON.parse(localStorage.getItem('customTokens')) || {};
     } catch (error) {
       console.error('Error parsing custom tokens from localStorage', error);
     }
-  } */
+  }
 
   const mergedTokens = {};
   if (chainId === 1) {

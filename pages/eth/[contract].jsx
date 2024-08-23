@@ -19,7 +19,7 @@ export default function BuyContract() {
   const router = useRouter();
   const {contract} = router.query;
   const [pageReady, setPageReady] = useState(false);
-  const [buyLinkKey, setBuyLinkKey] = useState('udx');
+  const [buyLinkKey, setBuyLinkKey] = useState('pnx');
   const [wrongNetwork, setWrongNetwork] = useState(false);
   useEffect(() => {
     const loadData = async () => {
@@ -60,14 +60,14 @@ export default function BuyContract() {
   const ALL_TOKENS = mergeTokens();
 
   async function handleContractImport(value) {
-    let buyLinkKey = 'udx';
+    let buyLinkKey = 'pnx';
     if (value.length === 42) {
       try {
         const tokenContract = new ethers.Contract(value, erc20Abi, provider);
         const symbol = await tokenContract.symbol();
         const name = await tokenContract.name();
         const decimals = await tokenContract.decimals();
-        const logoURI = `https://i.ibb.co/nLdSWMh/plat.jpg`;
+        const logoURI = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
         const newToken = {
           chainId: 1,
           name: name,

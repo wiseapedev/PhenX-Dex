@@ -158,7 +158,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
         setEthPrice(totalDollarValue);
       }
     } catch (error) {
-      console.error('Error getting token balance:', error);
+      // console.error('Error getting token balance:', error);
       return setEthPrice('0');
     }
   }

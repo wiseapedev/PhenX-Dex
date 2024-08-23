@@ -118,7 +118,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   function getBuyToken() {
     if (!buyLink) {
       return Object.keys(ALL_TOKENS)[3];
-      //  return 'udx';
+      //  return 'pnx';
     } else {
       return buyLinkKey;
     }
@@ -156,13 +156,13 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
     setBuyToken(sellTokenSave);
     setSellToken(buyTokenSave);
   }
-  /*   useEffect(() => {
+  useEffect(() => {
     disableSwapContainer();
     const timeout = setTimeout(() => {
       enableSwapContainer();
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [buyToken, sellToken]); */
+  }, [buyToken, sellToken]);
 
   function CurrentGwei() {
     const [CurrentGwei, setCurrentGwei] = useState(GWEI.current);
@@ -510,31 +510,27 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           <div className='saver-text'>Savings</div>
         </div> */}
         <div className='saver-text-container'>
+          <div className='saver-text-left'>Aggregation Best Route</div>
+          <div className='saver-text-right'>{pairRoute}</div>
+        </div>{' '}
+        <div className='saver-text-container'>
+          <div className='saver-text-left'>Min Tokens Out</div>
+          <div className='saver-text-right'>{minTokensOut}</div>
+        </div>{' '}
+        <div className='saver-text-container'>
           <div className='saver-text-left'>Slippage</div>
           <div className='saver-text-right'>{`${slippagePercentage.toFixed(
             2
           )}%`}</div>
         </div>
-
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>Min Tokens Out</div>
-          <div className='saver-text-right'>{minTokensOut}</div>
-        </div>
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>Aggregation Best Route</div>
-          <div className='saver-text-right'>{pairRoute}</div>
-        </div>
-
         <div className='saver-text-container'>
           <div className='saver-text-left'>Network Fees Saved</div>
           <div className='saver-text-right'>{networkFeesSaved}%</div>
         </div>
-
         <div className='saver-text-container'>
           <div className='saver-text-left'>Swap Fees Saved</div>
           <div className='saver-text-right'>{swapFeeSaved}%</div>
         </div>
-
         <div className='saver-text-container'>
           <div className='saver-text-left saver-text'>Total % to Save</div>
           <div className='saver-text-right saver-text'>{totalToSave}%</div>
@@ -628,7 +624,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
         // if input amount is 0, reset swap data
         if (inputAmount === 0) {
           if (swapData) {
-            toast.error('Please enter an amount to swap');
+            //   toast.error('Please enter an amount to swap');
             setSwapData(null);
           }
         }
@@ -1701,7 +1697,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
     return <SwapFinal swapData={swapData} />;
   }
 
-  const contractRef = useRef('');
+  //  const contractRef = useRef('');
 
   async function handleContractImport(value) {
     if (value.length === 42) {
@@ -1710,7 +1706,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
         const symbol = await tokenContract.symbol();
         const name = await tokenContract.name();
         const decimals = await tokenContract.decimals();
-        const logoURI = `https://i.ibb.co/nLdSWMh/plat.jpg`;
+        const logoURI = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
         const newToken = {
           chainId: chainId,
           name: name,
@@ -1727,7 +1723,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
             localStorage.setItem('customTokens', JSON.stringify(customTokens));
             toast.success(`${symbol} imported successfully`);
             const lowerCaseSymbol = symbol.toLowerCase();
-            contractRef.current.value = '';
+            //     contractRef.current.value = '';
             //    setTrigger((prev) => prev + 1);
             setBuyToken(lowerCaseSymbol);
             if (showTokenList !== false) {
@@ -1847,14 +1843,14 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
         </div>
         <div className='nav-right'>
           <a
-            href='https://t.me/PhenXNetwork'
+            href='https://t.me/+phEkvS-WIvs5MTE0'
             style={{
               color: 'white',
               fontSize: '14px',
               textAlign: 'center',
               letterSpacing: '7px',
             }}>
-            TALK TO US
+            FEEDBACK REPORTING
           </a>
         </div>
       </div>
