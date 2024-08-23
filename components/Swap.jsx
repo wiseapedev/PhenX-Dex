@@ -667,7 +667,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
       };
 
       const startPolling = () => {
-        intervalId = setInterval(fetchNewBlockNumber, 500);
+        intervalId = setInterval(fetchNewBlockNumber, 12000);
       };
 
       const stopPolling = () => {

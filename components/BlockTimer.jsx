@@ -61,7 +61,7 @@ function BlockTimer({provider, chainId, CurrentGwei}) {
     };
 
     const startPolling = () => {
-      intervalId = setInterval(fetchNewBlockNumber, 500);
+      intervalId = setInterval(fetchNewBlockNumber, 12000);
     };
 
     const stopPolling = () => {
