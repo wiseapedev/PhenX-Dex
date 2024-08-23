@@ -2015,6 +2015,7 @@ input:focus {
   }
 
   .nav-right {
+    padding-inline: 0px;
   }
   .page-container {
     padding-top: 5px;

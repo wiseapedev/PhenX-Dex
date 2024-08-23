@@ -1763,6 +1763,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
       <div className='nav-container'>
         <div className='nav-left'>
           <img
+            className='mobhide'
             src={'/logo.png'}
             alt={''}
             width={45}
