@@ -1811,7 +1811,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           <div className='icons-container'>
             {' '}
             <a
-              href='https://t.me/PhenXNetwork'
+              href='https://t.me/Phenxdex'
               title='Telegram'
               target='_blank'
               rel='noopener noreferrer'
@@ -1820,7 +1820,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               <Telegram />
             </a>{' '}
             <a
-              href='https://twitter.com/PhenXNetwork'
+              href='https://twitter.com/Phenxdex'
               title='Twitter'
               target='_blank'
               rel='noopener noreferrer'
@@ -1829,7 +1829,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               <Twitter />
             </a>{' '}
             <a
-              href='https://twitter.com/PhenXNetwork'
+              href='https://twitter.com/Phenxdex'
               title='Medium'
               target='_blank'
               rel='noopener noreferrer'
