@@ -48,8 +48,8 @@ import {CHAINS} from './lib/constants.js';
 import {sign} from 'crypto';
 import PromoToken from './PromoToken';
 import Portfolio from './Portfolio';
-import BlockTimer from './BlockTimer';
-import ContractLinks from './ContractLinks';
+/* import BlockTimer from './BlockTimer';
+ */ import ContractLinks from './ContractLinks';
 import Switch from './Switch';
 
 const Swap = ({buyLink, buyLinkKey, chainId}) => {
@@ -1876,22 +1876,42 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   // swap-container if not audit open padding top 200px
 
   useEffect(() => {
-    if (isMobile === false) {
-      if (showAudits === false && showChart === false) {
-        document.querySelector('.main-container').style.paddingTop = '250px';
+    const handleResize = () => {
+      const aspectRatio = window.innerWidth / window.innerHeight;
+      const isUltraWide = aspectRatio > 2; // Consider screens with an aspect ratio greater than 2 as ultra-wide
+
+      if (isUltraWide) {
+        document.querySelector('.main-container').style.paddingTop = '9vh';
+      } else if (isMobile === false) {
+        if (showAudits === false && showChart === false) {
+          document.querySelector('.main-container').style.paddingTop =
+            '21.25vh';
+        }
+        if (showAudits === true && showChart === false) {
+          document.querySelector('.main-container').style.paddingTop =
+            '18.75vh';
+        }
+        if (showChart === true && showAudits === true) {
+          document.querySelector('.main-container').style.paddingTop = '12.5vh';
+        }
+        if (showChart === true && showAudits === false) {
+          document.querySelector('.main-container').style.paddingTop = '12.5vh';
+        }
+      } else {
+        document.querySelector('.main-container').style.paddingTop = '12.5vh';
       }
-      if (showAudits === true && showChart === false) {
-        document.querySelector('.main-container').style.paddingTop = '150px';
-      }
-      if (showChart === true && showAudits === true) {
-        document.querySelector('.main-container').style.paddingTop = '100px';
-      }
-      if (showChart === true && showAudits === false) {
-        document.querySelector('.main-container').style.paddingTop = '100px';
-      }
-    } else {
-      document.querySelector('.main-container').style.paddingTop = '100px';
-    }
+    };
+
+    // Run on initial mount
+    handleResize();
+
+    // Attach event listener for resizing
+    window.addEventListener('resize', handleResize);
+
+    // Clean up event listener on unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [showAudits, showChart, isMobile]);
 
   return (

@@ -242,6 +242,7 @@ input:focus {
   align-items: flex-start;
   min-height: 90vh;
   width: 99%;
+  margin-bottom: 7vh;
 }
 .page-container {
   padding-top: 15px;
