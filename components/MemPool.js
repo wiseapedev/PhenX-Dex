@@ -18,7 +18,7 @@ function MemPool() {
       const data = await provider.send(payload.method, payload.params);
       setGasData(data);
     } catch (error) {
-      console.error('Failed to getGasFees:', error);
+      //   console.error('Failed to getGasFees:', error);
     }
   }
 

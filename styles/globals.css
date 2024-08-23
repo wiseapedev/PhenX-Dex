@@ -254,8 +254,11 @@ input:focus {
   color: white;
 }
 .saver-info-container {
+  background: var(--box-darker);
+  border: solid 1px var(--border);
+  border-radius: 15px;
   position: relative;
-  padding-top: 5px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -312,8 +315,9 @@ input:focus {
 }
 .nav-container {
   position: fixed;
-  /*   background: var(--box-bg);
- */
+  background: rgba(0, 0, 0, 0.4); /* Transparent black with 50% opacity */
+  backdrop-filter: blur(10px); /* Apply a 10px blur effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari support */
   height: 7vh;
   top: 0px;
   left: 0;
@@ -325,11 +329,13 @@ input:focus {
   color: white;
   z-index: 5;
 }
+
 .footer-container {
   position: fixed;
-  /*   background: var(--box-bg);
- */
-  height: 8vh;
+  background: rgba(0, 0, 0, 0.4); /* Transparent black with 50% opacity */
+  backdrop-filter: blur(10px); /* Apply a 10px blur effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari support */
+  height: 6vh;
   bottom: 0px;
   left: 0;
   right: 0;
@@ -1168,13 +1174,68 @@ input:focus {
   background: linear-gradient(90deg, #ffa500, #ff4500);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-size: 2rem;
+  text-align: center;
+  width: 100%;
+  font-size: 1.6rem;
   font-weight: bold;
   letter-spacing: 2px;
 }
-.col {
+.saver-container {
+  opacity: 0.4;
+  margin-top: 3px;
+  margin-bottom: 3px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 5px;
+  border-radius: 8px;
+  background: var(--box-darker);
+  border: solid 1px var(--border);
+  color: var(--text);
+  transition: all 0.3s ease-in-out;
+}
+.saver-container:hover {
+  opacity: 1;
+}
+.saver-text-gray {
+  color: var(--text-gray);
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.saver-text {
+  color: var(--button-gradient);
+  background: linear-gradient(90deg, #ffa500, #ff4500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  display: inline; /* Make sure it doesn't break lines unnecessarily */
+}
+.beta-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 5px;
+  border-radius: 8px;
+  color: var(--text);
+  transition: all 0.3s ease-in-out;
+}
+.beta-text {
+  color: white;
+  font-size: 0.6rem;
+  text-align: center;
+  letter-spacing: 7px;
 }
 
 .swap-tabs-container {
@@ -1195,17 +1256,19 @@ input:focus {
   padding: 8px 10px;
   color: var(--text-gray);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   transition: all 0.3s ease-in-out;
+  cursor: not-allowed;
 }
 .active {
   transition: all 0.1s ease-in-out;
   background: var(--box-inner);
   color: var(--text);
+  cursor: pointer;
 }
+
 .swap-tab:hover {
   background: var(--box-hover);
-  cursor: pointer;
 }
 .swapactive {
   box-shadow: var(--primary-color) 0px -2px 0px 0px inset;
@@ -1398,17 +1461,17 @@ input:focus {
   top: 50px;
   right: 10px;
   flex-direction: column;
-  width: 90%;
+  width: 95%;
   z-index: 4;
   overflow: visible;
 }
 .general-box {
   transition: all 0.5s ease-in-out;
   margin-top: 10px;
-  /*   padding: 10px;
+  padding: 5px;
   background-color: var(--box-darker);
   border: 1px solid var(--border);
- */
+
   border-radius: 15px;
   display: flex;
   position: relative;
@@ -1843,8 +1906,9 @@ input:focus {
     min-width: 90%;
   }
   .mid-section {
-    width: 98%;
-    height: 60vh;
+    width: 100%;
+    height: 70vh;
+    margin-bottom: 80px;
   }
 
   .swap-container {
@@ -1950,7 +2014,7 @@ input:focus {
     margin-top: 0px;
     margin-bottom: 10px;
     width: 100vw;
-    padding-top: 9vh;
+    padding-top: 0;
   }
   .hide {
     display: none;

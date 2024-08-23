@@ -31,6 +31,7 @@ function SwapSettings({
     provider,
   } = useContext(BlockchainContext);
   const [showSettings, setShowSettings] = useState(false);
+  const Settingsicon = useRef(null);
   function CurrentGwei({provider}) {
     const GWEI = useRef(0);
     const [CurrentGwei, setCurrentGwei] = useState(0);
@@ -219,8 +220,34 @@ function SwapSettings({
         iframeContainer.style.transform = 'translateX(0%)';
       }, 10);
     }, []);
+
+    const containerRef = useRef(null);
+
+    // Handler to detect clicks outside of the settings container
+    const handleClickOutside = (event) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
+        if (
+          Settingsicon.current &&
+          !Settingsicon.current.contains(event.target)
+        ) {
+          setShowSettings(false);
+        }
+      }
+    };
+
+    useEffect(() => {
+      // Bind the event listener
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        // Unbind the event listener on clean up
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
     return (
-      <div className='swap-upper'>
+      <div className='swap-upper' ref={containerRef}>
         <div className='swap-upper-box'>
           <div className='upper-settings'>
             <div className='us-ts'>
@@ -368,7 +395,10 @@ function SwapSettings({
         {/*        <div className='icon'>
           <Refresh />
         </div>{' '} */}
-        <div className='icon' onClick={() => setShowSettings(!showSettings)}>
+        <div
+          className='icon'
+          ref={Settingsicon}
+          onClick={() => setShowSettings(!showSettings)}>
           <Settings />
         </div>
       </div>

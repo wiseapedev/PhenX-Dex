@@ -62,6 +62,17 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   const wethAddress = CHAINS[chainId].wethAddress;
   const uniswapFactoryV2Address = CHAINS[chainId].uniswapFactoryV2Address;
   let weth = wethAddress;
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); // 768px as a threshold for mobile devices
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const ALL_TOKENS = mergeTokens(chainId);
   /*   useEffect(() => {
@@ -438,7 +449,119 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
       </div>
     );
   }
+  function SaverInfo({swapData}) {
+    const slippagePercentage = swapData.slippage * 100;
+    let minTokensOut = '0';
+    if (swapData) {
+      try {
+        minTokensOut = ethers.formatUnits(
+          String(swapData.amountOut),
+          swapData.decimals
+        );
+        minTokensOut = Number(minTokensOut).toFixed(3);
+      } catch (error) {
+        console.error('Error parsing minTokensOut:', error);
+      }
+    }
+    let networkFeesSaved = 0;
+    try {
+      if (swapData.isV3Only && swapData.swapType === 'TOKEN/ETH') {
+        networkFeesSaved = 3.2;
+      } else if (swapData.isV3Only && swapData.swapType === 'ETH/TOKEN') {
+        networkFeesSaved = 5.45;
+      } else if (swapData.isV3Only && swapData.swapType === 'TOKEN/TOKEN') {
+        networkFeesSaved = 0.75;
+      } else if (swapData.isV2Only && swapData.swapType === 'ETH/TOKEN') {
+        networkFeesSaved = 1.5;
+      } else if (swapData.isV2Only && swapData.swapType === 'TOKEN/ETH') {
+        networkFeesSaved = 3.7;
+      } else if (swapData.isV2Only && swapData.swapType === 'TOKEN/TOKEN') {
+        networkFeesSaved = 15.9;
+      } else if (swapData.isV2ToV3) {
+        networkFeesSaved = 0;
+      } else if (swapData.isV3ToV2) {
+        networkFeesSaved = 0;
+      }
+    } catch (error) {}
+    let swapFeeSaved = 0.25;
+    let totalToSave = networkFeesSaved + swapFeeSaved;
 
+    let pairRoute = '';
+    try {
+      if (swapData.isV3Only) {
+        pairRoute = 'V3';
+      } else if (swapData.isV2Only) {
+        pairRoute = 'V2';
+      } else if (swapData.isV2ToV3) {
+        pairRoute = 'V2 to V3';
+      } else if (swapData.isV3ToV2) {
+        pairRoute = 'V3 to V2';
+      }
+    } catch (error) {}
+
+    return (
+      <div className='saver-info-container'>
+        {/*         <div className='saver-text-container'>
+          <div className='saver-text-left'>
+            <div className='saver-icon-container'>
+              <SaverInfoIcon />
+            </div>
+          </div>
+          <div className='saver-text'>Savings</div>
+        </div> */}
+        <div className='saver-text-container'>
+          <div className='saver-text-left'>Slippage</div>
+          <div className='saver-text-right'>{`${slippagePercentage.toFixed(
+            2
+          )}%`}</div>
+        </div>
+
+        <div className='saver-text-container'>
+          <div className='saver-text-left'>Min Tokens Out</div>
+          <div className='saver-text-right'>{minTokensOut}</div>
+        </div>
+        <div className='saver-text-container'>
+          <div className='saver-text-left'>Aggregation Best Route</div>
+          <div className='saver-text-right'>{pairRoute}</div>
+        </div>
+
+        <div className='saver-text-container'>
+          <div className='saver-text-left'>Network Fees Saved</div>
+          <div className='saver-text-right'>{networkFeesSaved}%</div>
+        </div>
+
+        <div className='saver-text-container'>
+          <div className='saver-text-left'>Swap Fees Saved</div>
+          <div className='saver-text-right'>{swapFeeSaved}%</div>
+        </div>
+
+        <div className='saver-text-container'>
+          <div className='saver-text-left saver-text'>Total % to Save</div>
+          <div className='saver-text-right saver-text'>{totalToSave}%</div>
+        </div>
+      </div>
+    );
+  }
+
+  function SaverText() {
+    return (
+      <div className='saver-container'>
+        <div className='saver-text-gray'>
+          Trading on the PhenX router saves you up to
+          <span className='saver-text'> 16% on gas fees</span> compared to the
+          Uniswap router.
+        </div>
+        <div className='saver-text-gray'>
+          While all DEXs charge a swap fee ranging from 0.25% to 1.5%,{' '}
+          <span className='saver-text'>PhenX charges 0%. </span>
+        </div>
+        <div className='saver-text-gray'>
+          PhenX seamlessly aggregates liquidity, ensuring you always get the
+          <span className='saver-text'> best price for your trades. </span>
+        </div>
+      </div>
+    );
+  }
   function QuoteView() {
     console.log('➡️➡️➡️ QuoteView State Change');
     const {
@@ -463,7 +586,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
       Number(savedSlippage.current) / 100
     );
     const gasLevelRef = useRef(null);
-    const [swapData, setSwapData] = useState({});
+    const [swapData, setSwapData] = useState(null);
 
     useEffect(() => {
       const handle = setInterval(() => {
@@ -481,6 +604,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           setSellAmount(String(savedInputAmount.current));
           return;
         }
+        // if input amount is 0, reset swap data
 
         if (Number(Slippage) / 100 !== Number(slippage)) {
           setSlippage(Number(Slippage) / 100);
@@ -496,6 +620,21 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
       }, RATE_LIMIT);
       return () => clearInterval(handle);
     }, [sellAmount, slippage]);
+
+    useEffect(() => {
+      const handle = setInterval(() => {
+        const inputAmount = Number(savedInputAmount.current);
+
+        // if input amount is 0, reset swap data
+        if (inputAmount === 0) {
+          if (swapData) {
+            toast.error('Please enter an amount to swap');
+            setSwapData(null);
+          }
+        }
+      }, 500);
+      return () => clearInterval(handle);
+    }, [sellAmount, swapData]);
 
     useEffect(() => {
       if (sellAmount > 0 && sellToken && buyToken) {
@@ -918,7 +1057,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           tokenIn: price.sellTokenAddress,
           toTokenAddress: price.buyTokenAddress,
           tokenOut: price.buyTokenAddress,
-
+          decimals: ALL_TOKENS[buyToken].decimals,
           amount: price.amount || '0',
           amountIn: price.amount || '0',
           amountOut: price.buyAmount || '0',
@@ -954,7 +1093,13 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
 
     if (error || loading || !swapData) {
       // updateData('savedOutputAmount', 0);
-      return <div className='swap-button disable'>Input Amount</div>;
+      return (
+        <>
+          {' '}
+          <div className='swap-button disable'>Input Amount</div>
+          <SaverText />
+        </>
+      );
     }
     console.log('swapData', swapData);
 
@@ -1537,9 +1682,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
 
         return (
           <>
-            {isApprovalNeeded === null ? (
-              <div className='swap-button'>Input Amount</div> // Empty div for null case, adjust as needed
-            ) : isApprovalNeeded ? (
+            {isApprovalNeeded ? (
               <div className='swap-button' onClick={handleApprove}>
                 Approve
               </div>
@@ -1548,16 +1691,12 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                 Swap
               </div>
             )}
+            <SaverInfo swapData={swapData} />
           </>
         );
       }
 
-      return (
-        <>
-          {swapData && <ApproveOrSwap swapData={swapData} />}
-          {!swapData && <div className='swap-button'>Input Amount</div>}
-        </>
-      );
+      return swapData ? <ApproveOrSwap swapData={swapData} /> : null;
     }
     return <SwapFinal swapData={swapData} />;
   }
@@ -1642,17 +1781,9 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
             }}
             loading='lazy'
           />{' '}
-          <div className='col'>
-            <div className='logo-text mobhide'>PHENX </div>
-            <div
-              style={{
-                color: 'white',
-                fontSize: '10px',
-                textAlign: 'center',
-                letterSpacing: '7px',
-              }}>
-              BETA
-            </div>
+          <div className='beta-container'>
+            <div className='logo-text'>PHENX </div>
+            <div className='beta-text'>BETA</div>
           </div>
           {/*           <PromoToken
             handleBuyTokenChange={handleBuyTokenChange}
@@ -1732,60 +1863,6 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
 
   const memoNavBar = useMemo(() => <NavBar />, [account]);
 
-  const SaverInfo = () => {
-    const uniGasFee = 15.57;
-    const uniSwapFee = 81.77;
-    const phenGas = uniGasFee * 0.6;
-    const phenSwap = 0;
-    const gasSaved = uniGasFee - phenGas;
-    const swapFeesSaved = uniSwapFee - phenSwap;
-    const totalSaved = gasSaved + swapFeesSaved;
-
-    return (
-      <div className='saver-info-container disable'>
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>
-            <div className='saver-icon-container'>
-              <SaverInfoIcon />
-            </div>
-          </div>
-          <div className='saver-text'>Fee Comparison</div>
-        </div>
-
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>Uniswap Network Fee</div>
-          <div className='saver-text-right'>${uniGasFee.toFixed(2)}</div>
-        </div>
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>PhenX Network Fee</div>
-          <div className='saver-text-right'>${phenGas.toFixed(2)}</div>
-        </div>
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>Uniswap Swap Fee</div>
-          <div className='saver-text-right'>${uniSwapFee.toFixed(2)}</div>
-        </div>
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>PhenX Swap Fee</div>
-          <div className='saver-text-right saver-text'>
-            ${phenSwap.toFixed(2)}
-          </div>
-        </div>
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>Gas Fees Saved</div>
-          <div className='saver-text-right'>${gasSaved.toFixed(2)}</div>
-        </div>
-        <div className='saver-text-container'>
-          <div className='saver-text-left'>Swap Fees Saved</div>
-          <div className='saver-text-right'>${swapFeesSaved.toFixed(2)}</div>
-        </div>
-        <div className='saver-text-container'>
-          <div className='saver-text'>Total Saved</div>
-          <div className='saver-text'>${totalSaved.toFixed(2)}</div>
-        </div>
-      </div>
-    );
-  };
-
   const memoAudits = useMemo(
     () => <Audit contractAddress={chartTokenAddress} provider={provider} />,
     [chartTokenAddress, showAudits]
@@ -1804,19 +1881,23 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   // swap-container if not audit open padding top 200px
 
   useEffect(() => {
-    if (showAudits === false && showChart === false) {
-      document.querySelector('.main-container').style.paddingTop = '250px';
-    }
-    if (showAudits === true && showChart === false) {
-      document.querySelector('.main-container').style.paddingTop = '150px';
-    }
-    if (showChart === true && showAudits === true) {
+    if (isMobile === false) {
+      if (showAudits === false && showChart === false) {
+        document.querySelector('.main-container').style.paddingTop = '250px';
+      }
+      if (showAudits === true && showChart === false) {
+        document.querySelector('.main-container').style.paddingTop = '150px';
+      }
+      if (showChart === true && showAudits === true) {
+        document.querySelector('.main-container').style.paddingTop = '100px';
+      }
+      if (showChart === true && showAudits === false) {
+        document.querySelector('.main-container').style.paddingTop = '100px';
+      }
+    } else {
       document.querySelector('.main-container').style.paddingTop = '100px';
     }
-    if (showChart === true && showAudits === false) {
-      document.querySelector('.main-container').style.paddingTop = '100px';
-    }
-  }, [showAudits, showChart]);
+  }, [showAudits, showChart, isMobile]);
 
   return (
     <div className='whole-container'>
@@ -1876,7 +1957,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               buyTokenDisplayBalance={buyTokenDisplayBalance}
             />
           </div>{' '}
-          <QuoteView /> {/* <SaverInfo /> */}
+          <QuoteView />
           {showAudits && memoAudits}
         </div>
         {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}

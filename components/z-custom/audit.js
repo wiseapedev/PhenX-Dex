@@ -167,19 +167,13 @@ function Audit({contractAddress, provider, chainId}) {
 
       message = (
         <>
-          <div className=''>
-            <div className='quote-content-header mb10'>
-              {data?.token_name || 'Not Specified'} (
-              {data?.token_symbol || 'Not Specified'}){' '}
-              {formatPercent(data.buy_tax || 0)} /{' '}
-              {formatPercent(data.sell_tax || 0)}
-            </div>
-            {/*             <div className='quote-content-header mb10'>
-              Buy Tax: {formatPercent(data.buy_tax || 0)} | Sell Tax:{' '}
-              {formatPercent(data.sell_tax || 0)}
-            </div> */}
-            {lpLockInfo}{' '}
+          <div className='quote-content-header mb10'>
+            {data?.token_name || 'Not Specified'} (
+            {data?.token_symbol || 'Not Specified'}){' '}
+            {formatPercent(data.buy_tax || 0)} /{' '}
+            {formatPercent(data.sell_tax || 0)}
           </div>
+          {lpLockInfo}{' '}
           <div className='flex-wrap'>
             {' '}
             <div
