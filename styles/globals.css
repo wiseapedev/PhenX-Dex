@@ -102,7 +102,50 @@ input:focus {
 .small-text {
   font-size: 14px;
 }
+.mempool-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 0px;
+  width: 100%;
+}
 
+.gas-tracker {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.gas-price-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--box-darker);
+  color: var(--text-gray);
+  font-weight: 400;
+  padding: 3px;
+  border-radius: 10px;
+  text-align: center;
+  border: solid 1px var(--border);
+  font-size: 0.9rem;
+}
+.phenx {
+  background: var(--box-hover-light);
+  color: var(--text);
+}
+
+.gas-price-content {
+  padding: 2px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 0.9rem;
+  text-align: center;
+  outline: none;
+  transition: all 0.1s ease-in-out;
+  border: none;
+}
 .beta {
   position: relative;
   font-size: 1.5rem;
@@ -1362,9 +1405,10 @@ input:focus {
 .general-box {
   transition: all 0.5s ease-in-out;
   margin-top: 10px;
-  padding: 10px;
+  /*   padding: 10px;
   background-color: var(--box-darker);
   border: 1px solid var(--border);
+ */
   border-radius: 15px;
   display: flex;
   position: relative;

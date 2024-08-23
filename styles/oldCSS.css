@@ -184,17 +184,17 @@
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 5px;
 }
 .quick-box {
   display: flex;
-  border-radius: 8px;
+  border-radius: 5px;
   border: none;
   background-color: #1b1b1b;
   color: var(--text-gray);
   box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
   padding: 3px 5px;

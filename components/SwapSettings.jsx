@@ -12,13 +12,24 @@ import {
   SlippageIcon,
 } from './SVGMAIN.js';
 import {ethers} from 'ethers';
-
+import MemPool from './MemPool';
 function SwapSettings({
   setShowChartState,
   showChart,
   setShowAudits,
   showAudits,
 }) {
+  const {
+    savedData,
+    updateSavedData,
+    updateData,
+    savedPriorityGas,
+    savedSlippage,
+    useAutoGas,
+    useAutoSlippage,
+    savedAddedPriority,
+    provider,
+  } = useContext(BlockchainContext);
   const [showSettings, setShowSettings] = useState(false);
   function CurrentGwei({provider}) {
     const GWEI = useRef(0);
@@ -63,20 +74,11 @@ function SwapSettings({
 
       return () => clearInterval(interval);
     }, []);
-    return <div className='gwei-info'>(Market GWEI: {CurrentGwei})</div>;
+    return (
+      <div className='gwei-info'>(Last Block Base Fee: {CurrentGwei})</div>
+    );
   }
   const GasSlipComponent = () => {
-    const {
-      savedData,
-      updateSavedData,
-      updateData,
-      savedPriorityGas,
-      savedSlippage,
-      useAutoGas,
-      useAutoSlippage,
-      savedAddedPriority,
-      provider,
-    } = useContext(BlockchainContext);
     const priorityGasRef = useRef(savedPriorityGas.current);
     const slippageRef = useRef(null);
     const [priorityGas, setPriorityGas] = useState(''); // Initialize priorityGas state
@@ -86,11 +88,11 @@ function SwapSettings({
     const [autoSlippage, setAutoSlippage] = useState(useAutoSlippage.current);
 
     useEffect(() => {
-      if (savedPriorityGas) {
+      /*       if (savedPriorityGas) {
         let value = savedPriorityGas.current;
         priorityGasRef.current.value = value;
         setPriorityGas(value);
-      }
+      } */
       if (savedSlippage) {
         let value = savedSlippage.current;
         slippageRef.current.value = value;
@@ -225,13 +227,14 @@ function SwapSettings({
               <div className='settings-icon-container'>
                 <SaverInfoIcon />
               </div>{' '}
-              Gas price{' '}
+              Auto Gas
             </div>
             <div className='us-te'>
               <CurrentGwei provider={provider} />
             </div>
-          </div>
-          <div className='auto-container'>
+          </div>{' '}
+          <MemPool />{' '}
+          {/*      <div className='auto-container'>
             <div
               className={
                 addedPriority === 'slow'
@@ -277,7 +280,7 @@ function SwapSettings({
               onChange={(e) => handlePriorityGasChange(e.target.value)}
               type='number'
             />
-          </div>
+          </div> */}
         </div>
         <div className='swap-upper-box'>
           <div className='upper-settings'>

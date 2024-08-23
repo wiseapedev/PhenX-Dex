@@ -11,6 +11,7 @@ import {
   SaverInfoIcon,
   DownArrow,
 } from './SVGMAIN.js';
+import MemPool from './MemPool';
 import SwapSettings from './SwapSettings';
 import {useState, useEffect, useContext, useRef, useMemo, use} from 'react';
 import {ethers} from 'ethers';
@@ -1714,7 +1715,6 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           </div>
         </div>
         <div className='nav-right'>
-          {' '}
           <a
             href='https://t.me/PhenXNetwork'
             style={{
