@@ -256,7 +256,7 @@ function SwapSettings({
               </div>{' '}
               Auto Gas
             </div>
-            <div className='us-te'>
+            <div className='us-te mobhide'>
               <CurrentGwei provider={provider} />
             </div>
           </div>{' '}
@@ -371,7 +371,7 @@ function SwapSettings({
       <div className='swap-icons-left'>
         <div className='swap-tabs-container'>
           <div className='swap-tab active'>Swap</div>
-          <div className='swap-tab'>Limit</div>
+          <div className='swap-tab mobhide'>Limit</div>
           <div className='swap-tab'>Bridge</div>
         </div>
       </div>{' '}
