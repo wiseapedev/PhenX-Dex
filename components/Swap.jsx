@@ -1196,7 +1196,6 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
 
         const handleSwap = async () => {
           try {
-            toast.info('Please confirm the transaction in your wallet');
             disableSwapContainer();
             const routerContract = new ethers.Contract(
               routerAddress,
@@ -1666,10 +1665,34 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
             }
           } catch (error) {
             enableSwapContainer();
+
             console.error('Failed to swap:', error);
-            toast.error('try increasing slippage');
-            //      toast.info('Increasing your slippage by 1%');
-            //   updateData('savedSlippage', Number(slippage * 100) + 1);
+
+            // Check if the error has a specific code and message
+            if (error.code === 'INSUFFICIENT_FUNDS') {
+              toast.error(
+                'Insufficient funds for transfer. Please check your balance.'
+              );
+            } else if (error.message && error.message.includes('slippage')) {
+              toast.error('Slippage too low. Try increasing slippage.');
+            } else if (error.message && error.message.includes('gas')) {
+              toast.error('Gas fee too low. Try increasing the gas fee.');
+            } else if (error.message && error.message.includes('revert')) {
+              toast.error('Transaction failed due to contract revert.');
+            } else if (
+              error.code === -32000 &&
+              error.message.includes('insufficient funds for transfer')
+            ) {
+              toast.error(
+                'Insufficient funds for gas. Please ensure you have enough ETH for the transaction fees.'
+              );
+            } else {
+              // Fallback for other types of errors
+              toast.error(
+                'An error occurred during the swap. Please try again.'
+              );
+            }
+
             return;
           }
         };

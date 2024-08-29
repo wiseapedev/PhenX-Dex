@@ -72,13 +72,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import {ToastContainer} from 'react-toastify';
 import {useEffect, useState} from 'react';
 import '@walletconnect/modal';
-import whyDidYouRender from '@welldone-software/why-did-you-render';
 import React from 'react';
 import config from '../config/config';
-
-whyDidYouRender(React, {
-  trackAllPureComponents: true,
-});
 
 /* const config = getDefaultConfig({
   appName: 'RainbowKit App',
@@ -260,6 +255,5 @@ function MyApp({Component, pageProps}: AppProps) {
     </WagmiProvider>
   );
 }
-MyApp.whyDidYouRender = true;
 
 export default MyApp;
