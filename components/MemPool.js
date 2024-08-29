@@ -25,7 +25,9 @@ function MemPool() {
   useEffect(() => {
     const interval = setInterval(() => {
       getGasFees();
-    }, 5000); // Update every second
+    }, 5000); // Update every 5 seconds
+
+    getGasFees(); // Fetch gas fees immediately on mount
 
     return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);
