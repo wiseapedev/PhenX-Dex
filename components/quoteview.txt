@@ -70,7 +70,7 @@
           const blockNumber = await provider.getBlockNumber();
 
           if (blockNumberRef.current !== blockNumber) {
-            if (chainId !== 1) {
+            if (chain_id !== 1) {
               const isMoreThan3 = blockNumber > blockNumberRef.current + 3;
               if (!isMoreThan3) {
                 return;
@@ -189,7 +189,7 @@
                   pathV3.tokenIn,
                   pathV3.tokenOut,
                   parsedSellAmount,
-                  chainId
+                  chain_id
                 );
                 console.log('➡️➡️➡️dataV3', dataV3);
               }
@@ -453,7 +453,7 @@
         const largeAmount = 11579208923731619542357098500868790n;
 
         const {account, signer, updateData} = useContext(BlockchainContext);
-        const provider = new ethers.JsonRpcProvider(CHAINS[chainId].rpcUrl);
+        const provider = new ethers.JsonRpcProvider(CHAINS[chain_id].rpcUrl);
         const [isApprovalNeeded, setIsApprovalNeeded] = useState(false);
         const [underMaintenance, setUnderMaintenance] = useState(false);
         useEffect(() => {
@@ -492,14 +492,14 @@
               formattedData.fromTokenAddress,
               formattedData.toTokenAddress,
               1,
-              chainId
+              chain_id
             );
             console.log('sellTokenHasV3Pair', sellTokenHasV3Pair);
             let buyTokenHasV3Pair = await getQuoteV3(
               formattedData.toTokenAddress,
               formattedData.fromTokenAddress,
               1,
-              chainId
+              chain_id
             );
             console.log('buyTokenHasV3Pair', buyTokenHasV3Pair);
 
@@ -768,7 +768,7 @@
                 console.log('baseFeePerGas', baseFeePerGas.toString());
 
                 let priorityFeePerGas;
-                if (chainId === 1) {
+                if (chain_id === 1) {
                   priorityFeePerGas = new BigNumber('1000000000'); // 0.1 Gwei in Wei
                 } else {
                   priorityFeePerGas = new BigNumber('200000000'); // 0.1 Gwei in Wei

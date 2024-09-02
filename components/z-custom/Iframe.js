@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 
-function Iframe({buyToken, chainId, subTab}) {
+function Iframe({buyToken, chain_id, subTab}) {
   function Dexscreener() {
     const [currentTab, setCurrentTab] = useState('Chart');
 
@@ -11,7 +11,7 @@ function Iframe({buyToken, chainId, subTab}) {
     let iframeSrc;
     let contractAddress = buyToken;
     let chainName = 'ethereum';
-    if (chainId === 8453) {
+    if (chain_id === 8453) {
       chainName = 'base';
     }
     if (currentTab === 'Chart') {
@@ -67,8 +67,8 @@ function Iframe({buyToken, chainId, subTab}) {
       8453: 'base', // Add other supported chains as needed
     };
 
-    // Set the appropriate chain name using the `chainId`
-    const chainName = chainIdToName[chainId] || 'ether';
+    // Set the appropriate chain name using the `chain_id`
+    const chainName = chainIdToName[chain_id] || 'ether';
 
     // Specify DEXTools parameters according to your provided example
     const theme = 'dark';

@@ -170,7 +170,7 @@ function SwapSettings({
               method: 'wallet_addEthereumChain',
               params: [
                 {
-                  chainId: '0x1', // Example for Ethereum Mainnet; adjust accordingly
+                  chain_id: '0x1', // Example for Ethereum Mainnet; adjust accordingly
                   chainName: 'Ethereum Mainnet (Anti-MEV)',
                   nativeCurrency: {
                     name: 'Ether',

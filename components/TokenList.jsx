@@ -2,8 +2,8 @@
 import DollarValue from './DollarValue';
 import {BlockchainContext} from './BlockchainContext';
 import {useState, useEffect, useContext, useRef, useMemo, use} from 'react';
-import {ETH_TOKENS} from './lib/constants';
-import mergeTokens from './mergeTokens';
+// import {ETH_TOKENS} from './lib/constants';
+// import mergeTokens from './mergeTokens';
 
 function TokenList({
   type,
@@ -63,8 +63,11 @@ function TokenList({
       itemToHide.style.display = 'none'; // Hide the item
     }
   };
-  const {dollarRef, account, provider, chainId} = useContext(BlockchainContext);
-  const [tokens, setTokens] = useState(mergeTokens(chainId));
+  const {dollarRef, account, provider, chain_id, ALL_TOKENS} =
+    useContext(BlockchainContext);
+  const [tokens, setTokens] = useState(ALL_TOKENS);
+  console.log('Tokens:', tokens);
+  console.log('ALL_TOKENS:', ALL_TOKENS);
   const [newBlock, setNewBlock] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [fadeIn, setFadeIn] = useState(false);
@@ -134,33 +137,44 @@ function TokenList({
           console.log('Loading in progress, skipping...');
           return;
         }
+
+        //      console.log('dollarRef.current:', dollarRef.current);
         isLoading = true;
-        console.log('dollarRef TokenList');
+        //     console.log('Processing dollarRef TokenList...');
+
         const tokenEntries = Object.entries(dollarRef.current);
+        //   console.log('Token entries:', tokenEntries);
 
-        const firstFourTokens = tokenEntries.slice(0, 3);
+        const firstFourTokens = tokenEntries.slice(0, 1);
 
-        const remainingTokens = tokenEntries
-          .slice(3)
-          .sort((a, b) => b[1].dollarValue - a[1].dollarValue); // Ensure '0' is considered in the sort
+        const remainingTokens = tokenEntries.slice(1).sort((a, b) => {
+          return Number(b[1].dollarValue) - Number(a[1].dollarValue);
+        });
+
+        //  console.log('Remaining tokens after sort:', remainingTokens);
 
         const sortedTokens = [...firstFourTokens, ...remainingTokens].reduce(
           (acc, [key, value]) => {
             acc[key] = value; // Reconstruct the object with the same keys
+            //    console.log('Accumulating token:', {key, value});
             return acc;
           },
           {}
         );
 
+        console.log('Sorted tokens:', sortedTokens);
         setTokens(sortedTokens);
       } else {
+        console.log('dollarRef.current or account is not available.');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error in useEffect:', error);
     } finally {
       isLoading = false;
+      console.log('Loading process complete, isLoading set to false.');
     }
-  }, [newBlock, account, dollarRef, chainId, dollarRefTrigger]); // Dependencies include dollarRef and account
+  }, [newBlock, account, dollarRef, chain_id, dollarRefTrigger, ALL_TOKENS]); // Dependencies include dollarRef and account
+
   useEffect(() => {
     setFadeIn(true);
   }, []);
@@ -179,8 +193,8 @@ function TokenList({
               fill='none'
               stroke='currentColor'
               stroke-width='2'
-              stroke-linecap='round'
-              stroke-linejoin='round'
+              strokeLinecap='round'
+              strokeLinejoin='round'
               className='sc-eBMEME juvwDx'>
               <line x1='18' y1='6' x2='6' y2='18'></line>
               <line x1='6' y1='6' x2='18' y2='18'></line>
@@ -212,10 +226,10 @@ function TokenList({
           <div className='base-tokens-section'>
             <div className='base-tokens'>
               {Object.entries(tokens)
-                .filter(([key, token]) => token.isPartner)
+                .filter(([key, token]) => token.is_partner)
                 .map(([key, token]) => (
                   <div
-                    className={`base-item ${token.isPartner ? 'partner' : ''}`}
+                    className={`base-item ${token.is_partner ? 'partner' : ''}`}
                     key={key}
                     onClick={() => {
                       // Now you can use the key here if needed
@@ -228,7 +242,7 @@ function TokenList({
                     }}>
                     {/* Token details with logo */}
                     <img
-                      src={token.logoURI}
+                      src={token.logo_uri}
                       alt={token.name}
                       className='token-logo'
                       width={25}
@@ -240,7 +254,6 @@ function TokenList({
                       }}
                     />
                     <div className='base-symbol'>{token.symbol}</div>
-                    {/* More token details can go here */}
                   </div>
                 ))}
             </div>
@@ -270,7 +283,7 @@ function TokenList({
                 }}>
                 <div className='token-list-item-image'>
                   <img
-                    src={token.logoURI}
+                    src={token.logo_uri}
                     alt={'logo'}
                     width={36}
                     height={36}
@@ -298,7 +311,7 @@ function TokenList({
                       )}
                     </div>{' '}
                     <div className='token-list-item-text-symbol'>
-                      {token.balance}
+                      {token.balance === undefined ? '0.00' : token.balance}
                     </div>
                   </div>
                 </div>

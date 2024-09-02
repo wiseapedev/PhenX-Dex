@@ -66,10 +66,10 @@ function TokenList({
       <div className='base-tokens-section'>
         <div className='base-tokens'>
           {Object.entries(ALL_TOKENS)
-            .filter(([key, token]) => token.isPartner)
+            .filter(([key, token]) => token.is_partner)
             .map(([key, token]) => (
               <div
-                className={`base-item ${token.isPartner ? 'partner' : ''}`}
+                className={`base-item ${token.is_partner ? 'partner' : ''}`}
                 key={key}
                 onClick={() => {
                   // Now you can use the key here if needed
@@ -82,7 +82,7 @@ function TokenList({
                 }}>
                 {/* Token details with logo */}
                 <img
-                  src={token.logoURI}
+                  src={token.logo_uri}
                   alt={token.name}
                   className='token-logo'
                   width={24}
@@ -111,7 +111,7 @@ function TokenList({
           }}>
           <div className='token-list-item-image'>
             <img
-              src={token.logoURI}
+              src={token.logo_uri}
               alt={token.name}
               width={32}
               height={32}

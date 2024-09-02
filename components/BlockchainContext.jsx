@@ -22,7 +22,7 @@ import mergeTokens from './mergeTokens';
 import {watchChainId} from '@wagmi/core';
 import {getChainId} from '@wagmi/core';
 import {CHAINS} from './lib/constants';
-import {ETH_TOKENS} from './lib/constants';
+// import {ETH_TOKENS} from './lib/constants';
 import {BASE_TOKENS} from './lib/constants';
 
 export const BlockchainContext = createContext({
@@ -37,22 +37,44 @@ export const BlockchainProvider = ({children, config}) => {
   const provider = useEthersProvider();
   const {address: account} = useAccount();
   const signer = useEthersSigner();
-  const [chainId, setChainId] = useState(getChainId(config) || 1);
-  console.log('BlockchainProvider chainId', chainId);
-  const ALL_TOKENS = mergeTokens(chainId);
+  const [chain_id, setChainId] = useState(getChainId(config) || 1);
+  console.log('BlockchainProvider chain_id', chain_id);
+  const [ETH_TOKENS, setEthTokens] = useState({});
+  const [ALL_TOKENS, setAllTokens] = useState({});
+
+  useEffect(() => {
+    async function fetchTokens() {
+      try {
+        console.log('Fetching tokens...');
+        const res = await fetch('/api/tokens');
+        const data = await res.json();
+        console.log('data', data);
+        setEthTokens(data);
+      } catch (error) {
+        console.error('Failed to fetch tokens:', error);
+      }
+    }
+    if (ETH_TOKENS && Object.keys(ETH_TOKENS).length === 0) {
+      fetchTokens();
+    }
+    if (ETH_TOKENS && Object.keys(ETH_TOKENS).length > 0) {
+      setAllTokens(mergeTokens(chain_id, ETH_TOKENS));
+    }
+  }, [chain_id, ETH_TOKENS]);
+
   // console.log('ALL_TOKENS', ALL_TOKENS);
 
   const dollarRef = useRef(ALL_TOKENS);
 
   useEffect(() => {
     const unwatch = watchChainId(config, {
-      onChange(chainId) {
-        console.log('Chain ID changed!', chainId);
+      onChange(chain_id) {
+        console.log('Chain ID changed!', chain_id);
         const currentUrl = window.location.href;
         if (currentUrl.includes('/base' || currentUrl.includes('/eth'))) {
           window.location.replace('https://PhenX.io/');
         }
-        const newChainId = chainId;
+        const newChainId = chain_id;
         setChainId(newChainId);
         console.log('newChainId', newChainId);
         if (newChainId === 1) {
@@ -68,10 +90,10 @@ export const BlockchainProvider = ({children, config}) => {
     };
   }, [config]);
 
-  const uniswapRouterAddress = CHAINS[chainId].uniswapRouterAddressV2;
+  const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   console.log('uniswapRouterAddress', uniswapRouterAddress);
-  const wethAddress = CHAINS[chainId].wethAddress;
-  const usdcAddress = CHAINS[chainId].usdcAddress;
+  const wethAddress = CHAINS[chain_id].wethAddress;
+  const usdcAddress = CHAINS[chain_id].usdcAddress;
 
   const blockNumberRef = useRef(0);
   const ethDollarPrice = useRef('');
@@ -122,7 +144,7 @@ export const BlockchainProvider = ({children, config}) => {
     return () => {
       stopPolling();
     };
-  }, [provider, chainId]);
+  }, [provider, chain_id]);
 
   const savedPriorityGas = useRef(30);
   const savedSlippage = useRef(7);
@@ -163,12 +185,8 @@ export const BlockchainProvider = ({children, config}) => {
     if (!account) return;
 
     async function updateDollarRef() {
-      if (tokenListOpenRef.current === false) {
-        return;
-      }
-      const ALL_TOKENS = mergeTokens(chainId);
       const tokenPromises = Object.keys(ALL_TOKENS)
-        .filter((key) => ALL_TOKENS[key].chainId === chainId)
+        .filter((key) => ALL_TOKENS[key].chain_id === chain_id)
         .map(async (key) => {
           const balanceData = await getDollarValue(ALL_TOKENS[key]);
           return {
@@ -177,17 +195,18 @@ export const BlockchainProvider = ({children, config}) => {
               dollarValue: balanceData.dollarValue || '00.00',
               balance: balanceData.balance || '00.00',
               symbol: ALL_TOKENS[key].symbol,
-              isPartner: ALL_TOKENS[key].isPartner,
-              chainId: ALL_TOKENS[key].chainId,
+              is_partner: ALL_TOKENS[key].is_partner,
+              chain_id: ALL_TOKENS[key].chain_id,
               name: ALL_TOKENS[key].name,
               address: ALL_TOKENS[key].address,
               decimals: ALL_TOKENS[key].decimals,
-              logoURI: ALL_TOKENS[key].logoURI,
+              logo_uri: ALL_TOKENS[key].logo_uri,
             },
           };
         });
 
       const results = await Promise.all(tokenPromises);
+      console.log('results', results);
       const updatedDollarRef = results.reduce((acc, {key, data}) => {
         acc[key] = data;
         return acc;
@@ -198,10 +217,19 @@ export const BlockchainProvider = ({children, config}) => {
     }
 
     updateDollarRef();
-    const intervalId = setInterval(updateDollarRef, 12000);
+    function checkUpdateDollarRef() {
+      if (tokenListOpenRef.current === false) {
+        console.log('tokenListOpenRef is false');
+        return;
+      } else {
+        updateDollarRef();
+      }
+    }
+
+    const intervalId = setInterval(checkUpdateDollarRef, 12000);
 
     return () => clearInterval(intervalId);
-  }, [account, chainId]);
+  }, [account, chain_id, ALL_TOKENS]);
 
   async function getDollarValue(Token) {
     let ethPrice = '00.00';
@@ -266,6 +294,11 @@ export const BlockchainProvider = ({children, config}) => {
             tokenBalance = savedInputAmount.current;
           }
           tokenBalance = tokenBalance != null ? tokenBalance : 0;
+          console.log(tokenBalance, 'Token Balance');
+          if (tokenBalance === 0n) {
+            console.log('Token Balance is 0');
+            return;
+          }
 
           tokenBalance = String(tokenBalance);
           //    console.log(tokenBalance, 'Token Balance');
@@ -307,7 +340,7 @@ export const BlockchainProvider = ({children, config}) => {
     <BlockchainContext.Provider
       value={{
         config,
-        chainId,
+        chain_id,
         dollarRef,
         savedAddedPriority,
         useAutoGas,
@@ -323,6 +356,8 @@ export const BlockchainProvider = ({children, config}) => {
         account,
         signer,
         tokenListOpenRef,
+        ALL_TOKENS,
+        ETH_TOKENS,
       }}>
       {children}
     </BlockchainContext.Provider>

@@ -59,8 +59,9 @@ function Portfolio({
       itemToHide.style.display = 'none'; // Hide the item
     }
   };
-  const {dollarRef, account, provider, chainId} = useContext(BlockchainContext);
-  const [tokens, setTokens] = useState(mergeTokens(chainId));
+  const {dollarRef, account, provider, chain_id} =
+    useContext(BlockchainContext);
+  const [tokens, setTokens] = useState(mergeTokens(chain_id));
   const [newBlock, setNewBlock] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [totalDollarValue, setTotalDollarValue] = useState(0);
@@ -132,7 +133,7 @@ function Portfolio({
     } finally {
       isLoading = false;
     }
-  }, [newBlock, account, dollarRef, chainId, dollarRefTrigger]); // Dependencies include dollarRef and account
+  }, [newBlock, account, dollarRef, chain_id, dollarRefTrigger]); // Dependencies include dollarRef and account
 
   return (
     <div className='port-token-list'>
@@ -160,7 +161,7 @@ function Portfolio({
             }}>
             <div className='token-list-item-image'>
               <img
-                src={token.logoURI}
+                src={token.logo_uri}
                 alt={'logo'}
                 width={36}
                 height={36}

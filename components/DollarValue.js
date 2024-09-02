@@ -20,11 +20,11 @@ import getQuoteV3 from './getQuoteV3';
 import {ETH_TOKENS} from './lib/constants.js';
 
 function DollarValue({Token, isTokenList, isOutputToken}) {
-  const {ethDollarPrice, savedInputAmount, savedOutputAmount, chainId} =
+  const {ethDollarPrice, savedInputAmount, savedOutputAmount, chain_id} =
     useContext(BlockchainContext);
 
-  const wethAddress = CHAINS[chainId].wethAddress;
-  const uniswapRouterAddress = CHAINS[chainId].uniswapRouterAddressV2;
+  const wethAddress = CHAINS[chain_id].wethAddress;
+  const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   const provider = useEthersProvider();
   const {address: account} = useAccount();
 
@@ -136,7 +136,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
             path[0],
             path[1],
             tokenBalance,
-            chainId
+            chain_id
           );
         } catch (error) {}
 
@@ -147,9 +147,9 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
           ethOut = amountOutV3.amountOut;
         }
         const toLowerCaseTokenSymbol = Token.symbol.toLowerCase();
-        if (ETH_TOKENS[toLowerCaseTokenSymbol]?.useV2 === true) {
+        /*         if (ETH_TOKENS[toLowerCaseTokenSymbol]?.useV2 === true) {
           ethOut = amountOut[1];
-        }
+        } */
         console.log(ethOut, 'ethOutethOutethOutethOut');
         ethOut = ethers.formatEther(ethOut);
         ethOut = Number(ethOut);

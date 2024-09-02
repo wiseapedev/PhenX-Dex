@@ -37,7 +37,7 @@ const CloseIcon = () => {
   ); */
   return '';
 };
-function Audit({contractAddress, provider, chainId}) {
+function Audit({contractAddress, provider, chain_id}) {
   const handleClick = () => {
     alert('Coming soon');
   };

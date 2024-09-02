@@ -1,6 +1,6 @@
 // https://docs.0x.org/0x-api-swap/api-references/get-swap-v1-price#response
 export interface PriceResponse {
-  chainId: number;
+  chain_id: number;
   price: string;
   estimatedPriceImpact: string;
   value: string;
@@ -23,7 +23,7 @@ export interface PriceResponse {
 
 // https://docs.0x.org/0x-api-swap/api-references/get-swap-v1-quote#response
 export interface QuoteResponse {
-  chainId: number;
+  chain_id: number;
   price: string;
   guaranteedPrice: string;
   estimatedPriceImpact: string;

@@ -14,7 +14,7 @@ export default function BuyContract() {
       window.location.href = '/';
     }
   }, []); // Dependencies array  if (!pageReady)
-  const {signer, account, chainId} = useContext(BlockchainContext);
+  const {signer, account, chain_id} = useContext(BlockchainContext);
   const provider = new ethers.JsonRpcProvider(CHAINS[1].rpcUrl);
   const router = useRouter();
   const {contract} = router.query;
@@ -24,7 +24,7 @@ export default function BuyContract() {
   useEffect(() => {
     const loadData = async () => {
       if (router.isReady) {
-        if (chainId !== 1) {
+        if (chain_id !== 1) {
           setWrongNetwork(true);
         } else {
           setWrongNetwork(false);
@@ -33,7 +33,7 @@ export default function BuyContract() {
     };
 
     loadData();
-  }, [router.isReady, chainId]); // Dependencies array  if (!pageReady)
+  }, [router.isReady, chain_id]); // Dependencies array  if (!pageReady)
 
   function mergeTokens() {
     let customTokens = {};
@@ -67,14 +67,14 @@ export default function BuyContract() {
         const symbol = await tokenContract.symbol();
         const name = await tokenContract.name();
         const decimals = await tokenContract.decimals();
-        const logoURI = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
+        const logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
         const newToken = {
-          chainId: 1,
+          chain_id: 1,
           name: name,
           symbol: symbol,
           address: value,
           decimals: typeof decimals === 'bigint' ? Number(decimals) : decimals,
-          logoURI: logoURI,
+          logo_uri: logo_uri,
         };
 
         try {

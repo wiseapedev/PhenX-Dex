@@ -2,18 +2,18 @@
 import React, {useState, useEffect} from 'react';
 import {ETH_TOKENS, BASE_TOKENS} from './lib/constants';
 
-function PromoToken({handleBuyTokenChange, chainId}) {
+function PromoToken({handleBuyTokenChange, chain_id}) {
   const [tokens, setTokens] = useState([]);
   const [offset, setOffset] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0); // Track the active index
 
   useEffect(() => {
     let selectedTokens = [];
-    if (chainId === 1) {
+    if (chain_id === 1) {
       selectedTokens = Object.values(ETH_TOKENS).filter(
         (token) => token.isPromo
       );
-    } else if (chainId === 8453) {
+    } else if (chain_id === 8453) {
       selectedTokens = Object.values(BASE_TOKENS).filter(
         (token) => token.isPromo
       );
@@ -21,7 +21,7 @@ function PromoToken({handleBuyTokenChange, chainId}) {
     setTokens(selectedTokens);
     setOffset(0); // Reset the offset with new tokens
     setActiveIndex(0); // Reset active index
-  }, [chainId]);
+  }, [chain_id]);
 
   useEffect(() => {
     if (tokens.length === 0) return undefined;
@@ -58,7 +58,7 @@ function PromoToken({handleBuyTokenChange, chainId}) {
               key={index}
               onClick={() => handleBuyTokenChange(token.symbol.toLowerCase())}>
               <img
-                src={token.logoURI}
+                src={token.logo_uri}
                 alt={token.name}
                 width={34}
                 height={34}

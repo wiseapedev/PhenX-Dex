@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import Tooltip from './Tooltip';
 
-function BlockTimer({provider, chainId, CurrentGwei}) {
+function BlockTimer({provider, chain_id, CurrentGwei}) {
   const [lastBlockTime, setLastBlockTime] = useState(null);
   const [nextBlockEstimate, setNextBlockEstimate] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -14,7 +14,7 @@ function BlockTimer({provider, chainId, CurrentGwei}) {
 
     const calculateNextBlockEstimate = () => {
       const now = new Date().getTime();
-      const estimatedBlockTime = chainId === 1 ? 15000 : 2000;
+      const estimatedBlockTime = chain_id === 1 ? 15000 : 2000;
       setNextBlockEstimate(new Date(now + estimatedBlockTime));
       updateProgressBar(now, now + estimatedBlockTime);
     };

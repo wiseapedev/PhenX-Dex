@@ -52,15 +52,15 @@ import Portfolio from './Portfolio';
  */ import ContractLinks from './ContractLinks';
 import Switch from './Switch';
 
-const Swap = ({buyLink, buyLinkKey, chainId}) => {
-  const {signer, provider, account, tokenListOpenRef} =
+const Swap = ({buyLink, buyLinkKey, chain_id}) => {
+  const {signer, provider, account, tokenListOpenRef, ETH_TOKENS, ALL_TOKENS} =
     useContext(BlockchainContext);
   const feeAddress = '0x1c2061fACa9DF7B6c02e7EB8dEBed1f37B24C6A9';
-  const uniswapRouterAddress = CHAINS[chainId].uniswapRouterAddressV2;
-  const routerAddressV3 = CHAINS[chainId].uniswapRouterAddressV3;
-  const routerAddress = CHAINS[chainId].udxRouterAddress;
-  const wethAddress = CHAINS[chainId].wethAddress;
-  const uniswapFactoryV2Address = CHAINS[chainId].uniswapFactoryV2Address;
+  const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
+  const routerAddressV3 = CHAINS[chain_id].uniswapRouterAddressV3;
+  const routerAddress = CHAINS[chain_id].udxRouterAddress;
+  const wethAddress = CHAINS[chain_id].wethAddress;
+  const uniswapFactoryV2Address = CHAINS[chain_id].uniswapFactoryV2Address;
   let weth = wethAddress;
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -74,7 +74,6 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const ALL_TOKENS = mergeTokens(chainId);
   /*   useEffect(() => {
     if (buyLink) {
       handleContractImport(buyLink);
@@ -117,7 +116,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   }
   function getBuyToken() {
     if (!buyLink) {
-      return Object.keys(ALL_TOKENS)[3];
+      return Object.keys(ALL_TOKENS)[2];
       //  return 'pnx';
     } else {
       return buyLinkKey;
@@ -133,7 +132,19 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   const [showChart, setShowChart] = useState(false);
   const [showAudits, setShowAudits] = useState(false);
 
-  const [sellToken, setSellToken] = useState('eth');
+  function findKeyBySymbol(symbol) {
+    let token = 'eth';
+    try {
+      token = Object.keys(ALL_TOKENS).find(
+        (key) => ALL_TOKENS[key].symbol === symbol
+      );
+    } catch (error) {
+      console.error('Error finding token by symbol:', error);
+    }
+    return token;
+  }
+
+  const [sellToken, setSellToken] = useState(findKeyBySymbol('ETH'));
   const [sellTokenDisplayBalance, setSellTokenDisplayBalance] = useState(0);
   const [buyTokenDisplayBalance, setBuyTokenDisplayBalance] = useState(0);
   const [showTokenList, setShowTokenList] = useState(false);
@@ -232,7 +243,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           provider
         );
         let balance;
-        if (tokenKey === 'eth') {
+        if (token.symbol === 'ETH') {
           balance = await provider.getBalance(account);
         } else {
           balance = await tokenContract.balanceOf(account);
@@ -275,7 +286,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   const handleSellTokenChange = (key, isPort) => {
     setSellToken(key);
     if (isPort === true) {
-      setBuyToken('eth');
+      setBuyToken(findKeyBySymbol('ETH'));
       setMainTab('Swap');
       setSubTab('Trade');
     }
@@ -283,7 +294,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   const handleBuyTokenChange = (key, isPort) => {
     setBuyToken(key);
     if (isPort === true) {
-      setSellToken('eth');
+      setSellToken(findKeyBySymbol('ETH'));
       setMainTab('Swap');
       setSubTab('Trade');
     }
@@ -325,7 +336,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               className='token-select-box'
               onClick={() => setShowTokenList('sellToken')}>
               <img
-                src={ALL_TOKENS[sellToken].logoURI}
+                src={ALL_TOKENS[sellToken].logo_uri}
                 alt={ALL_TOKENS[sellToken].name}
                 width={25}
                 height={25}
@@ -416,7 +427,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               onClick={() => setShowTokenList('buyToken')}>
               {newListing && <div className='new-listing'>NEW</div>}
               <img
-                src={ALL_TOKENS[buyToken].logoURI}
+                src={ALL_TOKENS[buyToken].logo_uri}
                 alt={ALL_TOKENS[buyToken].name}
                 width={25}
                 height={25}
@@ -650,7 +661,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           const blockNumber = await provider.getBlockNumber();
 
           if (blockNumberRef.current !== blockNumber) {
-            if (chainId !== 1) {
+            if (chain_id !== 1) {
               const isMoreThan3 = blockNumber > blockNumberRef.current + 3;
               if (!isMoreThan3) {
                 return;
@@ -742,7 +753,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
                   parsedSellAmount,
-                  chainId
+                  chain_id
                 );
                 console.log('V3 Quote:', v3Quote);
               } catch (error) {
@@ -797,7 +808,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
                   parsedSellAmount,
-                  chainId
+                  chain_id
                 );
                 console.log('V3 Quote:', v3Quote);
               } catch (error) {
@@ -867,7 +878,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                   pathV3.tokenIn,
                   pathV3.tokenOut,
                   parsedSellAmount,
-                  chainId
+                  chain_id
                 );
                 v3Quote = directV3Quote.amountOut;
                 v3QuoteFee = directV3Quote.fee;
@@ -888,7 +899,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
                   amountsOutV2ToV3[1],
-                  chainId
+                  chain_id
                 );
                 v2ToV3Quote = v2ToV3.amountOut;
                 v3QuoteFee = v2ToV3.fee;
@@ -901,7 +912,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
                   parsedSellAmount,
-                  chainId
+                  chain_id
                 );
                 v3QuoteFee = v3ToV2.fee;
                 const amountsOutV3ToV2 = await routerContract.getAmountsOut(
@@ -1104,13 +1115,13 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
         const largeAmount = 11579208923731619542357098500868790n;
 
         const {account, signer, updateData} = useContext(BlockchainContext);
-        const provider = new ethers.JsonRpcProvider(CHAINS[chainId].rpcUrl);
+        const provider = new ethers.JsonRpcProvider(CHAINS[chain_id].rpcUrl);
         const [isApprovalNeeded, setIsApprovalNeeded] = useState(false);
 
         useEffect(() => {
           const checkAllowance = async () => {
             try {
-              if (sellToken === 'eth') {
+              if (ALL_TOKENS[sellToken].symbol === 'ETH') {
                 if (isApprovalNeeded) {
                   // Check if the state needs updating
                   setIsApprovalNeeded(false);
@@ -1218,7 +1229,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
                 let userBalanceBN;
                 let result;
 
-                if (sellToken === 'eth') {
+                if (ALL_TOKENS[sellToken].symbol === 'ETH') {
                   // Get balance as BigInt
                   userBalanceBN = BigInt(await provider.getBalance(account));
                 } else {
@@ -1727,14 +1738,14 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
         const symbol = await tokenContract.symbol();
         const name = await tokenContract.name();
         const decimals = await tokenContract.decimals();
-        const logoURI = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
+        const logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
         const newToken = {
-          chainId: chainId,
+          chain_id: chain_id,
           name: name,
           symbol: symbol,
           address: value,
           decimals: typeof decimals === 'bigint' ? Number(decimals) : decimals,
-          logoURI: logoURI,
+          logo_uri: logo_uri,
         };
         try {
           if (!ALL_TOKENS[symbol.toLowerCase()]) {
@@ -1771,7 +1782,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
 
   let chartTokenAddress;
   try {
-    if (buyToken === 'eth') {
+    if (ALL_TOKENS[buyToken].symbol === 'ETH') {
       chartTokenAddress = ALL_TOKENS[sellToken].address;
     } else {
       chartTokenAddress = ALL_TOKENS[buyToken].address;
@@ -1805,7 +1816,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
           </div>
           {/*           <PromoToken
             handleBuyTokenChange={handleBuyTokenChange}
-            chainId={chainId}
+            chain_id={chain_id}
           /> */}
         </div>
         <div className='nav-right'>
@@ -1888,7 +1899,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
   const memoCharts = useMemo(
     () => (
       <Iframe
-        chainId={chainId}
+        chain_id={chain_id}
         buyToken={chartTokenAddress}
         subTab={'Dexscreener'}
       />
@@ -1959,7 +1970,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               handleSellTokenChange={handleSellTokenChange}
               type='sellToken'
               handleShowTokenList={handleShowTokenList}
-              key={chainId}
+              key={chain_id}
               setShowTokenList={setShowTokenList}
               buyToken={buyToken}
               sellToken={sellToken}
@@ -1973,7 +1984,7 @@ const Swap = ({buyLink, buyLinkKey, chainId}) => {
               handleSellTokenChange={handleSellTokenChange}
               type='buyToken'
               handleShowTokenList={handleShowTokenList}
-              key={chainId}
+              key={chain_id}
               setShowTokenList={setShowTokenList}
               buyToken={buyToken}
               sellToken={sellToken}

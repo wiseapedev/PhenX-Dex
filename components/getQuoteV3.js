@@ -2,10 +2,10 @@ import {ethers} from 'ethers';
 import QuoterABI from './abis/QuoterABI.json';
 import {CHAINS} from './lib/constants.js';
 
-async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chainId) {
-  const provider = new ethers.JsonRpcProvider(CHAINS[chainId].rpcUrl);
+async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chain_id) {
+  const provider = new ethers.JsonRpcProvider(CHAINS[chain_id].rpcUrl);
   const quoter = new ethers.Contract(
-    CHAINS[chainId].uniswapQuoterV3, // Uniswap V3 Quoter contract address
+    CHAINS[chain_id].uniswapQuoterV3, // Uniswap V3 Quoter contract address
     QuoterABI,
     provider
   );
@@ -15,8 +15,8 @@ async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chainId) {
   let highestQuote = null;
 
   if (
-    tokenIn !== CHAINS[chainId].wethAddress &&
-    tokenOut !== CHAINS[chainId].wethAddress
+    tokenIn !== CHAINS[chain_id].wethAddress &&
+    tokenOut !== CHAINS[chain_id].wethAddress
   ) {
     // Step 1: Quote tokenIn to WETH
     let intermediateWethAmount = null;
@@ -26,7 +26,7 @@ async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chainId) {
       try {
         const amountOut = await quoter.quoteExactInputSingle.staticCall({
           tokenIn: tokenIn,
-          tokenOut: CHAINS[chainId].wethAddress,
+          tokenOut: CHAINS[chain_id].wethAddress,
           fee: fee,
           amountIn: BigInt(parsedSellAmount),
           sqrtPriceLimitX96: 0,
@@ -60,7 +60,7 @@ async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chainId) {
     for (const fee of feeTiers) {
       try {
         const amountOut = await quoter.quoteExactInputSingle.staticCall({
-          tokenIn: CHAINS[chainId].wethAddress,
+          tokenIn: CHAINS[chain_id].wethAddress,
           tokenOut: tokenOut,
           fee: fee,
           amountIn: intermediateWethAmount,
