@@ -9,11 +9,11 @@ import {CHAINS} from '../../components/lib/constants';
 import {ConnectButton} from '@rainbow-me/rainbowkit';
 
 export default function BuyContract() {
-  useEffect(() => {
+  /*   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.location.href = '/';
     }
-  }, []); // Dependencies array  if (!pageReady)
+  }, []); */
   const {signer, account, chain_id} = useContext(BlockchainContext);
   const provider = new ethers.JsonRpcProvider(CHAINS[1].rpcUrl);
   const router = useRouter();
@@ -167,8 +167,8 @@ export default function BuyContract() {
   }
 
   return (
-    <div className='whole-container'>
+    <>
       <Layout buyLink={contract} buyLinkKey={buyLinkKey} />
-    </div>
+    </>
   );
 }

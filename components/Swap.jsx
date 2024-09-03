@@ -128,6 +128,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const priorityGasRef = useRef(null);
   const slippageRef = useRef(null);
   const [buyToken, setBuyToken] = useState(getBuyToken());
+  console.log('buyToken', buyToken);
 
   const [showChart, setShowChart] = useState(false);
   const [showAudits, setShowAudits] = useState(false);
@@ -145,6 +146,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   }
 
   const [sellToken, setSellToken] = useState(findKeyBySymbol('ETH'));
+  console.log('sellToken', sellToken);
   const [sellTokenDisplayBalance, setSellTokenDisplayBalance] = useState(0);
   const [buyTokenDisplayBalance, setBuyTokenDisplayBalance] = useState(0);
   const [showTokenList, setShowTokenList] = useState(false);
@@ -1732,51 +1734,60 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   //  const contractRef = useRef('');
 
   async function handleContractImport(value) {
-    if (value.length === 42) {
-      try {
-        const tokenContract = new ethers.Contract(value, erc20Abi, provider);
-        const symbol = await tokenContract.symbol();
-        const name = await tokenContract.name();
-        const decimals = await tokenContract.decimals();
-        const logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
-        const newToken = {
-          chain_id: chain_id,
-          name: name,
-          symbol: symbol,
-          address: value,
-          decimals: typeof decimals === 'bigint' ? Number(decimals) : decimals,
-          logo_uri: logo_uri,
-        };
-        try {
-          if (!ALL_TOKENS[symbol.toLowerCase()]) {
-            const customTokens =
-              JSON.parse(localStorage.getItem('customTokens')) || {};
-            customTokens[symbol.toLowerCase()] = newToken;
-            localStorage.setItem('customTokens', JSON.stringify(customTokens));
-            toast.success(`${symbol} imported successfully`);
-            const lowerCaseSymbol = symbol.toLowerCase();
-            //     contractRef.current.value = '';
-            //    setTrigger((prev) => prev + 1);
-            setBuyToken(lowerCaseSymbol);
-            if (showTokenList !== false) {
-              setShowTokenList(false);
-            }
-          } else {
-            setBuyToken(symbol.toLowerCase());
-            console.warn(`Token ${symbol} already exists in ALL_TOKENS.`);
-            if (showTokenList !== false) {
-              setShowTokenList(false);
-            }
-          }
-        } catch (error) {
-          console.error('Failed to import token:', error);
-          toast.error('Failed to import token');
-        }
-      } catch (error) {
-        console.error('Failed to import token:', error);
-      }
-    } else {
+    if (value.length !== 42) {
       return;
+    }
+
+    try {
+      const tokenContract = new ethers.Contract(value, erc20Abi, provider);
+      const symbol = await tokenContract.symbol();
+      const name = await tokenContract.name();
+      const decimals = await tokenContract.decimals();
+      const logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
+
+      const newToken = {
+        chain_id,
+        name,
+        symbol,
+        address: value,
+        decimals: typeof decimals === 'bigint' ? Number(decimals) : decimals,
+        logo_uri,
+        id: Object.keys(ALL_TOKENS).length + 1,
+      };
+
+      const existingToken = Object.values(ALL_TOKENS).find(
+        (token) => token.symbol === symbol
+      );
+
+      if (!existingToken) {
+        let customTokens =
+          JSON.parse(localStorage.getItem('customTokens')) || {};
+        const customTokenLength = Object.keys(customTokens).length;
+        customTokens[customTokenLength] = newToken;
+        localStorage.setItem('customTokens', JSON.stringify(customTokens));
+
+        const alltokenslength = Object.keys(ALL_TOKENS).length;
+        console.log('alltokenslength', alltokenslength);
+        ALL_TOKENS[alltokenslength + 1] = newToken;
+        console.log(ALL_TOKENS[alltokenslength + 1]);
+        setBuyToken(ALL_TOKENS[alltokenslength + 1].id);
+        toast.success(`${symbol} imported successfully`);
+
+        if (showTokenList !== false) {
+          setShowTokenList(false);
+        }
+      } else {
+        console.log(existingToken);
+        setBuyToken(ALL_TOKENS[existingToken.id].id);
+        if (showTokenList !== false) {
+          setShowTokenList(false);
+        }
+
+        console.warn(`Token ${symbol} already exists in ALL_TOKENS.`);
+      }
+    } catch (error) {
+      console.error('Failed to import token:', error);
+      toast.error('Failed to import token');
     }
   }
 
