@@ -192,7 +192,7 @@ function TokenList({
               viewBox='0 0 24 24'
               fill='none'
               stroke='currentColor'
-              stroke-width='2'
+              strokeWidth='2'
               strokeLinecap='round'
               strokeLinejoin='round'
               className='sc-eBMEME juvwDx'>
@@ -304,14 +304,16 @@ function TokenList({
                     <div className='token-list-item-text-name'>
                       {account && (
                         <div className='token-list-item-text-name'>
-                          {token.dollarValue === undefined
-                            ? '$00.00'
+                          {token.dollarValue === undefined ||
+                          token.dollarValue === null ||
+                          token.dollarValue === ''
+                            ? ''
                             : '$' + token.dollarValue}
                         </div>
                       )}
                     </div>{' '}
                     <div className='token-list-item-text-symbol'>
-                      {token.balance === undefined ? '0.00' : token.balance}
+                      {token.balance === undefined ? '' : token.balance}
                     </div>
                   </div>
                 </div>

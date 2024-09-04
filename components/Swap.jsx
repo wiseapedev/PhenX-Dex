@@ -74,12 +74,12 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  /*   useEffect(() => {
+  useEffect(() => {
     if (buyLink) {
       handleContractImport(buyLink);
     }
   }, [buyLink]);
- */
+
   function balanceDisplayFixer(balance) {
     if (balance === '0') {
       return '0';
@@ -128,7 +128,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const priorityGasRef = useRef(null);
   const slippageRef = useRef(null);
   const [buyToken, setBuyToken] = useState(getBuyToken());
-  console.log('buyToken', buyToken);
 
   const [showChart, setShowChart] = useState(false);
   const [showAudits, setShowAudits] = useState(false);
@@ -146,7 +145,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   }
 
   const [sellToken, setSellToken] = useState(findKeyBySymbol('ETH'));
-  console.log('sellToken', sellToken);
   const [sellTokenDisplayBalance, setSellTokenDisplayBalance] = useState(0);
   const [buyTokenDisplayBalance, setBuyTokenDisplayBalance] = useState(0);
   const [showTokenList, setShowTokenList] = useState(false);
@@ -373,7 +371,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     useEffect(() => {
       const handle = setInterval(() => {
         if (Number(savedOutputAmount.current) !== Number(outputAmount)) {
-          console.log('savedOutputAmount', savedOutputAmount.current);
+          //     console.log('savedOutputAmount', savedOutputAmount.current);
 
           if (Number(savedInputAmount.current) > 0) {
             setOutputAmount(savedOutputAmount.current);
@@ -388,10 +386,10 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
         ) {
           savedOutputAmount.current = '0';
           if (outputAmount !== '') {
-            console.log(
+            /*         console.log(
               ' Number(savedInputAmount.current) === 0',
               savedInputAmount.current
-            );
+            ); */
             setOutputAmount('');
           }
         }
@@ -572,7 +570,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     );
   }
   function QuoteView() {
-    console.log('➡️➡️➡️ QuoteView State Change');
+    //   console.log('➡️➡️➡️ QuoteView State Change');
     const {
       account,
       savedInputAmount,
@@ -621,8 +619,8 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
           return;
         }
         if (PriorityGas !== gasLevelRef.current) {
-          console.log('new gas', PriorityGas);
-          console.log('gasLevel', gasLevelRef.current);
+          //    console.log('new gas', PriorityGas);
+          //     console.log('gasLevel', gasLevelRef.current);
           gasLevelRef.current = PriorityGas;
           return;
         }
@@ -1743,8 +1741,27 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
       const symbol = await tokenContract.symbol();
       const name = await tokenContract.name();
       const decimals = await tokenContract.decimals();
-      const logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`;
+      let logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`; // default logo
 
+      const imageUrl = `https://www.dextools.io/resources/tokens/logos/ether/${value}.png`;
+
+      // Check if the image exists using Image object
+      const checkImageExists = (url) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = url;
+
+          img.onload = () => resolve(true); // Image exists
+          img.onerror = () => resolve(false); // Image doesn't exist
+        });
+      };
+
+      // Check if the custom image exists
+      const imageExists = await checkImageExists(imageUrl);
+
+      if (imageExists) {
+        logo_uri = imageUrl; // use the actual logo if it exists
+      }
       const newToken = {
         chain_id,
         name,

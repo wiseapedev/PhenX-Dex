@@ -38,7 +38,6 @@ export const BlockchainProvider = ({children, config}) => {
   const {address: account} = useAccount();
   const signer = useEthersSigner();
   const [chain_id, setChainId] = useState(getChainId(config) || 1);
-  console.log('BlockchainProvider chain_id', chain_id);
   const [ETH_TOKENS, setEthTokens] = useState({});
   const [ALL_TOKENS, setAllTokens] = useState({});
 
@@ -48,7 +47,6 @@ export const BlockchainProvider = ({children, config}) => {
         console.log('Fetching tokens...');
         const res = await fetch('/api/tokens');
         const data = await res.json();
-        console.log('data', data);
         setEthTokens(data);
       } catch (error) {
         console.error('Failed to fetch tokens:', error);
@@ -91,7 +89,6 @@ export const BlockchainProvider = ({children, config}) => {
   }, [config]);
 
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
-  console.log('uniswapRouterAddress', uniswapRouterAddress);
   const wethAddress = CHAINS[chain_id].wethAddress;
   const usdcAddress = CHAINS[chain_id].usdcAddress;
 
@@ -192,8 +189,8 @@ export const BlockchainProvider = ({children, config}) => {
           return {
             key,
             data: {
-              dollarValue: balanceData.dollarValue || '00.00',
-              balance: balanceData.balance || '00.00',
+              dollarValue: balanceData.dollarValue || '',
+              balance: balanceData.balance || '',
               symbol: ALL_TOKENS[key].symbol,
               is_partner: ALL_TOKENS[key].is_partner,
               chain_id: ALL_TOKENS[key].chain_id,
@@ -206,7 +203,6 @@ export const BlockchainProvider = ({children, config}) => {
         });
 
       const results = await Promise.all(tokenPromises);
-      console.log('results', results);
       const updatedDollarRef = results.reduce((acc, {key, data}) => {
         acc[key] = data;
         return acc;
@@ -226,7 +222,7 @@ export const BlockchainProvider = ({children, config}) => {
       }
     }
 
-    const intervalId = setInterval(checkUpdateDollarRef, 12000);
+    const intervalId = setInterval(updateDollarRef, 12000);
 
     return () => clearInterval(intervalId);
   }, [account, chain_id, ALL_TOKENS]);
@@ -294,9 +290,7 @@ export const BlockchainProvider = ({children, config}) => {
             tokenBalance = savedInputAmount.current;
           }
           tokenBalance = tokenBalance != null ? tokenBalance : 0;
-          console.log(tokenBalance, 'Token Balance');
           if (tokenBalance === 0n) {
-            console.log('Token Balance is 0');
             return;
           }
 
