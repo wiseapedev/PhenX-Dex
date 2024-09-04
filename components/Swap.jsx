@@ -1146,7 +1146,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
         <>
           {' '}
           <div className='swap-button disable'>Input Amount</div>
-          <SaverText />
+          {!showAudits && <SaverText />}
         </>
       );
     }

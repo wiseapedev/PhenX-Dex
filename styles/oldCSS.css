@@ -184,7 +184,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 5px;
 }
 .quick-box {
@@ -192,14 +192,19 @@
   border-radius: 5px;
   border: none;
   background-color: #1b1b1b;
-  color: var(--text-gray);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+  color: var(--text);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
   font-size: 0.8rem;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
+  opacity: 0.8;
   padding: 3px 5px;
   margin: 3px;
 }
+.quick-box:hover {
+  opacity: 1;
+}
+
 .quote-content-header {
   display: flex;
   flex-direction: row;

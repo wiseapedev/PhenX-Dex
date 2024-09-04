@@ -255,11 +255,12 @@ input:focus {
   color: white;
 }
 .saver-info-container {
-  background: var(--box-darker);
+  /*   background: var(--box-darker);
   border: solid 1px var(--border);
+ */
   border-radius: 15px;
   position: relative;
-  padding: 8px;
+  padding: 2px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -547,7 +548,7 @@ input:focus {
   color: var(--text);
 }
 .token-input-box:hover {
-  background-color: var(--box-hover);
+  background-color: var(--box-hover-light);
 }
 .small-text {
   font-size: 0.9rem;
@@ -787,6 +788,9 @@ input:focus {
   margin-top: 3px;
   padding: 5px;
   border-radius: 5px;
+}
+.quote-line:hover {
+  background-color: var(--box-hover-light);
 }
 
 .quote-title {
@@ -1213,9 +1217,10 @@ input:focus {
   align-items: center;
   width: 100%;
   padding: 5px;
-  border-radius: 8px;
-  background: var(--box-darker);
+  border-radius: 15px;
+  /*   background: var(--box-darker);
   border: solid 1px var(--border);
+ */
   color: var(--text);
   transition: all 0.3s ease-in-out;
 }
@@ -1423,12 +1428,14 @@ input:focus {
 .swap-container {
   transition: all 1s ease-in-out;
   margin-inline: 5px;
-  padding: 2px;
+  padding: 10px;
   position: relative;
   width: 450px;
   border-radius: 25px;
   overflow: visible;
   overflow: hidden;
+  background: var(--box-darker);
+  border: 1px solid var(--border);
   /*   box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3); */
 }
 .left-section {
@@ -1491,10 +1498,9 @@ input:focus {
 .general-box {
   transition: all 0.5s ease-in-out;
   margin-top: 10px;
-  padding: 5px;
-  background-color: var(--box-darker);
+  /*   background-color: var(--box-darker);
   border: 1px solid var(--border);
-
+ */
   border-radius: 15px;
   display: flex;
   position: relative;
