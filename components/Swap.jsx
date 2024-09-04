@@ -460,55 +460,97 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
       </div>
     );
   }
-  function SaverInfo({swapData}) {
-    const slippagePercentage = swapData.slippage * 100;
-    let minTokensOut = '0';
-    if (swapData) {
-      try {
-        minTokensOut = ethers.formatUnits(
-          String(swapData.amountOut),
-          swapData.decimals
-        );
-        minTokensOut = Number(minTokensOut).toFixed(3);
-      } catch (error) {
-        console.error('Error parsing minTokensOut:', error);
-      }
-    }
-    let networkFeesSaved = 0;
-    try {
-      if (swapData.isV3Only && swapData.swapType === 'TOKEN/ETH') {
-        networkFeesSaved = 3.2;
-      } else if (swapData.isV3Only && swapData.swapType === 'ETH/TOKEN') {
-        networkFeesSaved = 5.45;
-      } else if (swapData.isV3Only && swapData.swapType === 'TOKEN/TOKEN') {
-        networkFeesSaved = 0.75;
-      } else if (swapData.isV2Only && swapData.swapType === 'ETH/TOKEN') {
-        networkFeesSaved = 1.5;
-      } else if (swapData.isV2Only && swapData.swapType === 'TOKEN/ETH') {
-        networkFeesSaved = 3.7;
-      } else if (swapData.isV2Only && swapData.swapType === 'TOKEN/TOKEN') {
-        networkFeesSaved = 15.9;
-      } else if (swapData.isV2ToV3) {
-        networkFeesSaved = 0;
-      } else if (swapData.isV3ToV2) {
-        networkFeesSaved = 0;
-      }
-    } catch (error) {}
-    let swapFeeSaved = 0.25;
-    let totalToSave = networkFeesSaved + swapFeeSaved;
+  function SaverInfo({swapData, savedSlippage}) {
+    const [slippagePercentage, setSlippagePercentage] = useState(
+      savedSlippage.current || 0
+    );
+    const [minTokensOut, setMinTokensOut] = useState('0');
+    const [networkFeesSaved, setNetworkFeesSaved] = useState(0);
+    const [pairRoute, setPairRoute] = useState('');
+    const [loading, setLoading] = useState(true);
 
-    let pairRoute = '';
-    try {
-      if (swapData.isV3Only) {
-        pairRoute = 'V3';
-      } else if (swapData.isV2Only) {
-        pairRoute = 'V2';
-      } else if (swapData.isV2ToV3) {
-        pairRoute = 'V2 to V3';
-      } else if (swapData.isV3ToV2) {
-        pairRoute = 'V3 to V2';
+    useEffect(() => {
+      // Update slippage percentage every 500ms if it changes
+      const handle = setInterval(() => {
+        const refSlippage = Number(savedSlippage.current);
+        if (refSlippage !== slippagePercentage) {
+          setSlippagePercentage(refSlippage);
+        }
+      }, 500);
+
+      return () => clearInterval(handle); // Cleanup on unmount
+    }, [slippagePercentage, savedSlippage]);
+
+    useEffect(() => {
+      // Check if swapData is ready before performing calculations
+      if (swapData && slippagePercentage) {
+        try {
+          let calculatedMinTokensOut = ethers.formatUnits(
+            String(swapData.amountOut),
+            swapData.decimals
+          );
+          // Apply slippage
+          calculatedMinTokensOut =
+            Number(calculatedMinTokensOut) * (1 - slippagePercentage / 100);
+          setMinTokensOut(Number(calculatedMinTokensOut).toFixed(3));
+        } catch (error) {
+          console.error('Error parsing minTokensOut:', error);
+        }
+
+        // Determine network fees saved
+        let calculatedNetworkFeesSaved = 0;
+        try {
+          if (swapData.isV3Only && swapData.swapType === 'TOKEN/ETH') {
+            calculatedNetworkFeesSaved = 3.2;
+          } else if (swapData.isV3Only && swapData.swapType === 'ETH/TOKEN') {
+            calculatedNetworkFeesSaved = 5.45;
+          } else if (swapData.isV3Only && swapData.swapType === 'TOKEN/TOKEN') {
+            calculatedNetworkFeesSaved = 0.75;
+          } else if (swapData.isV2Only && swapData.swapType === 'ETH/TOKEN') {
+            calculatedNetworkFeesSaved = 1.5;
+          } else if (swapData.isV2Only && swapData.swapType === 'TOKEN/ETH') {
+            calculatedNetworkFeesSaved = 3.7;
+          } else if (swapData.isV2Only && swapData.swapType === 'TOKEN/TOKEN') {
+            calculatedNetworkFeesSaved = 15.9;
+          }
+          setNetworkFeesSaved(calculatedNetworkFeesSaved);
+        } catch (error) {
+          console.error('Error calculating network fees:', error);
+        }
+
+        // Set pair route
+        let route = '';
+        try {
+          if (swapData.isV3Only) {
+            route = 'V3';
+          } else if (swapData.isV2Only) {
+            route = 'V2';
+          } else if (swapData.isV2ToV3) {
+            route = 'V2 to V3';
+          } else if (swapData.isV3ToV2) {
+            route = 'V3 to V2';
+          }
+          setPairRoute(route);
+        } catch (error) {
+          console.error('Error determining pair route:', error);
+        }
+
+        setLoading(false); // All data ready
       }
-    } catch (error) {}
+    }, [swapData, slippagePercentage]);
+
+    // While loading, show a loading spinner or placeholder
+    if (loading) {
+      return (
+        <div className='flex-col'>
+          <div className='loader'></div>
+        </div>
+      );
+    }
+
+    // Swap Fee Saved (static for now)
+    const swapFeeSaved = 0.25;
+    const totalToSave = networkFeesSaved + swapFeeSaved;
 
     return (
       <div className='saver-info-container'>
@@ -530,9 +572,9 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
         </div>{' '}
         <div className='saver-text-container'>
           <div className='saver-text-left'>Slippage</div>
-          <div className='saver-text-right'>{`${slippagePercentage.toFixed(
-            2
-          )}%`}</div>
+          <div className='saver-text-right'>{`${Number(
+            slippagePercentage
+          ).toFixed(2)}%`}</div>
         </div>
         <div className='saver-text-container'>
           <div className='saver-text-left'>Network Fees Saved</div>
@@ -1719,7 +1761,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 Swap
               </div>
             )}
-            <SaverInfo swapData={swapData} />
+            <SaverInfo swapData={swapData} savedSlippage={savedSlippage} />
           </>
         );
       }
@@ -1840,7 +1882,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
           />{' '}
           <div className='beta-container'>
             <div className='logo-text'>PHENX </div>
-            <div className='beta-text'>BETA</div>
+            <div className='beta-text mobhide'>BETA</div>
           </div>
           {/*           <PromoToken
             handleBuyTokenChange={handleBuyTokenChange}
@@ -1857,12 +1899,47 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
             ref={contractRef}
             onChange={(e) => handleContractImport(e.target.value)}
           /> */}
-          <ConnectButton
+          {/*           <ConnectButton
             accountStatus={{smallScreen: 'avatar', largeScreen: 'avatar'}}
             chainStatus={{smallScreen: 'icon', largeScreen: 'icon'}}
             showBalance={{smallScreen: false, largeScreen: true}}
             label='Connect Wallet'
-          />
+          /> */}
+          <ConnectButton.Custom>
+            {({
+              account,
+              chain,
+              openAccountModal,
+              openChainModal,
+              openConnectModal,
+              mounted,
+            }) => {
+              const ready = mounted && account && chain;
+              const connected = ready && account;
+
+              console.log('Mounted:', mounted);
+              console.log('Account:', account);
+              console.log('Chain:', chain);
+
+              if (!mounted) {
+                return null; // Wait until mounted
+              }
+
+              return (
+                <div>
+                  {!connected ? (
+                    <div onClick={openConnectModal} className='connect-button'>
+                      Connect Wallet
+                    </div>
+                  ) : (
+                    <div onClick={openAccountModal} className='audit-button'>
+                      {account.displayName}
+                    </div>
+                  )}
+                </div>
+              );
+            }}
+          </ConnectButton.Custom>
         </div>
       </div>
     );
@@ -1911,7 +1988,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
               textAlign: 'center',
               letterSpacing: '7px',
             }}>
-            FEEDBACK REPORTING
+            FEEDBACK
           </a>
         </div>
       </div>
