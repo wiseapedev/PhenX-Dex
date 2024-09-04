@@ -1039,7 +1039,7 @@ input:focus {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  padding-inline: 2px;
+  padding-inline: 20px;
 }
 
 .nav-right {
@@ -1052,7 +1052,7 @@ input:focus {
 }
 
 .nav-right > * {
-  margin-right: 0px;
+  margin-right: 20px;
 }
 .nav-item {
   margin-left: 3px;
@@ -2036,9 +2036,14 @@ input:focus {
     border-top-right-radius: 0;
     border-bottom-left-radius: 0px;
   }
-
+  .nav-left {
+    padding-inline: 2px;
+  }
   .nav-right {
     padding-inline: 0px;
+  }
+  .nav-right > * {
+    margin-right: 2px;
   }
   .page-container {
     padding-top: 5px;
@@ -2048,6 +2053,11 @@ input:focus {
     height: 90vh;
     width: 100%;
     color: white;
+  }
+  .connect-button {
+    font-size: 1rem;
+    height: 32px;
+    margin-top: 5px;
   }
   .main-container {
     flex-direction: column;

@@ -55,7 +55,6 @@ function GasTrackerDisplay({gasData}) {
     <div className='gas-tracker'>
       <GasPriceBox
         level='Low'
-        phenx='mobhide'
         gasData={lowConfidence}
         baseFee={block.baseFeePerGas}
       />
@@ -67,7 +66,6 @@ function GasTrackerDisplay({gasData}) {
       />
       <GasPriceBox
         level='High'
-        phenx='mobhide'
         gasData={highConfidence}
         baseFee={block.baseFeePerGas}
       />
