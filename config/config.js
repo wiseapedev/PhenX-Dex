@@ -1,4 +1,4 @@
-import {connectorsForWallets} from '@rainbow-me/rainbowkit';
+/* import {connectorsForWallets} from '@rainbow-me/rainbowkit';
 import {WagmiProvider, createConfig, http} from 'wagmi';
 
 import {
@@ -116,12 +116,12 @@ const connectors = connectorsForWallets(
 );
 const config = createConfig({
   connectors,
-  chains: [mainnet /* , base */],
+  chains: [mainnet ],
 
   transports: {
     [mainnet.id]: http(process.env.NEXT_PUBLIC_ETH_RPC),
 
-    /*  [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC), */
   },
 });
 export default config;
+ */

@@ -8,14 +8,13 @@ import {CHAINS} from '../../components/lib/constants';
 
 export default function BuyContract() {
   const chain_id = 1;
-  const [provider, setProvider] = useState(null); // State for provider
   const router = useRouter();
   const {contract} = router.query;
   const [pageReady, setPageReady] = useState(false);
   const [buyLinkKey, setBuyLinkKey] = useState(3);
   const [wrongNetwork, setWrongNetwork] = useState(false);
 
-  // Set up provider in useEffect to avoid SSR issues
+  // Set up  in useEffect to avoid SSR issues
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const ethersProvider = new ethers.JsonRpcProvider(CHAINS[1].rpcUrl);
@@ -25,7 +24,7 @@ export default function BuyContract() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (router.isReady && provider) {
+      if (router.isReady) {
         if (chain_id !== 1) {
           setWrongNetwork(true);
         } else {
@@ -35,7 +34,7 @@ export default function BuyContract() {
     };
 
     loadData();
-  }, [router.isReady, chain_id, provider]); // Dependencies array updated to include provider
+  }, [router.isReady, chain_id]); // Dependencies array updated to include
 
   useEffect(() => {
     const loadData = async () => {

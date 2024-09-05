@@ -368,7 +368,6 @@ export const BlockchainProvider = ({children}) => {
   return (
     <BlockchainContext.Provider
       value={{
-        config,
         chain_id,
         dollarRef,
         savedAddedPriority,
