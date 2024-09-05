@@ -1,5 +1,5 @@
 // pages/index.tsx
-import {ConnectButton} from '@rainbow-me/rainbowkit';
+// import {ConnectButton} from '@rainbow-me/rainbowkit';
 import type {NextPage} from 'next';
 import Head from 'next/head';
 import Layout from '../components/Layout';

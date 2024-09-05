@@ -9,21 +9,26 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {ethers} from 'ethers';
-import {useAccount} from 'wagmi';
+// import {useAccount} from 'wagmi';
 
 import ERC20ABI from './abis/erc20.json';
 import uniswapRouterABI from './abis/UniswapRouter.json';
-import {useEthersProvider} from './provider';
+// import {useEthersProvider} from './provider';
 import {useEthersSigner} from './signer';
 import {erc20Abi} from 'viem';
 import wethABI from './abis/wethABI.json';
-import {config} from '../config/config';
+// import {config} from '../config/config';
 import mergeTokens from './mergeTokens';
 import {watchChainId} from '@wagmi/core';
 import {getChainId} from '@wagmi/core';
 import {CHAINS} from './lib/constants';
 // import {ETH_TOKENS} from './lib/constants';
 import {BASE_TOKENS} from './lib/constants';
+import {
+  useWeb3ModalProvider,
+  useWeb3ModalAccount,
+} from '@web3modal/ethers/react';
+import {BrowserProvider, Contract, formatUnits} from 'ethers';
 
 export const BlockchainContext = createContext({
   contractAddress: '',
@@ -34,13 +39,43 @@ export const BlockchainContext = createContext({
 });
 
 export const BlockchainProvider = ({children, config}) => {
-  const provider = useEthersProvider();
-  const {address: account} = useAccount();
-  const signer = useEthersSigner();
-  const [chain_id, setChainId] = useState(getChainId(config) || 1);
+  // const provider = useEthersProvider();
+  // const {address: account} = useAccount();
+  //  const signer = useEthersSigner();
+  const [chain_id, setChainId] = useState(/* getChainId(config) || */ 1);
   const [ETH_TOKENS, setEthTokens] = useState({});
   const [ALL_TOKENS, setAllTokens] = useState({});
+  const {address: account, chainId, isConnected} = useWeb3ModalAccount();
+  const {walletProvider} = useWeb3ModalProvider();
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const providerRPC = CHAINS[chain_id].rpcUrl;
 
+  const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
+
+  useEffect(() => {
+    const setupProvider = async () => {
+      if (walletProvider) {
+        try {
+          // Initialize ethers provider using the walletProvider
+          const ethersProvider = new BrowserProvider(walletProvider);
+
+          // Get the signer from the ethers provider
+          const signer = await ethersProvider.getSigner();
+
+          // Set the provider and signer in state
+          setSigner(signer);
+          setProvider(ethersProvider);
+        } catch (error) {
+          console.error('Error setting up provider and signer:', error);
+        }
+      }
+    };
+
+    setupProvider(); // Call the async function
+  }, [walletProvider]);
+
+  // const signer = await provider.getSigner()
   useEffect(() => {
     async function fetchTokens() {
       try {
@@ -64,7 +99,7 @@ export const BlockchainProvider = ({children, config}) => {
 
   const dollarRef = useRef(ALL_TOKENS);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     const unwatch = watchChainId(config, {
       onChange(chain_id) {
         console.log('Chain ID changed!', chain_id);
@@ -86,7 +121,7 @@ export const BlockchainProvider = ({children, config}) => {
     return () => {
       unwatch();
     };
-  }, [config]);
+  }, [config]); */
 
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   const wethAddress = CHAINS[chain_id].wethAddress;
@@ -352,6 +387,7 @@ export const BlockchainProvider = ({children, config}) => {
         tokenListOpenRef,
         ALL_TOKENS,
         ETH_TOKENS,
+        providerHTTP,
       }}>
       {children}
     </BlockchainContext.Provider>

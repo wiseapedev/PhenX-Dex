@@ -11,6 +11,8 @@ import {
   SaverInfoIcon,
   DownArrow,
 } from './SVGMAIN.js';
+import {useWeb3Modal} from '@web3modal/ethers/react';
+
 import MemPool from './MemPool';
 import SwapSettings from './SwapSettings';
 import {useState, useEffect, useContext, useRef, useMemo, use} from 'react';
@@ -32,7 +34,7 @@ import routerABI from './abis/router.json';
 import wethABI from './abis/wethABI.json';
 import DollarValue from './DollarValue';
 import uniswapRouterABI from './abis/UniswapRouter.json';
-import {ConnectButton} from '@rainbow-me/rainbowkit';
+// import {ConnectButton} from '@rainbow-me/rainbowkit';
 import getQuoteV3 from '../components/getQuoteV3';
 import uniswapRouterV3ABI from '../components/abis/uniswapRouterV3.json';
 import uniswapRouterV2ABI from '../components/abis/uniswapRouterV2.json';
@@ -55,6 +57,8 @@ import Switch from './Switch';
 const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const {signer, provider, account, tokenListOpenRef, ETH_TOKENS, ALL_TOKENS} =
     useContext(BlockchainContext);
+  const {open} = useWeb3Modal();
+
   const providerRPC = CHAINS[chain_id].rpcUrl;
   const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
   const feeAddress = '0x1c2061fACa9DF7B6c02e7EB8dEBed1f37B24C6A9';
@@ -1909,7 +1913,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
             showBalance={{smallScreen: false, largeScreen: true}}
             label='Connect Wallet'
           /> */}
-          <ConnectButton.Custom>
+          {/*        <ConnectButton.Custom>
             {({
               account,
               chain,
@@ -1943,7 +1947,11 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 </div>
               );
             }}
-          </ConnectButton.Custom>
+          </ConnectButton.Custom> */}
+          {/*         <button className='connect-button' onClick={() => open()}>
+            Open Connect Modal
+          </button> */}{' '}
+          <w3m-button />
         </div>
       </div>
     );

@@ -28,7 +28,7 @@ export function useEthersProvider({
 }
  */
 
-import {FallbackProvider, JsonRpcProvider} from 'ethers';
+/* import {FallbackProvider, JsonRpcProvider} from 'ethers';
 import {useMemo} from 'react';
 import type {Chain, Client, Transport} from 'viem';
 import {type Config, useClient} from 'wagmi';
@@ -50,8 +50,8 @@ export function clientToProvider(client: any) {
   return new JsonRpcProvider(transport.url, network);
 }
 
-/** Action to convert a viem Client to an ethers.js Provider. */
 export function useEthersProvider({chainId}: {chainId?: number} = {}) {
   const client = useClient<Config>({chainId});
   return useMemo(() => clientToProvider(client), [client]);
 }
+ */

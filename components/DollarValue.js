@@ -9,8 +9,8 @@ import React, {
   useContext,
 } from 'react';
 import {ethers} from 'ethers';
-import {useAccount} from 'wagmi';
-import {useEthersProvider} from './provider';
+// import {useAccount} from 'wagmi';
+// import {useEthersProvider} from './provider';
 import {erc20Abi} from 'viem';
 import {BlockchainContext} from './BlockchainContext';
 import uniswapRouterABI from './abis/UniswapRouter.json';
@@ -20,13 +20,18 @@ import getQuoteV3 from './getQuoteV3';
 import {ETH_TOKENS} from './lib/constants.js';
 
 function DollarValue({Token, isTokenList, isOutputToken}) {
-  const {ethDollarPrice, savedInputAmount, savedOutputAmount, chain_id} =
-    useContext(BlockchainContext);
+  const {
+    ethDollarPrice,
+    savedInputAmount,
+    savedOutputAmount,
+    chain_id,
+    provider,
+    account,
+  } = useContext(BlockchainContext);
 
   const wethAddress = CHAINS[chain_id].wethAddress;
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
-  const provider = useEthersProvider();
-  const {address: account} = useAccount();
+  // const provider = useEthersProvider();
 
   const [ethPrice, setEthPrice] = useState('0');
   const RATE_LIMIT = 500;

@@ -73,8 +73,12 @@ import {ToastContainer} from 'react-toastify';
 import {useEffect, useState} from 'react';
 import '@walletconnect/modal';
 import React from 'react';
-import config from '../config/config';
-
+// import config from '../config/config';
+import {AppKit} from './context/web3modal';
+export const metadata = {
+  title: 'AppKit',
+  description: 'AppKit Example',
+};
 /* const config = getDefaultConfig({
   appName: 'RainbowKit App',
   projectId: '0aef2c24e12ca37c7ee7ee5f5bd8f56e',
@@ -222,7 +226,7 @@ function MyApp({Component, pageProps}: AppProps) {
     <div className='intro-box'>100% Revenue Share Model</div>
   </div>
 </div> */
-  return (
+  /*   return (
     <WagmiProvider config={config}>
       <ToastContainer
         position='top-left'
@@ -253,6 +257,28 @@ function MyApp({Component, pageProps}: AppProps) {
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
+  );
+}
+ */
+  return (
+    <AppKit>
+      <ToastContainer
+        position='top-left'
+        autoClose={2000} // Adjust the auto close delay as needed
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='dark'
+      />
+
+      <BlockchainProvider>
+        <Component {...pageProps} />
+      </BlockchainProvider>
+    </AppKit>
   );
 }
 

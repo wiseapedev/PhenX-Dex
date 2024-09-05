@@ -1,4 +1,4 @@
-import {ConnectButton} from '@rainbow-me/rainbowkit';
+// import {ConnectButton} from '@rainbow-me/rainbowkit';
 import {useEffect, useContext, useState, use} from 'react';
 import {ethers} from 'ethers';
 import {BlockchainContext} from './BlockchainContext';
@@ -13,7 +13,7 @@ const SwapNoSSR = dynamic(() => import('./Swap'), {
 
 const Layout = ({buyLink, buyLinkKey}) => {
   const {config, ETH_TOKENS, ALL_TOKENS} = useContext(BlockchainContext);
-  const [chain_id, setChainId] = useState(getChainId(config));
+  const [chain_id, setChainId] = useState(/* getChainId(config) */ 1);
   const [tokensReady, setTokensReady] = useState(false);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
     }
   }, [ETH_TOKENS, ALL_TOKENS]);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     const unwatch = watchChainId(config, {
       onChange(newChainId) {
         console.log('Chain ID changed!', newChainId);
@@ -35,7 +35,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
 
     return () => unwatch();
   }, [config]);
-
+ */
   return (
     <div>
       {tokensReady ? (

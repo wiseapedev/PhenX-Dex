@@ -6,7 +6,7 @@ import {ETH_TOKENS} from '../../components/lib/constants';
 import {ethers} from 'ethers';
 import {erc20Abi} from 'viem';
 import {CHAINS} from '../../components/lib/constants';
-import {ConnectButton} from '@rainbow-me/rainbowkit';
+// import {ConnectButton} from '@rainbow-me/rainbowkit';
 
 export default function BuyContract() {
   /*   useEffect(() => {
@@ -76,23 +76,23 @@ export default function BuyContract() {
           </div>
           <div className='nav-right'>
             {' '}
-            <ConnectButton
+            {/*             <ConnectButton
               //  accountStatus={{smallScreen: 'avatar', largeScreen: 'avatar'}}
               //  chainStatus={{smallScreen: 'icon', largeScreen: 'icon'}}
               showBalance={{smallScreen: false, largeScreen: true}}
               label='Connect Wallet & Switch Network'
-            />
+            /> */}
           </div>
         </div>
         <div className='scale-switch'>
           <div className='quick-import-bar'>Please change network</div>
 
-          <ConnectButton
+          {/*           <ConnectButton
             accountStatus={{smallScreen: 'none', largeScreen: 'none'}}
             //   chainStatus={{smallScreen: 'icon', largeScreen: 'icon'}}
             showBalance={{smallScreen: false, largeScreen: false}}
             label='Switch Network'
-          />
+          /> */}
         </div>
       </div>
     );

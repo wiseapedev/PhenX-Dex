@@ -3,7 +3,7 @@ import {useContext, useEffect, useState} from 'react';
 import CountUp from 'react-countup';
 
 function MemPool() {
-  const {provider} = useContext(BlockchainContext);
+  const {providerHTTP} = useContext(BlockchainContext);
   const [gasData, setGasData] = useState(null);
 
   async function getGasFees() {
@@ -15,7 +15,7 @@ function MemPool() {
         params: [{chainid: 1}],
       };
 
-      const data = await provider.send(payload.method, payload.params);
+      const data = await providerHTTP.send(payload.method, payload.params);
       setGasData(data);
     } catch (error) {
       //   console.error('Failed to getGasFees:', error);
