@@ -2,7 +2,6 @@ import {useEffect, useState, useContext} from 'react';
 import {useRouter} from 'next/router';
 import Layout from '../../components/Layout';
 import {BlockchainContext} from '../../components/BlockchainContext';
-import {ETH_TOKENS} from '../../components/lib/constants';
 import {ethers} from 'ethers';
 import {erc20Abi} from 'viem';
 import {CHAINS} from '../../components/lib/constants';
@@ -14,7 +13,7 @@ export default function BuyContract() {
       window.location.href = '/';
     }
   }, []);
-  const {signer, account, chain_id} = useContext(BlockchainContext);
+  const {signer, account, chain_id, ETH_TOKENS} = useContext(BlockchainContext);
   const provider = new ethers.JsonRpcProvider(CHAINS[8453].rpcUrl);
   const router = useRouter();
   const {contract} = router.query;
