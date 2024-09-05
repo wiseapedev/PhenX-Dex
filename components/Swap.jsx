@@ -53,15 +53,10 @@ import Portfolio from './Portfolio';
 import Switch from './Switch';
 
 const Swap = ({buyLink, buyLinkKey, chain_id}) => {
-  const {
-    signer,
-    provider,
-    account,
-    tokenListOpenRef,
-    ETH_TOKENS,
-    ALL_TOKENS,
-    updateData,
-  } = useContext(BlockchainContext);
+  const {signer, provider, account, tokenListOpenRef, ETH_TOKENS, ALL_TOKENS} =
+    useContext(BlockchainContext);
+  const providerRPC = CHAINS[chain_id].rpcUrl;
+  const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
   const feeAddress = '0x1c2061fACa9DF7B6c02e7EB8dEBed1f37B24C6A9';
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   const routerAddressV3 = CHAINS[chain_id].uniswapRouterAddressV3;
@@ -158,97 +153,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const [trigger, setTrigger] = useState(0);
   const GWEI = useRef(0);
   const RATE_LIMIT = 1500;
-
-  const startPollingTransaction = (txHash) => {
-    const pollInterval = 2000; // Poll every 2 seconds
-    const maxPollCount = 30; // Stop polling after 1 minute (30 * 2 seconds)
-    let pollCount = 0;
-
-    // Ensure pollingActive is set to prevent multiple polling instances
-    if (localStorage.getItem('pollingActive') === 'true') {
-      console.warn(
-        'Polling is already active. Ignoring additional polling requests.'
-      );
-      return; // Exit early if polling is already running
-    }
-
-    // Mark polling as active
-    localStorage.setItem('pollingActive', 'true');
-
-    const pollTransaction = setInterval(async () => {
-      pollCount += 1;
-
-      try {
-        const receipt = await provider.getTransactionReceipt(txHash);
-
-        if (receipt) {
-          clearInterval(pollTransaction); // Stop polling if the receipt is found
-          localStorage.removeItem('pollingActive'); // Mark polling as inactive
-
-          if (receipt.status === 1) {
-            toast.success('Trade successful');
-            setTrigger(trigger + 1);
-            updateData('savedInputAmount', '');
-            updateData('savedOutputAmount', '');
-            localStorage.removeItem('pendingTxHash');
-            localStorage.removeItem('pendingTxTimestamp');
-            enableSwapContainer();
-          } else {
-            toast.error('Trade failed');
-            setTrigger(trigger + 1);
-            localStorage.removeItem('pendingTxHash');
-            localStorage.removeItem('pendingTxTimestamp');
-            enableSwapContainer();
-          }
-        } else if (pollCount >= maxPollCount) {
-          clearInterval(pollTransaction);
-          localStorage.removeItem('pollingActive'); // Mark polling as inactive
-          toast.info('Transaction is still pending after 1 minute.');
-          enableSwapContainer();
-        }
-      } catch (error) {
-        console.error('Error while checking transaction status:', error);
-        toast.error('Error checking transaction status');
-        clearInterval(pollTransaction);
-        localStorage.removeItem('pollingActive'); // Mark polling as inactive
-        enableSwapContainer();
-      }
-    }, pollInterval);
-  };
-
-  const checkPendingTransactionOnLoad = () => {
-    const txHash = localStorage.getItem('pendingTxHash');
-    const txTimestamp = localStorage.getItem('pendingTxTimestamp');
-
-    if (txHash && txTimestamp) {
-      const currentTime = Date.now();
-      const timeElapsed = currentTime - parseInt(txTimestamp, 10); // Ensure txTimestamp is parsed as an integer
-
-      // If the transaction was sent less than 10 minutes ago, check status
-      const gracePeriod = 10 * 60 * 1000; // 10 minutes
-      if (timeElapsed < gracePeriod) {
-        startPollingTransaction(txHash); // Only start polling if within grace period
-      } else {
-        // If too much time has passed, stop checking and clear localStorage
-        localStorage.removeItem('pendingTxHash');
-        localStorage.removeItem('pendingTxTimestamp');
-        toast.info('Pending transaction has expired.');
-      }
-    }
-  };
-
-  useEffect(() => {
-    const pollPendingTransactions = setInterval(() => {
-      checkPendingTransactionOnLoad();
-    }, 3000); // Every 3 seconds
-
-    // Cleanup function to stop polling and mark it as inactive
-    return () => {
-      clearInterval(pollPendingTransactions);
-      localStorage.removeItem('pollingActive'); // Mark polling as inactive
-    };
-  }, []);
-
   useEffect(() => {
     tokenListOpenRef.current = showTokenList;
   }, [showTokenList]);
@@ -338,11 +242,11 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
         const tokenContract = new ethers.Contract(
           token.address,
           erc20Abi,
-          provider
+          providerHTTP
         );
         let balance;
         if (token.symbol === 'ETH') {
-          balance = await provider.getBalance(account);
+          balance = await providerHTTP.getBalance(account);
         } else {
           balance = await tokenContract.balanceOf(account);
         }
@@ -852,7 +756,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
             const routerContract = new ethers.Contract(
               uniswapRouterAddress,
               uniswapRouterABI,
-              provider
+              providerHTTP
             );
 
             const defineSwapType = () => {
@@ -1255,7 +1159,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
         const largeAmount = 11579208923731619542357098500868790n;
 
         const {account, signer, updateData} = useContext(BlockchainContext);
-        const provider = new ethers.JsonRpcProvider(CHAINS[chain_id].rpcUrl);
         const [isApprovalNeeded, setIsApprovalNeeded] = useState(false);
 
         useEffect(() => {
@@ -1307,88 +1210,48 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
           return () => clearInterval(intervalId); // Clean up the interval on component unmount
         }, [sellToken, isApprovalNeeded, setIsApprovalNeeded]);
         const handleApprove = async () => {
-          toast.info('Please approve the transaction in your wallet');
-          disableSwapContainer(); // Disable the swap container while waiting for approval
-
           try {
+            toast.info('Please approve the transaction in your wallet');
+            disableSwapContainer();
+
             const tokenContract = new ethers.Contract(
               ALL_TOKENS[sellToken].address,
               erc20Abi,
               signer
             );
-            let requiredAmount = String(swapData.amount);
+            let requiredAmount = swapData.amount;
+            requiredAmount = String(requiredAmount);
 
-            // Initiate the approval transaction
             const approveTx = await tokenContract.approve(
               swapData.isV3Only ? routerAddress : routerAddress,
               largeAmount
             );
             console.log('Transaction Hash:', approveTx.hash);
+
             toast.info('Approval pending');
-
-            const txHash = approveTx.hash; // Get the transaction hash to poll
-            const pollInterval = 3000; // Poll every 2 seconds
-            const maxPollCount = 15; // Stop after 30 seconds (15 * 2 seconds)
-            let pollCount = 0;
-
-            // Function to check the transaction status
-            const checkTransactionStatus = async (txHash) => {
-              try {
-                const receipt = await provider.getTransactionReceipt(txHash); // Check the transaction receipt
-                if (receipt) {
-                  if (receipt.status === 1) {
-                    console.log('Transaction successful');
-                    toast.success('Approval successful');
-                    setIsApprovalNeeded(false);
-                    return 'success';
-                  } else {
-                    console.log('Transaction failed');
-                    toast.error('Approval failed');
-                    setIsApprovalNeeded(true);
-                    return 'failed';
-                  }
-                }
-                return 'pending'; // Transaction is still pending
-              } catch (error) {
-                console.error('Error checking transaction status:', error);
-                toast.error('Error checking transaction status');
-                return 'error'; // In case of error
-              }
-            };
-
-            // Start polling to check the transaction status
-            const pollTransaction = setInterval(async () => {
-              pollCount += 1;
-
-              const status = await checkTransactionStatus(txHash);
-
-              if (
-                status === 'success' ||
-                status === 'failed' ||
-                status === 'error'
-              ) {
-                // Transaction has either succeeded, failed, or an error occurred, enable the swap container
-                clearInterval(pollTransaction);
-                enableSwapContainer(); // Enable swap container only after the transaction is complete
-              }
-
-              if (pollCount >= maxPollCount) {
-                // Stop polling after 30 seconds if no result
-                clearInterval(pollTransaction);
-                toast.info('Transaction is still pending after 30 seconds.');
-                enableSwapContainer(); // Allow user to retry after timeout
-              }
-            }, pollInterval);
+            const approvalReceipt = await approveTx.wait();
+            if (approvalReceipt.status === 1) {
+              toast.success('Approval successful');
+              enableSwapContainer();
+              setIsApprovalNeeded(false);
+            } else {
+              enableSwapContainer();
+              setIsApprovalNeeded(true);
+              toast.error('Approval failed');
+              console.error('Failed to approve');
+              return;
+            }
           } catch (error) {
             console.error('Failed to approve:', error);
-            toast.error('Failed to approve');
-            enableSwapContainer(); // Make sure the swap container is enabled even after an error
+          } finally {
+            enableSwapContainer();
           }
         };
 
         const handleSwap = async () => {
           try {
             disableSwapContainer();
+
             const routerContract = new ethers.Contract(
               routerAddress,
               routerABI,
@@ -1412,12 +1275,14 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
                 if (ALL_TOKENS[sellToken].symbol === 'ETH') {
                   // Get balance as BigInt
-                  userBalanceBN = BigInt(await provider.getBalance(account));
+                  userBalanceBN = BigInt(
+                    await providerHTTP.getBalance(account)
+                  );
                 } else {
                   const tokenContract = new ethers.Contract(
                     ALL_TOKENS[sellToken].address,
                     erc20Abi,
-                    provider
+                    providerHTTP
                   );
                   // Get token balance as BigInt
                   userBalanceBN = BigInt(
@@ -1448,7 +1313,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                   params: [{chainid: 1}], // Replace with the appropriate chain ID, 1 for Ethereum Mainnet
                 };
 
-                const data = await provider.send(
+                const data = await providerHTTP.send(
                   payload.method,
                   payload.params
                 );
@@ -1840,39 +1705,27 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 );
               }
             }
-            const txHash = transactionResponse.hash;
-            const txTimestamp = Date.now(); // Capture the timestamp
-
-            console.log('Transaction Hash:', txHash);
             toast.info('Trade pending');
+            const sendTransaction = await transactionResponse.wait();
+            if (sendTransaction.status === 1) {
+              toast.success('Trade successful');
+              enableSwapContainer();
+              setTrigger(trigger + 1);
+              updateData('savedInputAmount', '');
+              updateData('savedOutputAmount', '');
+            }
+            if (sendTransaction.status === 0) {
+              toast.error('Trade failed');
+              setTrigger(trigger + 1);
 
-            // Store the transaction hash and timestamp in localStorage
-            localStorage.setItem('pendingTxHash', txHash);
-            localStorage.setItem('pendingTxTimestamp', txTimestamp);
-
-            // Start polling every 2 seconds
-            startPollingTransaction(txHash);
-
-            /*             provider.once(txHash, async (receipt) => {
-              if (receipt.status === 1) {
-                console.log('Transaction successful');
-                toast.success('Trade successful');
-                setTrigger(trigger + 1);
-                updateData('savedInputAmount', '');
-                updateData('savedOutputAmount', '');
-                enableSwapContainer(); // Enable swap container after success
-              } else {
-                console.log('Transaction failed');
-                toast.error('Trade failed');
-                setTrigger(trigger + 1);
-                enableSwapContainer(); // Enable swap container after failure
-              }
-            }); */
+              enableSwapContainer();
+            }
           } catch (error) {
-            enableSwapContainer(); // Make sure swap container is enabled after an error
+            enableSwapContainer();
+
             console.error('Failed to swap:', error);
 
-            // Handle specific error codes and messages
+            // Check if the error has a specific code and message
             if (error.code === 'INSUFFICIENT_FUNDS') {
               toast.error(
                 'Insufficient funds for transfer. Please check your balance.'
@@ -1930,7 +1783,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     }
 
     try {
-      const tokenContract = new ethers.Contract(value, erc20Abi, provider);
+      const tokenContract = new ethers.Contract(value, erc20Abi, providerHTTP);
       const symbol = await tokenContract.symbol();
       const name = await tokenContract.name();
       const decimals = await tokenContract.decimals();
@@ -2149,7 +2002,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const memoNavBar = useMemo(() => <NavBar />, [account]);
 
   const memoAudits = useMemo(
-    () => <Audit contractAddress={chartTokenAddress} provider={provider} />,
+    () => <Audit contractAddress={chartTokenAddress} provider={providerHTTP} />,
     [chartTokenAddress, showAudits]
   );
   const memoCharts = useMemo(
