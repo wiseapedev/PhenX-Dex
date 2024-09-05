@@ -1742,62 +1742,27 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 );
               }
             }
+            console.log('Transaction Hash:', transactionResponse.hash);
             toast.info('Trade pending');
-            const txHash = transactionResponse.hash; // Get the transaction hash
-            const pollInterval = 3000; // Poll every 2 seconds
-            const maxPollCount = 15; // Stop after 30 seconds (15 * 2 seconds)
-            let pollCount = 0;
 
-            // Function to check the transaction status
-            const checkTransactionStatus = async (txHash) => {
-              try {
-                const receipt = await provider.getTransactionReceipt(txHash); // Check the transaction receipt
-                if (receipt) {
-                  if (receipt.status === 1) {
-                    console.log('Transaction successful');
-                    toast.success('Trade successful');
-                    setTrigger(trigger + 1);
-                    updateData('savedInputAmount', '');
-                    updateData('savedOutputAmount', '');
-                    return 'success';
-                  } else {
-                    console.log('Transaction failed');
-                    toast.error('Trade failed');
-                    setTrigger(trigger + 1);
-                    return 'failed';
-                  }
-                }
-                return 'pending'; // Transaction is still pending
-              } catch (error) {
-                console.error('Error checking transaction status:', error);
-                toast.error('Error checking transaction status');
-                return 'error'; // In case of error
+            const txHash = transactionResponse.hash;
+
+            // Listen for the transaction confirmation instead of awaiting it
+            provider.once(txHash, async (receipt) => {
+              if (receipt.status === 1) {
+                console.log('Transaction successful');
+                toast.success('Trade successful');
+                setTrigger(trigger + 1);
+                updateData('savedInputAmount', '');
+                updateData('savedOutputAmount', '');
+                enableSwapContainer(); // Enable swap container after success
+              } else {
+                console.log('Transaction failed');
+                toast.error('Trade failed');
+                setTrigger(trigger + 1);
+                enableSwapContainer(); // Enable swap container after failure
               }
-            };
-
-            // Start polling to check the transaction status
-            const pollTransaction = setInterval(async () => {
-              pollCount += 1;
-
-              const status = await checkTransactionStatus(txHash);
-
-              if (
-                status === 'success' ||
-                status === 'failed' ||
-                status === 'error'
-              ) {
-                // Transaction has either succeeded, failed, or an error occurred
-                clearInterval(pollTransaction);
-                enableSwapContainer(); // Enable swap container after transaction completes
-              }
-
-              if (pollCount >= maxPollCount) {
-                // Stop polling after 30 seconds if no result
-                clearInterval(pollTransaction);
-                toast.info('Transaction is still pending after 30 seconds.');
-                enableSwapContainer(); // Allow user to retry after timeout
-              }
-            }, pollInterval);
+            });
           } catch (error) {
             enableSwapContainer(); // Make sure swap container is enabled after an error
             console.error('Failed to swap:', error);
