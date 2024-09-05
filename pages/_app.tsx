@@ -74,7 +74,7 @@ import {useEffect, useState} from 'react';
 import '@walletconnect/modal';
 import React from 'react';
 // import config from '../config/config';
-import {AppKit} from './context/web3modal';
+import {AppKit} from '../components/context/web3modal';
 export const metadata = {
   title: 'AppKit',
   description: 'AppKit Example',
