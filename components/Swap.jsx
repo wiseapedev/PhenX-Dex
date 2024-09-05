@@ -164,6 +164,17 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     const maxPollCount = 30; // Stop polling after 1 minute (30 * 2 seconds)
     let pollCount = 0;
 
+    // Ensure pollingActive is set to prevent multiple polling instances
+    if (localStorage.getItem('pollingActive') === 'true') {
+      console.warn(
+        'Polling is already active. Ignoring additional polling requests.'
+      );
+      return; // Exit early if polling is already running
+    }
+
+    // Mark polling as active
+    localStorage.setItem('pollingActive', 'true');
+
     const pollTransaction = setInterval(async () => {
       pollCount += 1;
 
@@ -172,6 +183,8 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
         if (receipt) {
           clearInterval(pollTransaction); // Stop polling if the receipt is found
+          localStorage.removeItem('pollingActive'); // Mark polling as inactive
+
           if (receipt.status === 1) {
             toast.success('Trade successful');
             setTrigger(trigger + 1);
@@ -189,6 +202,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
           }
         } else if (pollCount >= maxPollCount) {
           clearInterval(pollTransaction);
+          localStorage.removeItem('pollingActive'); // Mark polling as inactive
           toast.info('Transaction is still pending after 1 minute.');
           enableSwapContainer();
         }
@@ -196,23 +210,24 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
         console.error('Error while checking transaction status:', error);
         toast.error('Error checking transaction status');
         clearInterval(pollTransaction);
+        localStorage.removeItem('pollingActive'); // Mark polling as inactive
         enableSwapContainer();
       }
     }, pollInterval);
   };
+
   const checkPendingTransactionOnLoad = () => {
     const txHash = localStorage.getItem('pendingTxHash');
     const txTimestamp = localStorage.getItem('pendingTxTimestamp');
 
     if (txHash && txTimestamp) {
       const currentTime = Date.now();
-      const timeElapsed = currentTime - txTimestamp;
+      const timeElapsed = currentTime - parseInt(txTimestamp, 10); // Ensure txTimestamp is parsed as an integer
 
       // If the transaction was sent less than 10 minutes ago, check status
       const gracePeriod = 10 * 60 * 1000; // 10 minutes
       if (timeElapsed < gracePeriod) {
-        toast.info('Resuming pending transaction check...');
-        startPollingTransaction(txHash);
+        startPollingTransaction(txHash); // Only start polling if within grace period
       } else {
         // If too much time has passed, stop checking and clear localStorage
         localStorage.removeItem('pendingTxHash');
@@ -222,8 +237,17 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     }
   };
 
-  // Call this function on page load or app resume
-  window.addEventListener('load', checkPendingTransactionOnLoad);
+  useEffect(() => {
+    const pollPendingTransactions = setInterval(() => {
+      checkPendingTransactionOnLoad();
+    }, 3000); // Every 3 seconds
+
+    // Cleanup function to stop polling and mark it as inactive
+    return () => {
+      clearInterval(pollPendingTransactions);
+      localStorage.removeItem('pollingActive'); // Mark polling as inactive
+    };
+  }, []);
 
   useEffect(() => {
     tokenListOpenRef.current = showTokenList;
