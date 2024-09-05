@@ -38,7 +38,7 @@ export const BlockchainContext = createContext({
   tier: '',
 });
 
-export const BlockchainProvider = ({children, config}) => {
+export const BlockchainProvider = ({children}) => {
   // const provider = useEthersProvider();
   // const {address: account} = useAccount();
   //  const signer = useEthersSigner();
