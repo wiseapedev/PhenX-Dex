@@ -53,8 +53,15 @@ import Portfolio from './Portfolio';
 import Switch from './Switch';
 
 const Swap = ({buyLink, buyLinkKey, chain_id}) => {
-  const {signer, provider, account, tokenListOpenRef, ETH_TOKENS, ALL_TOKENS} =
-    useContext(BlockchainContext);
+  const {
+    signer,
+    provider,
+    account,
+    tokenListOpenRef,
+    ETH_TOKENS,
+    ALL_TOKENS,
+    updateData,
+  } = useContext(BlockchainContext);
   const feeAddress = '0x1c2061fACa9DF7B6c02e7EB8dEBed1f37B24C6A9';
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   const routerAddressV3 = CHAINS[chain_id].uniswapRouterAddressV3;
@@ -151,6 +158,73 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const [trigger, setTrigger] = useState(0);
   const GWEI = useRef(0);
   const RATE_LIMIT = 1500;
+
+  const startPollingTransaction = (txHash) => {
+    const pollInterval = 2000; // Poll every 2 seconds
+    const maxPollCount = 30; // Stop polling after 1 minute (30 * 2 seconds)
+    let pollCount = 0;
+
+    const pollTransaction = setInterval(async () => {
+      pollCount += 1;
+
+      try {
+        const receipt = await provider.getTransactionReceipt(txHash);
+
+        if (receipt) {
+          clearInterval(pollTransaction); // Stop polling if the receipt is found
+          if (receipt.status === 1) {
+            toast.success('Trade successful');
+            setTrigger(trigger + 1);
+            updateData('savedInputAmount', '');
+            updateData('savedOutputAmount', '');
+            localStorage.removeItem('pendingTxHash');
+            localStorage.removeItem('pendingTxTimestamp');
+            enableSwapContainer();
+          } else {
+            toast.error('Trade failed');
+            setTrigger(trigger + 1);
+            localStorage.removeItem('pendingTxHash');
+            localStorage.removeItem('pendingTxTimestamp');
+            enableSwapContainer();
+          }
+        } else if (pollCount >= maxPollCount) {
+          clearInterval(pollTransaction);
+          toast.info('Transaction is still pending after 1 minute.');
+          enableSwapContainer();
+        }
+      } catch (error) {
+        console.error('Error while checking transaction status:', error);
+        toast.error('Error checking transaction status');
+        clearInterval(pollTransaction);
+        enableSwapContainer();
+      }
+    }, pollInterval);
+  };
+  const checkPendingTransactionOnLoad = () => {
+    const txHash = localStorage.getItem('pendingTxHash');
+    const txTimestamp = localStorage.getItem('pendingTxTimestamp');
+
+    if (txHash && txTimestamp) {
+      const currentTime = Date.now();
+      const timeElapsed = currentTime - txTimestamp;
+
+      // If the transaction was sent less than 10 minutes ago, check status
+      const gracePeriod = 10 * 60 * 1000; // 10 minutes
+      if (timeElapsed < gracePeriod) {
+        toast.info('Resuming pending transaction check...');
+        startPollingTransaction(txHash);
+      } else {
+        // If too much time has passed, stop checking and clear localStorage
+        localStorage.removeItem('pendingTxHash');
+        localStorage.removeItem('pendingTxTimestamp');
+        toast.info('Pending transaction has expired.');
+      }
+    }
+  };
+
+  // Call this function on page load or app resume
+  window.addEventListener('load', checkPendingTransactionOnLoad);
+
   useEffect(() => {
     tokenListOpenRef.current = showTokenList;
   }, [showTokenList]);
@@ -1742,13 +1816,20 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 );
               }
             }
-            console.log('Transaction Hash:', transactionResponse.hash);
+            const txHash = transactionResponse.hash;
+            const txTimestamp = Date.now(); // Capture the timestamp
+
+            console.log('Transaction Hash:', txHash);
             toast.info('Trade pending');
 
-            const txHash = transactionResponse.hash;
+            // Store the transaction hash and timestamp in localStorage
+            localStorage.setItem('pendingTxHash', txHash);
+            localStorage.setItem('pendingTxTimestamp', txTimestamp);
 
-            // Listen for the transaction confirmation instead of awaiting it
-            provider.once(txHash, async (receipt) => {
+            // Start polling every 2 seconds
+            startPollingTransaction(txHash);
+
+            /*             provider.once(txHash, async (receipt) => {
               if (receipt.status === 1) {
                 console.log('Transaction successful');
                 toast.success('Trade successful');
@@ -1762,7 +1843,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 setTrigger(trigger + 1);
                 enableSwapContainer(); // Enable swap container after failure
               }
-            });
+            }); */
           } catch (error) {
             enableSwapContainer(); // Make sure swap container is enabled after an error
             console.error('Failed to swap:', error);
