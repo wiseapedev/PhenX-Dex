@@ -16,10 +16,13 @@ const mainnet = {
 
 // 3. Create a metadata object
 const metadata = {
-  name: 'My Website',
-  description: 'My Website description',
-  url: 'https://mywebsite.com', // origin must match your domain & subdomain
-  icons: ['https://avatars.mywebsite.com/'],
+  name: 'PhenX DEX',
+  description:
+    'Trading on the PhenX router saves you up to 16% on gas fees compared to the Uniswap router. While all DEXs charge a swap fee ranging from 0.25% to 1.5%, PhenX charges 0%. PhenX seamlessly aggregates liquidity, ensuring you always get the best price for your trades.',
+  url: 'https://beta.phenx.xyz/', // origin must match your domain & subdomain
+  icons: [
+    'https://www.dextools.io/resources/tokens/logos/ether/0xd166b7d9824cc5359360b47389aba9341ce12619.png?1722864698511',
+  ],
 };
 // 4. Create Ethers config
 const ethersConfig = defaultConfig({

@@ -1972,8 +1972,9 @@ input:focus {
     width: 100%;
   }
   .token-list {
-    position: relative;
+    position: fixed;
     margin: 0;
+    bottom: 0;
     width: 100%;
 
     height: 80vh;
@@ -2043,13 +2044,13 @@ input:focus {
     border-bottom-left-radius: 0px;
   }
   .nav-left {
-    padding-inline: 2px;
+    padding-inline-start: 5px;
   }
   .nav-right {
     padding-inline: 0px;
   }
   .nav-right > * {
-    margin-right: 2px;
+    margin-right: 5px;
   }
   .page-container {
     padding-top: 5px;
@@ -2091,5 +2092,9 @@ input:focus {
     height: fit-content;
     width: 100vw;
     overflow-y: scroll;
+  }
+  .base-tokens-section {
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
 }
