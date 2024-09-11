@@ -570,7 +570,7 @@ input:focus {
   outline: none;
   border: none;
   font-size: 2rem;
-  width: 60%;
+  width: 40%;
   margin-top: 1px;
   margin-bottom: 1px;
   padding: 0;
@@ -618,7 +618,9 @@ input:focus {
   margin-left: 0px;
   font-size: 1.2rem;
   font-weight: 600;
+  text-align: center;
   color: var(--text);
+  overflow: hidden;
 }
 .swap-arrow {
   position: absolute;

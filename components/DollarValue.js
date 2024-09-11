@@ -38,7 +38,6 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
   const savedInputAmountRef = useRef(undefined);
   const savedOutputAmountRef = useRef(undefined);
   useEffect(() => {
-    if (!provider || !account) return;
     //   setTimeout(changeTokenPrice, 200);
     const handle = setInterval(() => {
       if (

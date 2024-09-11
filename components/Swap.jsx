@@ -177,7 +177,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     disableSwapContainer();
     const timeout = setTimeout(() => {
       enableSwapContainer();
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timeout);
   }, [buyToken, sellToken]);
 
@@ -741,12 +741,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     }, []);
 
     async function fetchPrice() {
-      if (
-        !ALL_TOKENS[sellToken] ||
-        !ALL_TOKENS[buyToken] ||
-        !account ||
-        !sellAmount
-      ) {
+      if (!ALL_TOKENS[sellToken] || !ALL_TOKENS[buyToken] || !sellAmount) {
         return <div className='swap-button disable'>......</div>;
       }
 
@@ -1760,15 +1755,22 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
         return (
           <>
-            {isApprovalNeeded ? (
-              <div className='swap-button' onClick={handleApprove}>
-                Approve
-              </div>
+            {account != false ? (
+              <div className='swap-button disable'>Connect Wallet</div>
             ) : (
-              <div className='swap-button' onClick={handleSwap}>
-                Swap
-              </div>
+              <>
+                {isApprovalNeeded ? (
+                  <div className='swap-button' onClick={handleApprove}>
+                    Approve
+                  </div>
+                ) : (
+                  <div className='swap-button' onClick={handleSwap}>
+                    Swap
+                  </div>
+                )}
+              </>
             )}
+
             <SaverInfo swapData={swapData} savedSlippage={savedSlippage} />
           </>
         );
