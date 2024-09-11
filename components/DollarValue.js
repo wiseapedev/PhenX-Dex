@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 import {ethers} from 'ethers';
 // import {useAccount} from 'wagmi';
-// import {useEthersProvider} from './provider';
+// import {useEthersproviderHTTP} from './providerHTTP';
 import {erc20Abi} from 'viem';
 import {BlockchainContext} from './BlockchainContext';
 import uniswapRouterABI from './abis/UniswapRouter.json';
@@ -25,20 +25,20 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
     savedInputAmount,
     savedOutputAmount,
     chain_id,
-    provider,
+    providerHTTP,
     account,
   } = useContext(BlockchainContext);
 
   const wethAddress = CHAINS[chain_id].wethAddress;
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
-  // const provider = useEthersProvider();
+  // const providerHTTP = useEthersproviderHTTP();
 
   const [ethPrice, setEthPrice] = useState('0');
   const RATE_LIMIT = 500;
   const savedInputAmountRef = useRef(undefined);
   const savedOutputAmountRef = useRef(undefined);
   useEffect(() => {
-    //   setTimeout(changeTokenPrice, 200);
+    // setTimeout(changeTokenPrice, 2000);
     const handle = setInterval(() => {
       if (
         String(savedInputAmount.current) !==
@@ -46,7 +46,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
         String(savedOutputAmount.current) !==
           String(savedOutputAmountRef.current)
       ) {
-        //   console.log('changeTokenPrice');
+        console.log('changeTokenPrice');
         //     console.log(ethDollarPrice.current);
         //    console.log(ethPrice);
         changeTokenPrice();
@@ -55,7 +55,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
       }
     }, RATE_LIMIT);
     return () => clearInterval(handle);
-  }, [ethDollarPrice, provider, account, ethPrice]);
+  }, [ethDollarPrice, providerHTTP, account, ethPrice]);
 
   async function changeTokenPrice() {
     try {
@@ -70,14 +70,14 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
             const wethContract = new ethers.Contract(
               wethAddress,
               wethABI,
-              provider
+              providerHTTP
             );
             balance = await wethContract.balanceOf(account);
             if (balance === 0) {
               return;
             }
           } else if (Token.symbol === 'ETH') {
-            balance = await provider.getBalance(account);
+            balance = await providerHTTP.getBalance(account);
           }
           balance = ethers.formatEther(balance);
           balance = Number(balance);
@@ -103,7 +103,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
           setEthPrice(totalValue);
         }
       } else {
-        let token = new ethers.Contract(Token.address, erc20Abi, provider);
+        let token = new ethers.Contract(Token.address, erc20Abi, providerHTTP);
 
         let tokenBalance;
 
@@ -128,7 +128,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
         const routerContract = new ethers.Contract(
           uniswapRouterAddress,
           uniswapRouterABI,
-          provider
+          providerHTTP
         );
         let amountOut;
         let amountOutV3;
@@ -150,7 +150,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
         } else {
           ethOut = amountOutV3.amountOut;
         }
-        const toLowerCaseTokenSymbol = Token.symbol.toLowerCase();
+        //  const toLowerCaseTokenSymbol = Token.symbol.toLowerCase();
         /*         if (ETH_TOKENS[toLowerCaseTokenSymbol]?.useV2 === true) {
           ethOut = amountOut[1];
         } */
@@ -158,12 +158,13 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
         ethOut = ethers.formatEther(ethOut);
         ethOut = Number(ethOut);
         let totalDollarValue = ethOut * oneEthInUSDC;
+        console.log(totalDollarValue, 'totalDollarValue');
         totalDollarValue = totalDollarValue.toFixed(2);
         setEthPrice(totalDollarValue);
       }
     } catch (error) {
-      // console.error('Error getting token balance:', error);
-      return setEthPrice('0');
+      console.error('Error getting token balance:', error);
+      return setEthPrice('0.00');
     }
   }
 

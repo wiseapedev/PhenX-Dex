@@ -173,13 +173,13 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     setBuyToken(sellTokenSave);
     setSellToken(buyTokenSave);
   }
-  useEffect(() => {
+  /*   useEffect(() => {
     disableSwapContainer();
     const timeout = setTimeout(() => {
       enableSwapContainer();
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [buyToken, sellToken]);
+  }, [buyToken, sellToken]); */
 
   function CurrentGwei() {
     const [CurrentGwei, setCurrentGwei] = useState(GWEI.current);

@@ -134,10 +134,10 @@ export const BlockchainProvider = ({children}) => {
     let intervalId;
 
     const fetchNewBlockNumber = async () => {
-      if (!provider) return;
+      if (!providerHTTP) return;
 
       try {
-        const blockNumber = await provider.getBlockNumber();
+        const blockNumber = await providerHTTP.getBlockNumber();
         //   console.log('blockNumber', blockNumber);
 
         if (blockNumberRef.current !== blockNumber) {
@@ -149,7 +149,7 @@ export const BlockchainProvider = ({children}) => {
         const routerContract = new ethers.Contract(
           uniswapRouterAddress,
           uniswapRouterABI,
-          provider
+          providerHTTP
         );
 
         const amounts = await routerContract.getAmountsOut(amountIn, path);
@@ -176,7 +176,7 @@ export const BlockchainProvider = ({children}) => {
     return () => {
       stopPolling();
     };
-  }, [provider, chain_id]);
+  }, [providerHTTP, chain_id]);
 
   const savedPriorityGas = useRef(30);
   const savedSlippage = useRef(7);
@@ -278,14 +278,14 @@ export const BlockchainProvider = ({children}) => {
             const wethContract = new ethers.Contract(
               wethAddress,
               wethABI,
-              provider
+              providerHTTP
             );
             balance = await wethContract.balanceOf(account);
             if (balance === 0) {
               return;
             }
           } else if (Token.symbol === 'ETH') {
-            balance = await provider.getBalance(account);
+            balance = await providerHTTP.getBalance(account);
           }
           balance = ethers.formatEther(balance);
           balance = Number(balance);
@@ -312,7 +312,7 @@ export const BlockchainProvider = ({children}) => {
           ethPrice = totalValue;
         }
       } else {
-        let token = new ethers.Contract(Token.address, erc20Abi, provider);
+        let token = new ethers.Contract(Token.address, erc20Abi, providerHTTP);
 
         let tokenBalance;
 
@@ -340,7 +340,7 @@ export const BlockchainProvider = ({children}) => {
         const routerContract = new ethers.Contract(
           uniswapRouterAddress,
           uniswapRouterABI,
-          provider
+          providerHTTP
         );
         let amountOut;
         amountOut = await routerContract.getAmountsOut(tokenBalance, path);
