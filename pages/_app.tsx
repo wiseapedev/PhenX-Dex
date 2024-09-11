@@ -154,10 +154,14 @@ const connectors = connectorsForWallets(
     projectId: '0aef2c24e12ca37c7ee7ee5f5bd8f56e',
   }
 );
-
 const client = new QueryClient();
 
 function MyApp({Component, pageProps}: AppProps) {
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+    }
+  }, []);
   /*   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.location.href = 'https://phenx.xyz/';

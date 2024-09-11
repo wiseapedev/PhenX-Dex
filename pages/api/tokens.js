@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     }, {});
 
     res.status(200).json(ETH_TOKENS);
-    console.log('ETH_TOKENS:', ETH_TOKENS);
+    //  console.log('ETH_TOKENS:', ETH_TOKENS);
   } catch (err) {
     console.error('Unexpected error:', err);
     return res.status(500).json({error: 'Unexpected error occurred'});
