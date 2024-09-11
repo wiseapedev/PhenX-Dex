@@ -73,7 +73,7 @@ export const BlockchainProvider = ({children}) => {
     };
 
     setupProvider(); // Call the async function
-  }, [walletProvider]);
+  }, [walletProvider, account]);
 
   // const signer = await provider.getSigner()
   useEffect(() => {

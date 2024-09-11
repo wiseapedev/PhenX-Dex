@@ -28,17 +28,17 @@ function SwapSettings({
     useAutoGas,
     useAutoSlippage,
     savedAddedPriority,
-    provider,
+    providerHTTP,
   } = useContext(BlockchainContext);
   const [showSettings, setShowSettings] = useState(false);
   const Settingsicon = useRef(null);
-  function CurrentGwei({provider}) {
+  function CurrentGwei({providerHTTP}) {
     const GWEI = useRef(0);
     const [CurrentGwei, setCurrentGwei] = useState(0);
 
     async function getGasFees() {
       try {
-        const feeData = await provider.getFeeData();
+        const feeData = await providerHTTP.getFeeData();
         console.log('feeData', feeData);
         const baseFeePerGas = feeData.gasPrice;
         //    console.log('baseFeePerGas', baseFeePerGas);
@@ -257,7 +257,7 @@ function SwapSettings({
               Auto Gas
             </div>
             <div className='us-te mobhide'>
-              <CurrentGwei provider={provider} />
+              <CurrentGwei provider={providerHTTP} />
             </div>
           </div>{' '}
           <MemPool />{' '}

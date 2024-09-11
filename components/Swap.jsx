@@ -625,6 +625,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
       updateData,
       signer,
       provider,
+      providerHTTP,
       savedSlippage,
       savedPriorityGas,
       savedOutputAmount,
@@ -703,10 +704,10 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
       let intervalId;
 
       const fetchNewBlockNumber = async () => {
-        if (!provider) return;
+        if (!providerHTTP) return;
 
         try {
-          const blockNumber = await provider.getBlockNumber();
+          const blockNumber = await providerHTTP.getBlockNumber();
 
           if (blockNumberRef.current !== blockNumber) {
             if (chain_id !== 1) {
@@ -1755,7 +1756,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
         return (
           <>
-            {account != false ? (
+            {account == null ? (
               <div className='swap-button disable'>Connect Wallet</div>
             ) : (
               <>
