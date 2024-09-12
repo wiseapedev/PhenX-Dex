@@ -320,7 +320,7 @@ input:focus {
   background: rgba(0, 0, 0, 0.4); /* Transparent black with 50% opacity */
   backdrop-filter: blur(10px); /* Apply a 10px blur effect */
   -webkit-backdrop-filter: blur(10px); /* For Safari support */
-  height: 7vh;
+  height: 5vh;
   top: 0px;
   left: 0;
   right: 0;
@@ -337,7 +337,7 @@ input:focus {
   background: rgba(0, 0, 0, 0.4); /* Transparent black with 50% opacity */
   backdrop-filter: blur(10px); /* Apply a 10px blur effect */
   -webkit-backdrop-filter: blur(10px); /* For Safari support */
-  height: 6vh;
+  height: 5vh;
   bottom: 0px;
   left: 0;
   right: 0;
@@ -1205,9 +1205,9 @@ input:focus {
   -webkit-text-fill-color: transparent;
   text-align: center;
   width: 100%;
-  font-size: 1.6rem;
-  font-weight: bold;
-  letter-spacing: 2px;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 1px;
 }
 .saver-container {
   opacity: 0.4;

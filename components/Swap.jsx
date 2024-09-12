@@ -155,6 +155,12 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const [buyTokenDisplayBalance, setBuyTokenDisplayBalance] = useState(0);
   const [showTokenList, setShowTokenList] = useState(false);
   const [trigger, setTrigger] = useState(0);
+
+  const [testState, setTestState] = useState(0);
+  function testSetState() {
+    toast.success('Test State Changed');
+    setTestState(testState + 1);
+  }
   const GWEI = useRef(0);
   const RATE_LIMIT = 1500;
   useEffect(() => {
@@ -374,6 +380,17 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   function YouReceive({setShowTokenList, ALL_TOKENS, buyTokenDisplayBalance}) {
     const {savedOutputAmount, savedInputAmount} = useContext(BlockchainContext);
     const [outputAmount, setOutputAmount] = useState(savedOutputAmount.current);
+
+    function formatAmount(amount) {
+      try {
+        if (amount === '0') {
+          return '0';
+        }
+        return parseFloat(amount).toFixed(4);
+      } catch (error) {
+        return '0'; // Or handle the error as appropriate for your application
+      }
+    }
     useEffect(() => {
       const handle = setInterval(() => {
         if (Number(savedOutputAmount.current) !== Number(outputAmount)) {
@@ -424,7 +441,8 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
           <div className='flex-row'>
             <input
               className='token-input'
-              placeholder={savedOutputAmount.current || '0'}
+              placeholder={'0'}
+              value={formatAmount(outputAmount)}
               type='number'
               readOnly
             />
@@ -1227,8 +1245,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
               largeAmount
             );
             console.log('Transaction Hash:', approveTx.hash);
-
-            toast.info('Approval pending');
             const approvalReceipt = await approveTx.wait();
             if (approvalReceipt.status === 1) {
               toast.success('Approval successful');
@@ -1705,7 +1721,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 );
               }
             }
-            toast.info('Trade pending');
             const sendTransaction = await transactionResponse.wait();
             if (sendTransaction.status === 1) {
               toast.success('Trade successful');
@@ -1878,22 +1893,22 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
       <div className='nav-container'>
         <div className='nav-left'>
           <img
-            className='mobhide'
             src={'/logo.png'}
             alt={''}
-            width={45}
-            height={45}
+            width={26}
+            height={26}
             style={{
               objectFit: 'contain',
               borderRadius: '50%',
-              marginRight: `5px`,
-              marginLeft: `5px`,
+              marginRight: `2px`,
+              marginLeft: `2px`,
             }}
             loading='lazy'
           />{' '}
           <div className='beta-container'>
-            <div className='logo-text'>PHENX </div>
-            <div className='beta-text mobhide'>BETA</div>
+            <div className='logo-text mobhide'>PhenX </div>
+            {/*             <div className='beta-text mobhide'>BETA</div>
+             */}{' '}
           </div>
           {/*           <PromoToken
             handleBuyTokenChange={handleBuyTokenChange}
