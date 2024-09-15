@@ -156,9 +156,11 @@
   }
   .main-left {
     width: 100%;
+    height: fit-content;
   }
   .main-right {
     width: 100%;
+    height: fit-content;
   }
   .large-title {
     font-size: 2.8rem;
@@ -167,8 +169,8 @@
     width: 48%;
   }
   .stake-container {
-    margin-top: 100px;
-    margin-bottom: 10vh;
+    margin-top: 7vh;
+    padding-bottom: 15vh;
     height: fit-content;
     flex-direction: column;
     width: 100%;
