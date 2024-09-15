@@ -49,8 +49,6 @@ import {watchChainId} from '@wagmi/core';
 import {getChainId} from '@wagmi/core';
 import {CHAINS} from './lib/constants.js';
 import {sign} from 'crypto';
-import PromoToken from './PromoToken';
-import Portfolio from './Portfolio';
 /* import BlockTimer from './BlockTimer';
  */ import ContractLinks from './ContractLinks';
 import Switch from './Switch';
