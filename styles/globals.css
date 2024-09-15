@@ -24,6 +24,9 @@ a {
 }
 :root {
   --primary-color: rgb(255, 165, 0);
+  --secondary-rgb: rgb(255, 69, 0);
+  --primary-rgb: rgb(255, 165, 0);
+
   --standout: #00ff00;
   --secondary-color: rgb(255, 69, 0);
   --background: #151617;
@@ -99,9 +102,6 @@ input:focus {
   border-radius: 10px;
 }
 
-.small-text {
-  font-size: 14px;
-}
 .mempool-container {
   display: flex;
   justify-content: space-between;
@@ -243,6 +243,17 @@ input:focus {
   min-height: 90vh;
   width: 99%;
   margin-bottom: 7vh;
+}
+.stake-container {
+  transition: all 1s ease-in-out;
+  opacity: 0.5;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 0vh;
+  width: 95%;
 }
 .page-container {
   padding-top: 15px;
@@ -551,7 +562,7 @@ input:focus {
   background-color: var(--box-hover-light);
 }
 .small-text {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-gray);
   width: fit-content;
   font-weight: 500;
@@ -1205,7 +1216,7 @@ input:focus {
   -webkit-text-fill-color: transparent;
   text-align: center;
   width: 100%;
-  font-size: 24px;
+  font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 1px;
 }
@@ -1430,12 +1441,12 @@ input:focus {
 .swap-container {
   transition: all 1s ease-in-out;
   margin-inline: 5px;
-  padding: 10px;
   position: relative;
   width: 450px;
-  border-radius: 25px;
   overflow: visible;
   overflow: hidden;
+  border-radius: 25px;
+  padding: 10px;
   background: var(--box-darker);
   border: 1px solid var(--border);
   /*   box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3); */
@@ -1915,6 +1926,32 @@ input:focus {
   height: 40px;
   animation: spin 1s linear infinite;
   margin: auto; /* Center the spinner */
+}
+
+.logo-image {
+  border-radius: 50%;
+  margin-right: 2px;
+  margin-left: 2px;
+  width: 25px;
+  height: 25px;
+}
+.nav-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  margin-left: 25px;
+}
+.nav-button {
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  color: var(--text-gray);
+  cursor: pointer;
+}
+.nav-active {
+  color: var(--text);
 }
 
 @keyframes spin {

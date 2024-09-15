@@ -1,5 +1,7 @@
 import '../styles/globals.css';
 import '../styles/oldCSS.css';
+import '../styles/stake.css';
+
 import '@rainbow-me/rainbowkit/styles.css';
 import type {AppProps} from 'next/app';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
@@ -22,6 +24,8 @@ import {
   RainbowKitProvider,
   darkTheme,
 } from '@rainbow-me/rainbowkit';
+import {StakeProvider} from '../pages/stake/StakeContext';
+
 import {BlockchainProvider} from '../components/BlockchainContext';
 import {connectorsForWallets} from '@rainbow-me/rainbowkit';
 import {
@@ -280,7 +284,9 @@ function MyApp({Component, pageProps}: AppProps) {
       />
 
       <BlockchainProvider>
-        <Component {...pageProps} />
+        <StakeProvider>
+          <Component {...pageProps} />
+        </StakeProvider>
       </BlockchainProvider>
     </AppKit>
   );

@@ -12,6 +12,7 @@ import {
   DownArrow,
 } from './SVGMAIN.js';
 import {useWeb3Modal} from '@web3modal/ethers/react';
+import NavBar from './NavBar';
 
 import MemPool from './MemPool';
 import SwapSettings from './SwapSettings';
@@ -53,6 +54,7 @@ import Portfolio from './Portfolio';
 /* import BlockTimer from './BlockTimer';
  */ import ContractLinks from './ContractLinks';
 import Switch from './Switch';
+import FooterBar from './Footer';
 
 const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const {signer, provider, account, tokenListOpenRef, ETH_TOKENS, ALL_TOKENS} =
@@ -1886,143 +1888,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   } catch (error) {
     // Handle the error here
     console.error(error);
-  }
-
-  function NavBar() {
-    return (
-      <div className='nav-container'>
-        <div className='nav-left'>
-          <img
-            src={'/logo.png'}
-            alt={''}
-            width={26}
-            height={26}
-            style={{
-              objectFit: 'contain',
-              borderRadius: '50%',
-              marginRight: `2px`,
-              marginLeft: `2px`,
-            }}
-            loading='lazy'
-          />{' '}
-          <div className='beta-container'>
-            <div className='logo-text mobhide'>PhenX </div>
-            {/*             <div className='beta-text mobhide'>BETA</div>
-             */}{' '}
-          </div>
-          {/*           <PromoToken
-            handleBuyTokenChange={handleBuyTokenChange}
-            chain_id={chain_id}
-          /> */}
-        </div>
-        <div className='nav-right'>
-          {/*           <Switch text={'Charting'} /> <Switch text={'Portfolio'} />
-          <Switch text={'Audits'} /> <Switch text={'AI Reports'} /> */}
-          {/*           <input
-            className='quick-import'
-            placeholder='Paste contract to import'
-            type='text'
-            ref={contractRef}
-            onChange={(e) => handleContractImport(e.target.value)}
-          /> */}
-          {/*           <ConnectButton
-            accountStatus={{smallScreen: 'avatar', largeScreen: 'avatar'}}
-            chainStatus={{smallScreen: 'icon', largeScreen: 'icon'}}
-            showBalance={{smallScreen: false, largeScreen: true}}
-            label='Connect Wallet'
-          /> */}
-          {/*        <ConnectButton.Custom>
-            {({
-              account,
-              chain,
-              openAccountModal,
-              openChainModal,
-              openConnectModal,
-              mounted,
-            }) => {
-              const ready = mounted && account && chain;
-              const connected = ready && account;
-
-              console.log('Mounted:', mounted);
-              console.log('Account:', account);
-              console.log('Chain:', chain);
-
-              if (!mounted) {
-                return null; // Wait until mounted
-              }
-
-              return (
-                <div>
-                  {!connected ? (
-                    <div onClick={openConnectModal} className='connect-button'>
-                      Connect Wallet
-                    </div>
-                  ) : (
-                    <div onClick={openAccountModal} className='audit-button'>
-                      {account.displayName}
-                    </div>
-                  )}
-                </div>
-              );
-            }}
-          </ConnectButton.Custom> */}
-          {/*         <button className='connect-button' onClick={() => open()}>
-            Open Connect Modal
-          </button> */}{' '}
-          <w3m-button />
-        </div>
-      </div>
-    );
-  }
-  function FooterBar() {
-    return (
-      <div className='footer-container'>
-        <div className='nav-left'>
-          <div className='icons-container'>
-            {' '}
-            <a
-              href='https://t.me/Phenxdex'
-              title='Telegram'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='icon'>
-              {' '}
-              <Telegram />
-            </a>{' '}
-            <a
-              href='https://twitter.com/Phenxdex'
-              title='Twitter'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='icon'>
-              {' '}
-              <Twitter />
-            </a>{' '}
-            <a
-              href='https://twitter.com/Phenxdex'
-              title='Medium'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='icon'>
-              {' '}
-              <Medium />
-            </a>
-          </div>
-        </div>
-        <div className='nav-right'>
-          <a
-            href='https://t.me/+phEkvS-WIvs5MTE0'
-            style={{
-              color: 'white',
-              fontSize: '14px',
-              textAlign: 'center',
-              letterSpacing: '7px',
-            }}>
-            FEEDBACK
-          </a>
-        </div>
-      </div>
-    );
   }
 
   const memoNavBar = useMemo(() => <NavBar />, [account]);
