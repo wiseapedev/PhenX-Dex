@@ -1162,7 +1162,6 @@ input:focus {
 .swap-icons-left {
   display: flex;
   flex-direction: row;
-  gap: 20px; /* Adjust the space between icons as needed */
   align-items: center;
   justify-content: flex-start;
 }
@@ -1275,7 +1274,6 @@ input:focus {
   display: flex;
   flex-direction: row;
   width: fit-content;
-  gap: 8px;
 }
 
 .swap-tab {
@@ -1285,11 +1283,11 @@ input:focus {
   justify-content: center;
   padding: 6px 10px;
   color: var(--text-gray);
-  border: solid 1px var(--border);
   font-size: 1rem;
   font-weight: 400;
   transition: all 0.3s ease-in-out;
   cursor: not-allowed;
+  pointer-events: none;
 }
 .active {
   transition: all 0.1s ease-in-out;
@@ -2013,9 +2011,7 @@ input:focus {
   .base-symbol {
     font-size: 1rem;
   }
-  .swap-tab {
-    width: 70px;
-  }
+
   .support-button {
     text-align: center;
   }
