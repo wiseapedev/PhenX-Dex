@@ -4,7 +4,7 @@
 /* use client */
 import {useState, useEffect, useContext, useRef, useMemo, use} from 'react';
 import {ethers} from 'ethers';
-import {StakeContext} from './StakeContext';
+import {StakeContext} from '../../stake-page/StakeContext';
 import {toast} from 'react-toastify';
 import IconLinks from './IconLinks';
 import DollarValue from './DollarValue';

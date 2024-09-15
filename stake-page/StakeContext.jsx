@@ -10,14 +10,14 @@ import React, {
 import PropTypes from 'prop-types';
 import {ethers} from 'ethers';
 
-import ERC20ABI from './abis/erc20.json';
-import stakeABI from './abis/stakeABI.json';
+import ERC20ABI from '../pages/stake/abis/erc20.json';
+import stakeABI from '../pages/stake/abis/stakeABI.json';
 import {
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from '@web3modal/ethers/react';
 import {BrowserProvider, Contract, formatUnits} from 'ethers';
-import {CHAINS} from '../../components/lib/constants';
+import {CHAINS} from '../components/lib/constants';
 export const StakeContext = createContext({});
 
 export const StakeProvider = ({children}) => {

@@ -24,7 +24,7 @@ import {
   RainbowKitProvider,
   darkTheme,
 } from '@rainbow-me/rainbowkit';
-import {StakeProvider} from '../pages/stake/StakeContext';
+import {StakeProvider} from '../stake-page/StakeContext';
 
 import {BlockchainProvider} from '../components/BlockchainContext';
 import {connectorsForWallets} from '@rainbow-me/rainbowkit';

@@ -9,7 +9,7 @@ import React, {
   useContext,
 } from 'react';
 import {ethers} from 'ethers';
-import {StakeContext} from './StakeContext';
+import {StakeContext} from '../../stake-page/StakeContext';
 import uniswapRouterABI from './abis/UniswapRouter.json';
 const CHAINS = {
   1: {
