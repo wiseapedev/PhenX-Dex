@@ -48,7 +48,7 @@ function NavBar() {
         </div>
       </div>
       <div className='nav-right'>
-        <w3m-button />
+        <w3m-button label='Connect' size='sm' />
       </div>
     </div>
   );

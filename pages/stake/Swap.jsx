@@ -57,7 +57,7 @@ const Swap = () => {
 
   useEffect(() => {
     const stakeContainer = document.querySelector('.stake-container');
-    stakeContainer.style.height = '85vh';
+    //  stakeContainer.style.height = '85vh';
     stakeContainer.style.opacity = '1';
   }, []);
 

@@ -1952,7 +1952,6 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
       <div className='main-container'>
         {memoNavBar}
-        <FooterBar />
         <div className='swap-container'>
           {' '}
           <SwapSettings
@@ -2009,6 +2008,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
         </div>
         {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}
       </div>
+      <FooterBar />
     </div>
   );
 };

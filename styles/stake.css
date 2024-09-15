@@ -16,6 +16,7 @@
   width: 50%;
   height: 100%;
   padding: 10px;
+  position: relative;
 }
 
 .end {
@@ -136,6 +137,15 @@
   background-color: var(--box-darker);
   margin-bottom: 2px;
   border-bottom: 2px solid var(--primary-color);
+}
+.stake-container {
+  position: relative;
+  transition: all 1s ease-in-out;
+  display: flex;
+  flex-direction: row;
+  margin-top: 7vh;
+  height: 100%;
+  opacity: 0.4;
 }
 
 @keyframes spin {
