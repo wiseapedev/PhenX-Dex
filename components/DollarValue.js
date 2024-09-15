@@ -17,7 +17,6 @@ import uniswapRouterABI from './abis/UniswapRouter.json';
 import wethABI from './abis/wethABI.json';
 import {CHAINS} from './lib/constants.js';
 import getQuoteV3 from './getQuoteV3';
-import {ETH_TOKENS} from './lib/constants.js';
 
 function DollarValue({Token, isTokenList, isOutputToken}) {
   const {
