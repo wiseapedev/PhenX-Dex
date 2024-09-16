@@ -3,8 +3,6 @@
 import {useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
 import Layout from '../../components/Layout';
-import {ethers} from 'ethers';
-import {CHAINS} from '../../components/lib/constants';
 
 export default function BuyContract() {
   const chain_id = 1;
@@ -15,12 +13,6 @@ export default function BuyContract() {
   const [wrongNetwork, setWrongNetwork] = useState(false);
 
   // Set up  in useEffect to avoid SSR issues
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const ethersProvider = new ethers.JsonRpcProvider(CHAINS[1].rpcUrl);
-      setProvider(ethersProvider);
-    }
-  }, []); // Empty dependency array to run only on component mount
 
   useEffect(() => {
     const loadData = async () => {
