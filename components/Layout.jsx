@@ -37,7 +37,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
   }, [config]);
  */
   return (
-    <div>
+    <>
       {tokensReady ? (
         <SwapNoSSR
           key={chain_id} // Using chain_id as key to force remount on change
@@ -54,7 +54,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
