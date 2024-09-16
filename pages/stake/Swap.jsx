@@ -277,6 +277,7 @@ const Swap = () => {
         const currentEpoch = Math.floor(Date.now() / 1000);
         console.log('currentEpoch:', currentEpoch);
         const canWithdraw = unlockEpoch < currentEpoch;
+        console.log('canWithdraw:', canWithdraw);
         setCanWithdraw(canWithdraw);
       } catch (error) {
         /*         console.error('Error checking can withdraw:', error);
