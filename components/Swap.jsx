@@ -1292,7 +1292,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             let estimatedGas;
             function addGasBuffer(gasLimit) {
               let gas = Number(gasLimit);
-              let buffer = gas * 0.1;
+              let buffer = gas * 0.2;
               let totalGas = gas + buffer;
               return Math.ceil(totalGas);
               //      return gasLimit;

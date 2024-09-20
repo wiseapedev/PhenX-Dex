@@ -52,6 +52,8 @@ createWeb3Modal({
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
   enableSwaps: false,
+  isSiweEnabled: false,
+  isUniversalProvider: false,
 });
 
 export function AppKit({children}) {
