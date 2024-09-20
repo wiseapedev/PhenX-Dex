@@ -66,8 +66,8 @@ function TokenList({
   const {dollarRef, account, provider, chain_id, ALL_TOKENS} =
     useContext(BlockchainContext);
   const [tokens, setTokens] = useState(ALL_TOKENS);
-  console.log('Tokens:', tokens);
-  console.log('ALL_TOKENS:', ALL_TOKENS);
+  /// console.log('Tokens:', tokens);
+  //  console.log('ALL_TOKENS:', ALL_TOKENS);
   const [newBlock, setNewBlock] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [fadeIn, setFadeIn] = useState(false);
@@ -90,7 +90,7 @@ function TokenList({
   useEffect(() => {
     const checkNewDollarRef = () => {
       if (previousDollarRef.current !== dollarRef.current) {
-        console.log('Change detected in dollarRef.current:', dollarRef.current);
+        //    console.log('Change detected in dollarRef.current:', dollarRef.current);
         setDollarRefTrigger((prev) => prev + 1);
         previousDollarRef.current = dollarRef.current;
       }
@@ -107,8 +107,8 @@ function TokenList({
   // Effect to detect clicks outside the token list
   useEffect(() => {
     const handleClickOutside = (event) => {
-      console.log('Event Target:', event.target);
-      console.log('Token List Ref Current:', tokenListRef.current);
+      //    console.log('Event Target:', event.target);
+      ///   console.log('Token List Ref Current:', tokenListRef.current);
 
       // Check if click was outside the token list
       if (
@@ -116,7 +116,7 @@ function TokenList({
         !tokenListRef.current.contains(event.target)
       ) {
         handleShowTokenList(false);
-        console.log('Clicked outside the token list');
+        //    console.log('Clicked outside the token list');
       }
     };
 
@@ -162,10 +162,10 @@ function TokenList({
           {}
         );
 
-        console.log('Sorted tokens:', sortedTokens);
+        //      console.log('Sorted tokens:', sortedTokens);
         setTokens(sortedTokens);
       } else {
-        console.log('dollarRef.current or account is not available.');
+        // console.log('dollarRef.current or account is not available.');
       }
     } catch (error) {
       console.error('Error in useEffect:', error);
@@ -173,11 +173,22 @@ function TokenList({
       isLoading = false;
       console.log('Loading process complete, isLoading set to false.');
     }
-  }, [newBlock, account, dollarRef, chain_id, dollarRefTrigger, ALL_TOKENS]); // Dependencies include dollarRef and account
+  }, [account, dollarRef, chain_id, dollarRefTrigger]); // Dependencies include dollarRef and account
 
   useEffect(() => {
     setFadeIn(true);
   }, []);
+
+  const filteredAndSortedTokens = useMemo(() => {
+    return Object.entries(tokens)
+      .filter(
+        ([key, token]) =>
+          token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          token.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => Number(b[1].dollarValue) - Number(a[1].dollarValue));
+  }, [tokens, searchTerm]);
+
   return (
     <div className={`token-list-container ${fadeIn ? 'fade-in' : ''}`}>
       <div className='token-list' ref={tokenListRef}>
@@ -260,64 +271,65 @@ function TokenList({
           </div>
         </div>
         <div className='token-list-items'>
-          {Object.entries(tokens)
+          {/*         {Object.entries(tokens)
             .filter(
               ([key, token]) =>
                 token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 token.symbol.toLowerCase().includes(searchTerm.toLowerCase())
             )
-            .map(([key, token]) => (
-              <div
-                className={`token-list-item ${key} ${
-                  buyToken === key || sellToken === key ? 'disable' : ''
-                }`}
-                key={key} // Use the key from the object as the React key
-                onClick={() => {
-                  // Now you can use the key here if needed
-                  if (type === 'sellToken') {
-                    handleSellTokenChange(key);
-                  } else if (type === 'buyToken') {
-                    handleBuyTokenChange(key);
-                  }
-                  handleShowTokenList(false);
-                }}>
-                <div className='token-list-item-image'>
-                  <img
-                    src={token.logo_uri}
-                    alt={'logo'}
-                    width={36}
-                    height={36}
-                    style={{objectFit: 'contain', borderRadius: '50%'}}
-                    loading='lazy'
-                  />
-                </div>
-                <div className='token-list-row-sb'>
-                  <div className='token-list-col'>
-                    <div className='token-list-item-text-name'>
-                      {token.symbol}
-                    </div>
-                    <div className='token-list-item-text-symbol'>
-                      {token.name}
-                    </div>
+            .map(([key, token]) => ( */}
+          {filteredAndSortedTokens.map(([key, token]) => (
+            <div
+              className={`token-list-item ${key} ${
+                buyToken === key || sellToken === key ? 'disable' : ''
+              }`}
+              key={key} // Use the key from the object as the React key
+              onClick={() => {
+                // Now you can use the key here if needed
+                if (type === 'sellToken') {
+                  handleSellTokenChange(key);
+                } else if (type === 'buyToken') {
+                  handleBuyTokenChange(key);
+                }
+                handleShowTokenList(false);
+              }}>
+              <div className='token-list-item-image'>
+                <img
+                  src={token.logo_uri}
+                  alt={'logo'}
+                  width={36}
+                  height={36}
+                  style={{objectFit: 'contain', borderRadius: '50%'}}
+                  loading='lazy'
+                />
+              </div>
+              <div className='token-list-row-sb'>
+                <div className='token-list-col'>
+                  <div className='token-list-item-text-name'>
+                    {token.symbol}
                   </div>
-                  <div className='token-list-col-right'>
-                    <div className='token-list-item-text-name'>
-                      {account && (
-                        <div className='token-list-item-text-name'>
-                          {token.dollarValue === undefined ||
-                          token.dollarValue === null ||
-                          token.dollarValue === ''
-                            ? ''
-                            : '$' + token.dollarValue}
-                        </div>
-                      )}
-                    </div>{' '}
-                    <div className='token-list-item-text-symbol'>
-                      {token.balance === undefined ? '' : token.balance}
-                    </div>
+                  <div className='token-list-item-text-symbol'>
+                    {token.name}
                   </div>
                 </div>
-                {/*               {ETH_TOKENS[key] === undefined && (
+                <div className='token-list-col-right'>
+                  <div className='token-list-item-text-name'>
+                    {account && (
+                      <div className='token-list-item-text-name'>
+                        {token.dollarValue === undefined ||
+                        token.dollarValue === null ||
+                        token.dollarValue === ''
+                          ? ''
+                          : '$' + token.dollarValue}
+                      </div>
+                    )}
+                  </div>{' '}
+                  <div className='token-list-item-text-symbol'>
+                    {token.balance === undefined ? '' : token.balance}
+                  </div>
+                </div>
+              </div>
+              {/*               {ETH_TOKENS[key] === undefined && (
                 <div
                   className='token-list-remove'
                   onClick={(event) => {
@@ -327,8 +339,8 @@ function TokenList({
                   <CloseIcon symbol={key} />
                 </div>
               )} */}
-              </div>
-            ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>

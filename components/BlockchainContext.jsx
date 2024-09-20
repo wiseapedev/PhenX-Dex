@@ -222,6 +222,7 @@ export const BlockchainProvider = ({children}) => {
     if (!account || !ALL_TOKENS) return;
 
     async function updateDollarRef() {
+      console.log('Updating dollarRef...');
       const tokenPromises = Object.keys(ALL_TOKENS)
         .filter((key) => ALL_TOKENS[key].chain_id === chain_id)
         .map(async (key) => {
