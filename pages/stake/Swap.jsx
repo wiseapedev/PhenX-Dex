@@ -22,6 +22,7 @@ const Swap = () => {
     tokenContract,
     stakeContract,
     resetData,
+    chainId,
   } = useContext(StakeContext);
   function disableSwapContainer() {
     try {
@@ -469,13 +470,23 @@ const Swap = () => {
     console.log('remainingDays:', remainingDays);
     return remainingDays.toFixed(0);
   } */
+
+  const isEth = chainId === 1;
   return (
     <div className='whole-container'>
       <NavBar />
       {/*       <Dev />
        */}{' '}
-      <div className='bg' />
-      <div className='stake-container'>
+      <div className='bg' />{' '}
+      {!isEth && (
+        <div className='wrong-network-container'>
+          {' '}
+          <div className='wrong-network-text'> Please switch to ETH</div>{' '}
+          <w3m-network-button />
+        </div>
+      )}
+      <div className={`stake-container ${isEth ? '' : 'blur'}`}>
+        {' '}
         <div className='main-left'>
           <div className='large-title'>
             Stake PhenX <br /> Earn rewards{' '}

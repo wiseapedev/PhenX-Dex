@@ -1,3 +1,5 @@
+import {id} from 'ethers';
+
 export const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
 
@@ -581,7 +583,8 @@ const ETH_TOKENS = {
   }, 
 };*/
 const BASE_TOKENS = {
-  eth: {
+  1: {
+    id: 1,
     chain_id: 8453,
     is_partner: true,
     name: 'Ether',
@@ -590,7 +593,8 @@ const BASE_TOKENS = {
     address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     logo_uri: 'https://www.dextools.io/resources/chains/med/ether.png',
   },
-  weth: {
+  2: {
+    id: 2,
     chain_id: 8453,
     name: 'Wrapped Ether',
     is_partner: true,
@@ -599,9 +603,9 @@ const BASE_TOKENS = {
     address: '0x4200000000000000000000000000000000000006',
     logo_uri: 'https://www.dextools.io/resources/chains/med/ether.png',
   },
-  usdc: {
+  3: {
+    id: 3,
     is_partner: true,
-
     chain_id: 8453,
     name: 'USDC',
     symbol: 'USDC',
@@ -610,340 +614,15 @@ const BASE_TOKENS = {
     logo_uri: 'https://ethereum-optimism.github.io/data/USDC/logo.png',
   },
 
-  dick: {
+  4: {
+    id: 4,
     chain_id: 8453,
+    is_partner: true,
     address: '0xFe86B2Ab783bAB2543798EEA1FD457364c81Ef54',
     name: 'dickbrAIn',
     symbol: 'DICK',
     decimals: 18,
     logo_uri: 'https://i.ibb.co/wRfTnFd/IMG-9855.jpg',
-  },
-
-  catch: {
-    chain_id: 8453,
-    address: '0x95017e6f16375e63e5cb4d3a5fbf3c40775b08f4',
-    name: 'catchcoin',
-    symbol: 'CATCH',
-    decimals: 18,
-    logo_uri: 'https://i.ibb.co/9bqB6kh/photo-2024-04-22-14-26-27.jpg',
-  },
-  inch: {
-    chain_id: 8453,
-    address: '0xc5fecC3a29Fb57B5024eEc8a2239d4621e111CBE',
-    name: '1inch',
-    symbol: '1INCH',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/13469/thumb/1inch-token.png?1608803028',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x111111111117dC0aa78b770fA6A738034120C302',
-        },
-      },
-    },
-  },
-  aero: {
-    chain_id: 8453,
-    address: '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
-    name: 'Aerodrome Finance',
-    symbol: 'AERO',
-    decimals: 18,
-    logo_uri: 'https://basescan.org/token/images/aerodrome_32.png',
-  },
-
-  arpa: {
-    chain_id: 8453,
-    address: '0x1C9Fa01e87487712706Fb469a13bEb234262C867',
-    name: 'ARPA Chain',
-    symbol: 'ARPA',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/8506/thumb/9u0a23XY_400x400.jpg?1559027357',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xBA50933C268F567BDC86E1aC131BE072C6B0b71a',
-        },
-      },
-    },
-  },
-  bal: {
-    chain_id: 8453,
-    address: '0x4158734D47Fc9692176B5085E0F52ee0Da5d47F1',
-    name: 'Balancer',
-    symbol: 'BAL',
-    decimals: 18,
-    logo_uri:
-      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xba100000625a3754423978a60c9317c58a424e3D/logo.png',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xba100000625a3754423978a60c9317c58a424e3D',
-        },
-      },
-    },
-  },
-  boba: {
-    chain_id: 8453,
-    address: '0x1F9bD96DDB4Bd07d6061f8933e9bA9EDE9967550',
-    name: 'Boba Network',
-    symbol: 'BOBA',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/20285/thumb/BOBA.png?1636811576',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x42bBFa2e77757C645eeaAd1655E0911a7553Efbc',
-        },
-      },
-    },
-  },
-  btrst: {
-    chain_id: 8453,
-    address: '0xA7d68d155d17cB30e311367c2Ef1E82aB6022b67',
-    name: 'Braintrust',
-    symbol: 'BTRST',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/18100/thumb/braintrust.PNG?1630475394',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x799ebfABE77a6E34311eeEe9825190B9ECe32824',
-        },
-      },
-    },
-  },
-  cbeth: {
-    chain_id: 8453,
-    address: '0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22',
-    name: 'Coinbase Wrapped Staked ETH',
-    symbol: 'cbETH',
-    decimals: 18,
-    logo_uri: 'https://ethereum-optimism.github.io/data/cbETH/logo.svg',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
-        },
-      },
-    },
-  },
-  comp: {
-    chain_id: 8453,
-    address: '0x9e1028F5F1D5eDE59748FFceE5532509976840E0',
-    name: 'Compound',
-    symbol: 'COMP',
-    decimals: 18,
-    logo_uri: 'https://ethereum-optimism.github.io/data/COMP/logo.svg',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
-        },
-      },
-    },
-  },
-  crv: {
-    chain_id: 8453,
-    address: '0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415',
-    name: 'Curve DAO Token',
-    symbol: 'CRV',
-    decimals: 18,
-    logo_uri:
-      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xD533a949740bb3306d119CC777fa900bA034cd52/logo.png',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xD533a949740bb3306d119CC777fa900bA034cd52',
-        },
-      },
-    },
-  },
-  ctsi: {
-    chain_id: 8453,
-    address: '0x259Fac10c5CbFEFE3E710e1D9467f70a76138d45',
-    name: 'Cartesi',
-    symbol: 'CTSI',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/11038/thumb/cartesi.png?1592288021',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x491604c0FDF08347Dd1fa4Ee062a822A5DD06B5D',
-        },
-      },
-    },
-  },
-  ctx: {
-    chain_id: 8453,
-    address: '0xBB22Ff867F8Ca3D5F2251B4084F6Ec86D4666E14',
-    name: 'Cryptex Finance',
-    symbol: 'CTX',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/14932/thumb/glossy_icon_-_C200px.png?1619073171',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x321C2fE4446C7c963dc41Dd58879AF648838f98D',
-        },
-      },
-    },
-  },
-  dai: {
-    chain_id: 8453,
-    address: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb',
-    name: 'Dai Stablecoin',
-    symbol: 'DAI',
-    decimals: 18,
-    logo_uri: 'https://ethereum-optimism.github.io/data/DAI/logo.svg',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-        },
-      },
-    },
-  },
-  eurc: {
-    chain_id: 8453,
-    address: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42',
-    name: 'EURC',
-    symbol: 'EURC',
-    decimals: 6,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/26045/standard/euro.png',
-  },
-  farm: {
-    chain_id: 8453,
-    address: '0xD08a2917653d4E460893203471f0000826fb4034',
-    name: 'Harvest Finance',
-    symbol: 'FARM',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/12304/thumb/Harvest.png?1613016180',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xa0246c9032bC3A600820415aE600c6388619A14D',
-        },
-      },
-    },
-  },
-  forth: {
-    chain_id: 8453,
-    address: '0x968B2323d4b005C7D39c67D31774FE83c9943A60',
-    name: 'Ampleforth Governance Token',
-    symbol: 'FORTH',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/14917/thumb/photo_2021-04-22_00.00.03.jpeg?1619020835',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x77FbA179C79De5B7653F68b5039Af940AdA60ce0',
-        },
-      },
-    },
-  },
-  fox: {
-    chain_id: 8453,
-    address: '0x2dbe0d779c7A04F7a5de83326973effE23356930',
-    name: 'ShapeShift FOX Token',
-    symbol: 'FOX',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/9988/thumb/FOX.png?1574330622',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-        },
-      },
-    },
-  },
-  ghst: {
-    chain_id: 8453,
-    address: '0xcD2F22236DD9Dfe2356D7C543161D4d260FD9BcB',
-    name: 'Aavegotchi',
-    symbol: 'GHST',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/12467/thumb/ghst_200.png?1600750321',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x3F382DbD960E3a9bbCeaE22651E88158d2791550',
-        },
-      },
-    },
-  },
-  iotx: {
-    chain_id: 8453,
-    address: '0xBCBAf311ceC8a4EAC0430193A528d9FF27ae38C1',
-    name: 'IoTeX',
-    symbol: 'IOTX',
-    decimals: 18,
-    logo_uri: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2777.png',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x6fB3e0A217407EFFf7Ca062D46c26E5d60a14d69',
-        },
-      },
-    },
-  },
-  jam: {
-    chain_id: 8453,
-    address: '0xFf9957816c813C5Ad0b9881A8990Df1E3AA2a057',
-    name: 'Geojam',
-    symbol: 'JAM',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/24648/thumb/ey40AzBN_400x400.jpg?1648507272',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x23894DC9da6c94ECb439911cAF7d337746575A72',
-        },
-      },
-    },
-  },
-  lqty: {
-    chain_id: 8453,
-    address: '0x5259384690aCF240e9b0A8811bD0FFbFBDdc125C',
-    name: 'Liquity',
-    symbol: 'LQTY',
-    decimals: 18,
-    logo_uri:
-      'https://assets.coingecko.com/coins/images/14665/thumb/200-lqty-icon.png?1617631180',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0x6DEA81C8171D0bA574754EF6F8b412F2Ed88c54D',
-        },
-      },
-    },
-  },
-  lrc: {
-    chain_id: 8453,
-    address: '0x0D760ee479401Bb4C40BDB7604b329FfF411b3f2',
-    name: 'LoopringCoin V2',
-    symbol: 'LRC',
-    decimals: 18,
-    logo_uri:
-      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD/logo.png',
-    extensions: {
-      bridgeInfo: {
-        1: {
-          tokenAddress: '0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD',
-        },
-      },
-    },
   },
 };
 
@@ -970,7 +649,7 @@ const CHAINS = {
     uniswapRouterAddressV3: '0x2626664c2603336E57B271c5C0b26F421741e481',
     uniswapFactoryAddressV3: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
     uniswapQuoterV3: '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a',
-    udxRouterAddress: '0x652be6510182e5573b303E86cf0c9670Bd02254C',
+    udxRouterAddress: '0xd94Fe4376Fc177EA46016dccab814D7c821AD70c',
     rpcUrl: process.env.NEXT_PUBLIC_BASE_RPC,
   },
 };

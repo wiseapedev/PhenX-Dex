@@ -51,7 +51,7 @@ function mergeTokens(chain_id, ETH_TOKENS) {
       const token = BASE_TOKENS[key];
       if (token.chain_id === chain_id) {
         mergedTokens[token.id] = token;
-        // Track the highest ID
+        //  console.log('token:', token);
         maxId = Math.max(maxId, token.id || 0);
       }
     });
@@ -70,7 +70,6 @@ function mergeTokens(chain_id, ETH_TOKENS) {
     }
   });
 
-  console.log('mergedTokens:', mergedTokens);
   return mergedTokens;
 }
 

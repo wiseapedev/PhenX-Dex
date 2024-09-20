@@ -4,26 +4,29 @@ import {ethers} from 'ethers';
 import {BlockchainContext} from './BlockchainContext';
 import Swap from './Swap';
 import dynamic from 'next/dynamic';
-import {watchChainId} from '@wagmi/core';
-import {getChainId} from '@wagmi/core';
 
 const SwapNoSSR = dynamic(() => import('./Swap'), {
   ssr: false, // This will disable server-side rendering for the Swap component
 });
 
 const Layout = ({buyLink, buyLinkKey}) => {
-  const {config, ETH_TOKENS, ALL_TOKENS} = useContext(BlockchainContext);
-  const [chain_id, setChainId] = useState(/* getChainId(config) */ 1);
+  const {chain_id, ETH_TOKENS, ALL_TOKENS} = useContext(BlockchainContext);
   const [tokensReady, setTokensReady] = useState(false);
+
+  /*   useEffect(() => {
+    setTokensReady(false);
+  }, [chain_id]); */
 
   useEffect(() => {
     if (
       Object.keys(ETH_TOKENS).length > 0 &&
       Object.keys(ALL_TOKENS).length > 0
     ) {
+      //   setTimeout(() => {
       setTokensReady(true);
+      //   }, 1000);
     }
-  }, [ETH_TOKENS, ALL_TOKENS]);
+  }, [ETH_TOKENS, ALL_TOKENS, chain_id]);
 
   /*   useEffect(() => {
     const unwatch = watchChainId(config, {
@@ -40,10 +43,10 @@ const Layout = ({buyLink, buyLinkKey}) => {
     <>
       {tokensReady ? (
         <SwapNoSSR
-          key={chain_id} // Using chain_id as key to force remount on change
           buyLink={buyLink}
           buyLinkKey={buyLinkKey}
-          chain_id={chain_id}
+          //    chain_id={chain_id}
+          //   key={chain_id}
         />
       ) : (
         <div className='whole-container'>

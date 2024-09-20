@@ -157,7 +157,11 @@ export const Telegram = () => (
   </svg>
 );
 export const Settings = () => (
-  <svg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>
+  <svg
+    viewBox='0 0 32 32'
+    width='32'
+    height='32'
+    xmlns='http://www.w3.org/2000/svg'>
     <defs>
       <linearGradient id='grd-svg'>
         <stop className='stop1' offset='0%'></stop>

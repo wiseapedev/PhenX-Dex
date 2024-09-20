@@ -11,7 +11,15 @@ const mainnet = {
   name: 'Ethereum',
   currency: 'ETH',
   explorerUrl: 'https://etherscan.io',
-  rpcUrl: 'https://cloudflare-eth.com',
+  rpcUrl: process.env.NEXT_PUBLIC_ETH_RPC,
+};
+
+const baseChain = {
+  chainId: 8453,
+  name: 'Base',
+  currency: 'ETH',
+  explorerUrl: 'https://basescan.org',
+  rpcUrl: 'https://mainnet.base.org',
 };
 
 // 3. Create a metadata object
@@ -24,13 +32,14 @@ const metadata = {
     'https://www.dextools.io/resources/tokens/logos/ether/0xd166b7d9824cc5359360b47389aba9341ce12619.png?1722864698511',
   ],
 };
+
 // 4. Create Ethers config
 const ethersConfig = defaultConfig({
-  /*Required*/
+  /* Required */
   metadata,
-  /*Optional*/
+  /* Optional */
   enableEIP6963: true, // true by default
-  enableInjected: true, // true by default
+  enableInjected: false, // true by default
   enableCoinbase: true, // true by default
   rpcUrl: '...', // used for the Coinbase SDK
   defaultChainId: 1, // used for the Coinbase SDK
@@ -39,7 +48,7 @@ const ethersConfig = defaultConfig({
 // 5. Create a AppKit instance
 createWeb3Modal({
   ethersConfig,
-  chains: [mainnet],
+  chains: [mainnet, baseChain],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
   enableSwaps: false,

@@ -32,7 +32,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   // const providerHTTP = useEthersproviderHTTP();
 
-  const [ethPrice, setEthPrice] = useState('0');
+  const [ethPrice, setEthPrice] = useState('');
   const RATE_LIMIT = 500;
   const savedInputAmountRef = useRef(undefined);
   const savedOutputAmountRef = useRef(undefined);
@@ -167,7 +167,14 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
     }
   }
 
-  return <div className='dollar-value'>${ethPrice}</div>;
+  if (
+    ethPrice === '0' ||
+    ethPrice === '0.00' ||
+    ethPrice === 0 ||
+    ethPrice === ''
+  ) {
+    return <div className='dollar-value'>-</div>;
+  } else return <div className='dollar-value'>${ethPrice}</div>;
 }
 
 export default DollarValue;

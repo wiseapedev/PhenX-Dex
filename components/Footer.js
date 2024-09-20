@@ -45,14 +45,14 @@ function FooterBar() {
       </div>
       <div className='nav-right'>
         <a
-          href='https://t.me/+phEkvS-WIvs5MTE0'
+          href='https://t.me/Mikenheimer'
           style={{
             color: 'white',
             fontSize: '14px',
             textAlign: 'center',
             letterSpacing: '7px',
           }}>
-          FEEDBACK
+          GET LISTED
         </a>
       </div>
     </div>

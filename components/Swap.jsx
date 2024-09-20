@@ -11,7 +11,7 @@ import {
   SaverInfoIcon,
   DownArrow,
 } from './SVGMAIN.js';
-import {useWeb3Modal} from '@web3modal/ethers/react';
+// import {useAppKitProvider, useAppKitAccount} from '@reown/appkit/react';
 import NavBar from './NavBar';
 
 import MemPool from './MemPool';
@@ -45,19 +45,26 @@ import LiveCoinWatch from './LiveCoinWatch';
 import IconLinks from './IconLinks';
 import WalletIcon from './svgs/WalletIcon';
 import mergeTokens from './mergeTokens';
-import {watchChainId} from '@wagmi/core';
-import {getChainId} from '@wagmi/core';
 import {CHAINS} from './lib/constants.js';
 import {sign} from 'crypto';
 /* import BlockTimer from './BlockTimer';
  */ import ContractLinks from './ContractLinks';
 import Switch from './Switch';
 import FooterBar from './Footer';
+import PendingTransaction from './PendingTransaction';
 
-const Swap = ({buyLink, buyLinkKey, chain_id}) => {
-  const {signer, provider, account, tokenListOpenRef, ETH_TOKENS, ALL_TOKENS} =
-    useContext(BlockchainContext);
-  const {open} = useWeb3Modal();
+const Swap = ({buyLink, buyLinkKey}) => {
+  const {
+    signer,
+    provider,
+    account,
+    tokenListOpenRef,
+    ETH_TOKENS,
+    ALL_TOKENS,
+    chain_id,
+  } = useContext(BlockchainContext);
+
+  const isETH = chain_id === 1;
 
   const providerRPC = CHAINS[chain_id].rpcUrl;
   const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
@@ -139,7 +146,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
   const [showAudits, setShowAudits] = useState(false);
 
   function findKeyBySymbol(symbol) {
-    let token = 'eth';
+    let token = symbol;
     try {
       token = Object.keys(ALL_TOKENS).find(
         (key) => ALL_TOKENS[key].symbol === symbol
@@ -384,7 +391,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     function formatAmount(amount) {
       try {
         if (amount === '0') {
-          return '0';
+          return '';
         }
         return parseFloat(amount).toFixed(4);
       } catch (error) {
@@ -469,7 +476,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                   isOutputToken={true}
                 />
               ) : (
-                '$0'
+                '-'
               )}
             </div>
 
@@ -1178,6 +1185,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
         const {account, signer, updateData} = useContext(BlockchainContext);
         const [isApprovalNeeded, setIsApprovalNeeded] = useState(false);
+        const [pendingTransaction, setPendingTransaction] = useState(false);
 
         useEffect(() => {
           const checkAllowance = async () => {
@@ -1226,7 +1234,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
           const intervalId = setInterval(checkAllowance, 5000); // Set up the polling interval
 
           return () => clearInterval(intervalId); // Clean up the interval on component unmount
-        }, [sellToken, isApprovalNeeded, setIsApprovalNeeded]);
+        }, [sellToken]);
         const handleApprove = async () => {
           try {
             toast.info('Please approve the transaction in your wallet');
@@ -1266,7 +1274,14 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
         const handleSwap = async () => {
           try {
-            disableSwapContainer();
+            //    disableSwapContainer();
+            toast.info('Please approve the transaction in your wallet');
+
+            const routerContractEstimate = new ethers.Contract(
+              routerAddress,
+              routerABI,
+              providerHTTP
+            );
 
             const routerContract = new ethers.Contract(
               routerAddress,
@@ -1397,8 +1412,42 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
     console.error('Failed to getGasFees:', error);
   }
 } */
+            async function getNonEthGasFees() {
+              try {
+                const feeData = await providerHTTP.getFeeData();
+                console.log('feeData', feeData);
 
-            const gasFees = await getGasFees();
+                // Extract values from feeData
+                const gasPrice = BigInt(feeData.gasPrice || 0);
+                const maxPriorityFeePerGas = BigInt(
+                  feeData.maxPriorityFeePerGas || 0
+                );
+                const maxFeePerGas = BigInt(feeData.maxFeePerGas || 0);
+
+                console.log('gasPrice', gasPrice.toString());
+                console.log(
+                  'maxPriorityFeePerGas',
+                  maxPriorityFeePerGas.toString()
+                );
+                console.log('maxFeePerGas', maxFeePerGas.toString());
+
+                // Return the gas fees as strings
+                return {
+                  gasPrice: gasPrice.toString(),
+                  maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
+                  maxFeePerGas: maxFeePerGas.toString(),
+                };
+              } catch (error) {
+                console.error('Failed to getNonEthGasFees:', error);
+              }
+            }
+
+            let gasFees;
+            if (chain_id === 1) {
+              gasFees = await getGasFees();
+            } else {
+              gasFees = await getNonEthGasFees();
+            }
 
             async function reduceAmountOut(amountOut) {
               try {
@@ -1721,16 +1770,23 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 );
               }
             }
+            setPendingTransaction(transactionResponse);
+            console.log('transactionResponse', transactionResponse);
+            console.log('swapData', swapData);
+
             const sendTransaction = await transactionResponse.wait();
+            async function delay(ms) {
+              return new Promise((resolve) => setTimeout(resolve, ms));
+            }
+
+            await delay(3000);
             if (sendTransaction.status === 1) {
-              toast.success('Trade successful');
               enableSwapContainer();
               setTrigger(trigger + 1);
               updateData('savedInputAmount', '');
               updateData('savedOutputAmount', '');
             }
             if (sendTransaction.status === 0) {
-              toast.error('Trade failed');
               setTrigger(trigger + 1);
 
               enableSwapContainer();
@@ -1771,6 +1827,14 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
 
         return (
           <>
+            {pendingTransaction && (
+              <PendingTransaction
+                provider={provider}
+                transaction={pendingTransaction}
+                swapData={swapData}
+                chainId={chain_id}
+              />
+            )}
             {account == null ? (
               <div className='swap-button disable'>Connect Wallet</div>
             ) : (
@@ -1786,8 +1850,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
                 )}
               </>
             )}
-
-            <SaverInfo swapData={swapData} savedSlippage={savedSlippage} />
+            <SaverInfo swapData={swapData} savedSlippage={savedSlippage} />{' '}
           </>
         );
       }
@@ -1930,7 +1993,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
           document.querySelector('.main-container').style.paddingTop = '12.5vh';
         }
       } else {
-        document.querySelector('.main-container').style.paddingTop = '12.5vh';
+        document.querySelector('.main-container').style.paddingTop = '9.5vh';
       }
     };
 
@@ -1945,9 +2008,66 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
       window.removeEventListener('resize', handleResize);
     };
   }, [showAudits, showChart, isMobile]);
-
+  const swapData = {
+    amount: 1000000000000000n,
+    amountIn: 1000000000000000n,
+    amountOut: 2552533n,
+    deadline: 1726838531,
+    decimals: 6,
+    fee: 500,
+    feeAddress: '0x1c2061fACa9DF7B6c02e7EB8dEBed1f37B24C6A9',
+    fromTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    isV2Only: undefined,
+    isV2ToV3: undefined,
+    isV3Only: true,
+    isV3ToV2: undefined,
+    recipient: '0x94683fd6256DaC7203D2994cf1fe1E8dA5fb7648',
+    slippage: 0.07,
+    sqrtPriceLimitX96: 0,
+    swapType: 'ETH/TOKEN',
+    to: '0x94683fd6256DaC7203D2994cf1fe1E8dA5fb7648',
+    toTokenAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    tokenIn: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    tokenOut: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    v3QuoteFee: undefined,
+    v3QuoteFeeIn: 0,
+    v3QuoteFeeOut: 0,
+  };
+  const pendingTransaction = {
+    _type: 'TransactionResponse',
+    accessList: null,
+    blockNumber: null,
+    blockHash: null,
+    blobVersionedHashes: null,
+    chainId: null,
+    data: '0x91e985ee000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda0291300000000000000000000000000000000000000000000000000000000000001f400000000000000000000000094683fd6256dac7203d2994cf1fe1e8da5fb764800000000000000000000000000000000000000000000000000000000002438e0',
+    from: '0x94683fd6256DaC7203D2994cf1fe1E8dA5fb7648',
+    gasLimit: '194727',
+    gasPrice: '14245050',
+    hash: '0xac132c5b9611d0eed852c54178a321cd00a240828fc5d937901803b9ad2a7558',
+    maxFeePerGas: '14245050',
+    maxPriorityFeePerGas: '1000000',
+    maxFeePerBlobGas: null,
+    nonce: 6,
+    signature: {
+      _type: 'signature',
+      networkV: null,
+      r: '0x4cadb543b58bba265cc220ef7b5a10eb15f48830682edcf989874bd194d6c82a',
+      s: '0x13adca4ed7f0b93f3dafe2d3e6ef8251d09d7200b9f410677aed0f99f00bd21b',
+      v: 27,
+    },
+    to: '0xd94Fe4376Fc177EA46016dccab814D7c821AD70c',
+    type: 2,
+    value: '1000000000000000',
+  };
   return (
     <div className='whole-container'>
+      {/*     <PendingTransaction
+        provider={provider}
+        transaction={pendingTransaction}
+        swapData={swapData}
+        chainId={chain_id}
+      /> */}
       <div className='bg' />
 
       <div className='main-container'>
@@ -2004,7 +2124,7 @@ const Swap = ({buyLink, buyLinkKey, chain_id}) => {
             />
           </div>{' '}
           <QuoteView />
-          {showAudits && memoAudits}
+          {isETH && showAudits && memoAudits}
         </div>
         {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}
       </div>

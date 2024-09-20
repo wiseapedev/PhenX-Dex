@@ -16,13 +16,18 @@ import {
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from '@web3modal/ethers/react';
+// import {useAppKitProvider, useAppKitAccount} from '@reown/appkit/react';
+
 import {BrowserProvider, Contract, formatUnits} from 'ethers';
 import {CHAINS} from '../components/lib/constants';
 export const StakeContext = createContext({});
 
 export const StakeProvider = ({children}) => {
+  // const {address: account, chainId, isConnected} = useAppKitAccount();
   const {address: account, chainId, isConnected} = useWeb3ModalAccount();
   const {walletProvider} = useWeb3ModalProvider();
+  //  const {walletProvider} = useAppKitProvider();
+
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const tokenContractAddress = '0xd166b7D9824cc5359360B47389AbA9341cE12619';
@@ -39,6 +44,10 @@ export const StakeProvider = ({children}) => {
   useEffect(() => {
     const setupProvider = async () => {
       if (walletProvider) {
+        if (chainId !== 1) {
+          console.log('Please connect to the Ethereum Mainnet');
+          return;
+        }
         try {
           // Initialize ethers provider using the walletProvider
           const ethersProvider = new BrowserProvider(walletProvider);
@@ -60,15 +69,19 @@ export const StakeProvider = ({children}) => {
     };
 
     setupProvider(); // Call the async function
-  }, [walletProvider, account]);
+  }, [walletProvider, account, chainId]);
   useEffect(() => {
     const init = async () => {
       if (!stakeContract && !tokenContract && provider) {
+        if (chainId !== 1) {
+          console.log('Please connect to the Ethereum Mainnet');
+          return;
+        }
         await initContracts();
       }
     };
     init();
-  }, [account, stakeContract, tokenContract, provider]);
+  }, [account, stakeContract, tokenContract, provider, chainId]);
 
   let isInit = false;
   async function initContracts() {
@@ -115,6 +128,10 @@ export const StakeProvider = ({children}) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (chainId !== 1) {
+        console.log('Please connect to the Ethereum Mainnet');
+        return;
+      }
       if (stakeContract && tokenContract && provider) {
         console.log('stakeContract', stakeContract);
         await initTokenData();
@@ -122,7 +139,7 @@ export const StakeProvider = ({children}) => {
       }
     };
     fetchData();
-  }, [account, stakeContract, tokenContract, provider]);
+  }, [account, stakeContract, tokenContract, provider, chainId]);
 
   async function initTokenData() {
     const symbol = await tokenContract.symbol();
@@ -369,6 +386,7 @@ export const StakeProvider = ({children}) => {
         tokenContract,
         stakeContract,
         resetData,
+        chainId,
       }}>
       {children}
     </StakeContext.Provider>

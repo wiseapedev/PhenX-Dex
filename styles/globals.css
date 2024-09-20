@@ -22,6 +22,10 @@ a {
  */
   box-sizing: border-box;
 }
+.blur {
+  filter: blur(2px);
+  pointer-events: none;
+}
 :root {
   --primary-color: rgb(255, 165, 0);
   --secondary-rgb: rgb(255, 69, 0);
@@ -447,7 +451,6 @@ input:focus {
 .small-title {
   font-size: 1.1rem;
   font-weight: 600;
-
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -1233,7 +1236,6 @@ input:focus {
   font-size: 0.8rem;
   font-weight: bold;
   letter-spacing: 1px;
-  padding: 5px;
   width: 100%;
   text-align: center;
 }
@@ -1293,6 +1295,7 @@ input:focus {
   transition: all 0.1s ease-in-out;
   color: var(--text);
   cursor: pointer;
+  background: var(--box-inner);
 }
 
 .swap-tab:hover {
@@ -1434,9 +1437,11 @@ input:focus {
   overflow: hidden;
   border-radius: 25px;
   padding: 10px;
-  background: var(--box-darker);
-  border: 1px solid var(--border);
-  /*   box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3); */
+  /*   background: var(--box-darker);
+ */
+
+  /*   border: 1px solid var(--border);
+ */ /*   box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3); */
 }
 .left-section {
   width: 30%;
@@ -1914,13 +1919,38 @@ input:focus {
   animation: spin 1s linear infinite;
   margin: auto; /* Center the spinner */
 }
+/* Wrapper for the tick icon */
+/* Wrapper for the tick icon */
+.tick-icon {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  background-color: var(--box-inner);
+  border-radius: 50%; /* Make it circular */
+  position: relative;
+  margin: auto; /* Center the icon */
+}
+
+/* The checkmark (tick) */
+.tick-icon::after {
+  content: '';
+  position: absolute;
+  width: 16px; /* Width of the checkmark */
+  height: 32px; /* Height of the checkmark */
+  border: solid var(--primary-color); /* Color of the checkmark */
+  border-width: 0 4px 4px 0;
+  transform: rotate(45deg);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(45deg); /* Center the tick */
+}
 
 .logo-image {
   border-radius: 50%;
-  margin-right: 2px;
-  margin-left: 2px;
-  width: 25px;
-  height: 25px;
+  margin-right: 5px;
+  margin-left: 5px;
+  width: 32px;
+  height: 32px;
 }
 .nav-buttons {
   display: flex;
@@ -1941,6 +1971,114 @@ input:focus {
   color: var(--text);
 }
 
+.dropdown-menu-container {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  bottom: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 6;
+  pointer-events: none;
+}
+.dropdown-menu {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border: solid 1px var(--border);
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  padding: 20px;
+  z-index: 1000;
+  transform: translateY(100%);
+  background: var(--box-darker);
+}
+.dropdown-open {
+  transform: translateY(0%);
+}
+.dropdown-close {
+  transform: translateY(100%);
+}
+.dropdown-item {
+  z-index: 1001;
+  pointer-events: all;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: var(--text-gray);
+  border: solid 1px var(--border);
+  background-color: var(--box-inner);
+  transition: all 0.3s ease-in-out;
+}
+.dropdown-active {
+  color: var(--text);
+}
+/* Global CSS to hide the text inside wui-network-button */
+
+.pending-container {
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  z-index: 100;
+  transform: translateY(-100px); /* Move items 100px up from the middle */
+}
+.pending-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border: solid 1px var(--border);
+  background: var(--box-darker);
+  border-radius: 20px;
+  width: 80vw;
+  height: 60vh;
+  max-height: 200px;
+  max-width: 300px;
+  opacity: 1;
+  pointer-events: all;
+  transition: all 0.3s ease-in-out;
+}
+
+.hash-link {
+  position: absolute;
+  bottom: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+.pending-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-gray);
+}
+.pending-text-ok {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -1986,13 +2124,11 @@ input:focus {
   }
   .swap-container {
     padding: 0;
-    margin-bottom: 20px;
     min-width: 50px;
-    width: 100%;
+    width: 95%;
     background: none;
     border: none;
     border-radius: 0px;
-    margin-bottom: 50px;
   }
   .token-list-container {
     width: 100%;
@@ -2074,7 +2210,7 @@ input:focus {
     padding-inline: 0px;
   }
   .nav-right > * {
-    margin-right: 5px;
+    margin-right: 0px;
   }
   .page-container {
     padding-top: 5px;
@@ -2121,5 +2257,20 @@ input:focus {
   .base-tokens-section {
     padding-top: 5px;
     padding-bottom: 5px;
+  }
+  .footer-container {
+    padding-inline: 5px;
+  }
+  .nav-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .nav-container {
+    padding-right: 0px;
+  }
+  .icon {
+    width: 24px;
+    height: 24px;
   }
 }

@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useRef,
   useLayoutEffect,
+  use,
 } from 'react';
 import PropTypes from 'prop-types';
 import {ethers} from 'ethers';
@@ -19,8 +20,6 @@ import {erc20Abi} from 'viem';
 import wethABI from './abis/wethABI.json';
 // import {config} from '../config/config';
 import mergeTokens from './mergeTokens';
-import {watchChainId} from '@wagmi/core';
-import {getChainId} from '@wagmi/core';
 import {CHAINS} from './lib/constants';
 // import {ETH_TOKENS} from './lib/constants';
 import {BASE_TOKENS} from './lib/constants';
@@ -28,6 +27,11 @@ import {
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from '@web3modal/ethers/react';
+// import {useAppKitProvider, useAppKitAccount} from '@reown/appkit/react';
+// import {useAppKitState} from '@reown/appkit/react';
+
+import {useWeb3Modal} from '@web3modal/ethers/react';
+
 import {BrowserProvider, Contract, formatUnits} from 'ethers';
 
 export const BlockchainContext = createContext({
@@ -42,27 +46,52 @@ export const BlockchainProvider = ({children}) => {
   // const provider = useEthersProvider();
   // const {address: account} = useAccount();
   //  const signer = useEthersSigner();
-  const [chain_id, setChainId] = useState(/* getChainId(config) || */ 1);
+  // const {open, selectedNetworkId} = useAppKitState();
+
   const [ETH_TOKENS, setEthTokens] = useState({});
   const [ALL_TOKENS, setAllTokens] = useState({});
-  const {address: account, chainId, isConnected} = useWeb3ModalAccount();
+  const {address: account, chainId} = useWeb3ModalAccount();
+  const [chain_id, setChainId] = useState(1);
+
+  const selectedNetworkId = useMemo(() => chainId, [chainId]);
   const {walletProvider} = useWeb3ModalProvider();
+  // const {walletProvider} = useAppKitProvider();
+  console.log('walletProvider', walletProvider);
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const providerRPC = CHAINS[chain_id].rpcUrl;
 
   const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
+  console.log('providerHTTP', providerHTTP);
+  async function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  useEffect(() => {
+    if (selectedNetworkId) {
+      //   if (selectedNetworkId === 'eip155:8453') {
+      if (selectedNetworkId === 8453) {
+        setChainId(8453);
+        //   } else if (selectedNetworkId === 'eip155:1') {
+      } else if (selectedNetworkId === 1) {
+        setChainId(1);
+      }
+      console.log('selectedNetworkId', selectedNetworkId);
+    }
+  }, [selectedNetworkId]);
 
   useEffect(() => {
     const setupProvider = async () => {
       if (walletProvider) {
+        console.log('walletProvider', walletProvider);
         try {
           // Initialize ethers provider using the walletProvider
           const ethersProvider = new BrowserProvider(walletProvider);
+          console.log('ethersProvider', ethersProvider);
 
           // Get the signer from the ethers provider
           const signer = await ethersProvider.getSigner();
-
+          console.log('signer', signer);
+          console.log('setting up provider and signer');
           // Set the provider and signer in state
           setSigner(signer);
           setProvider(ethersProvider);
@@ -73,7 +102,7 @@ export const BlockchainProvider = ({children}) => {
     };
 
     setupProvider(); // Call the async function
-  }, [walletProvider, account]);
+  }, [walletProvider, account, chain_id]);
 
   // const signer = await provider.getSigner()
   useEffect(() => {
@@ -98,30 +127,6 @@ export const BlockchainProvider = ({children}) => {
   // console.log('ALL_TOKENS', ALL_TOKENS);
 
   const dollarRef = useRef(ALL_TOKENS);
-
-  /*   useEffect(() => {
-    const unwatch = watchChainId(config, {
-      onChange(chain_id) {
-        console.log('Chain ID changed!', chain_id);
-        const currentUrl = window.location.href;
-        if (currentUrl.includes('/base' || currentUrl.includes('/eth'))) {
-          window.location.replace('https://PhenX.io/');
-        }
-        const newChainId = chain_id;
-        setChainId(newChainId);
-        console.log('newChainId', newChainId);
-        if (newChainId === 1) {
-          dollarRef.current = ETH_TOKENS;
-        }
-        if (newChainId === 8453) {
-          dollarRef.current = BASE_TOKENS;
-        }
-      },
-    });
-    return () => {
-      unwatch();
-    };
-  }, [config]); */
 
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   const wethAddress = CHAINS[chain_id].wethAddress;
@@ -214,7 +219,7 @@ export const BlockchainProvider = ({children}) => {
   const tokenListOpenRef = useRef(false);
 
   useEffect(() => {
-    if (!account) return;
+    if (!account || !ALL_TOKENS) return;
 
     async function updateDollarRef() {
       const tokenPromises = Object.keys(ALL_TOKENS)

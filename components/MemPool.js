@@ -3,11 +3,15 @@ import {useContext, useEffect, useState} from 'react';
 import CountUp from 'react-countup';
 
 function MemPool() {
-  const {providerHTTP} = useContext(BlockchainContext);
+  const {providerHTTP, chain_id} = useContext(BlockchainContext);
   const [gasData, setGasData] = useState(null);
 
   async function getGasFees() {
     try {
+      if (chain_id !== 1) {
+        return;
+      }
+
       const payload = {
         jsonrpc: '2.0',
         id: 1,
@@ -37,7 +41,7 @@ function MemPool() {
       {gasData ? (
         <GasTrackerDisplay gasData={gasData} />
       ) : (
-        <div className='small-text'>Computing Live Gas</div>
+        <div className='small-text'>Automatically using the cheapest gas</div>
       )}
     </div>
   );
