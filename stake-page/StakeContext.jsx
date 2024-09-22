@@ -16,6 +16,8 @@ import {
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from '@web3modal/ethers/react';
+import {useRouter} from 'next/router';
+
 // import {useAppKitProvider, useAppKitAccount} from '@reown/appkit/react';
 
 import {BrowserProvider, Contract, formatUnits} from 'ethers';
@@ -23,6 +25,8 @@ import {CHAINS} from '../components/lib/constants';
 export const StakeContext = createContext({});
 
 export const StakeProvider = ({children}) => {
+  const router = useRouter();
+  const isStakePage = router.pathname === '/stake';
   // const {address: account, chainId, isConnected} = useAppKitAccount();
   const {address: account, chainId, isConnected} = useWeb3ModalAccount();
   const {walletProvider} = useWeb3ModalProvider();
@@ -41,17 +45,21 @@ export const StakeProvider = ({children}) => {
   async function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
+
+  useEffect(() => {
+    if (isStakePage) {
+      console.log('isStakePage:', isStakePage);
+    }
+  }, [isStakePage]);
   useEffect(() => {
     const setupProvider = async () => {
-      if (walletProvider) {
+      if (walletProvider && isStakePage) {
         if (chainId !== 1) {
-          console.log('Please connect to the Ethereum Mainnet');
           return;
         }
         try {
           // Initialize ethers provider using the walletProvider
           const ethersProvider = new BrowserProvider(walletProvider);
-          console.log('Ethers provider:', ethersProvider);
           /*           const providerRPC = CHAINS[1].rpcUrl;
 
           const provider = new ethers.JsonRpcProvider(providerRPC);
@@ -69,12 +77,11 @@ export const StakeProvider = ({children}) => {
     };
 
     setupProvider(); // Call the async function
-  }, [walletProvider, account, chainId]);
+  }, [walletProvider, account, chainId, isStakePage]);
   useEffect(() => {
     const init = async () => {
       if (!stakeContract && !tokenContract && provider) {
         if (chainId !== 1) {
-          console.log('Please connect to the Ethereum Mainnet');
           return;
         }
         await initContracts();
@@ -94,8 +101,6 @@ export const StakeProvider = ({children}) => {
       console.log('Contracts already initialized');
       return;
     }
-    console.log('Initializing contracts...');
-    console.log('Account:', account);
 
     try {
       const _stakeContract = new ethers.Contract(
@@ -116,7 +121,6 @@ export const StakeProvider = ({children}) => {
     } catch (error) {
       console.error('Error initializing contracts:', error);
     } finally {
-      console.log('Contracts initialized');
       isInit = false;
     }
   }
@@ -129,11 +133,9 @@ export const StakeProvider = ({children}) => {
   useEffect(() => {
     const fetchData = async () => {
       if (chainId !== 1) {
-        console.log('Please connect to the Ethereum Mainnet');
         return;
       }
       if (stakeContract && tokenContract && provider) {
-        console.log('stakeContract', stakeContract);
         await initTokenData();
         await initStakeData();
       }
@@ -152,7 +154,6 @@ export const StakeProvider = ({children}) => {
       userBalance,
       decimals,
     });
-    console.log('Token data:', tokenData);
   }
   const [stakeData, setStakeData] = useState({
     apy: 0,
@@ -198,7 +199,6 @@ export const StakeProvider = ({children}) => {
     };
 
     setStakeData(data);
-    console.log('Stake data:', data);
   }
   async function resetData() {
     initTokenData();

@@ -168,10 +168,10 @@ function TokenList({
         // console.log('dollarRef.current or account is not available.');
       }
     } catch (error) {
-      console.error('Error in useEffect:', error);
+      //   console.error('Error in useEffect:', error);
     } finally {
       isLoading = false;
-      console.log('Loading process complete, isLoading set to false.');
+      //     console.log('Loading process complete, isLoading set to false.');
     }
   }, [account, dollarRef, chain_id, dollarRefTrigger]); // Dependencies include dollarRef and account
 

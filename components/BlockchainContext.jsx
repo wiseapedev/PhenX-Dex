@@ -84,7 +84,7 @@ export const BlockchainProvider = ({children}) => {
         try {
           // Initialize ethers provider using the walletProvider
           const ethersProvider = new BrowserProvider(walletProvider);
-          console.log('ethersProvider', ethersProvider);
+          //     console.log('ethersProvider', ethersProvider);
 
           // Get the signer from the ethers provider
           const signer = await ethersProvider.getSigner();
