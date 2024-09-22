@@ -340,21 +340,24 @@ const Swap = () => {
         </div>
         <div className='general-box'>
           {' '}
-          <div className='small-text'>
-            Your early no-penalty unlock date is {StakeData.holderUnlockTime}.
-            If you wish to withdraw staked funds before this date, you will
-            incur a fee.
+          {StakeData.holderUnlockTime !== '01/01/1970, 01:00:00' && (
+            <div className='small-text'>
+              Your early no-penalty unlock date is {StakeData.holderUnlockTime}.
+              If you wish to withdraw staked funds before this date, you will
+              incur a fee.
+            </div>
+          )}
+        </div>
+        {canWithdraw && StakeData.userStakedAmount !== 0 && (
+          <div className='swap-button' onClick={handleWithdraw}>
+            Withdraw
           </div>
-        </div>
-
-        <div
-          className={canWithdraw ? 'swap-button' : 'swap-button disable'}
-          onClick={handleWithdraw}>
-          Withdraw
-        </div>
-        <div className={'swap-button'} onClick={handleEmergencyWithdraw}>
-          Emergency Withdraw
-        </div>
+        )}
+        {!canWithdraw && (
+          <div className={'swap-button'} onClick={handleEmergencyWithdraw}>
+            Emergency Withdraw
+          </div>
+        )}
       </div>
     );
   }

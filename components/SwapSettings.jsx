@@ -256,9 +256,9 @@ function SwapSettings({
               </div>{' '}
               Auto Gas
             </div>
-            <div className='us-te mobhide'>
+            {/*       <div className='us-te mobhide'>
               <CurrentGwei provider={providerHTTP} />
-            </div>
+            </div> */}
           </div>{' '}
           <MemPool />{' '}
           {/*      <div className='auto-container'>
