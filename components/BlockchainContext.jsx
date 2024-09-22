@@ -56,13 +56,11 @@ export const BlockchainProvider = ({children}) => {
   const selectedNetworkId = useMemo(() => chainId, [chainId]);
   const {walletProvider} = useWeb3ModalProvider();
   // const {walletProvider} = useAppKitProvider();
-  console.log('walletProvider', walletProvider);
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const providerRPC = CHAINS[chain_id].rpcUrl;
 
   const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
-  console.log('providerHTTP', providerHTTP);
   async function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -82,7 +80,7 @@ export const BlockchainProvider = ({children}) => {
   useEffect(() => {
     const setupProvider = async () => {
       if (walletProvider) {
-        console.log('walletProvider', walletProvider);
+        //    console.log('walletProvider', walletProvider);
         try {
           // Initialize ethers provider using the walletProvider
           const ethersProvider = new BrowserProvider(walletProvider);
@@ -90,8 +88,8 @@ export const BlockchainProvider = ({children}) => {
 
           // Get the signer from the ethers provider
           const signer = await ethersProvider.getSigner();
-          console.log('signer', signer);
-          console.log('setting up provider and signer');
+          //       console.log('signer', signer);
+          //       console.log('setting up provider and signer');
           // Set the provider and signer in state
           setSigner(signer);
           setProvider(ethersProvider);
@@ -108,7 +106,7 @@ export const BlockchainProvider = ({children}) => {
   useEffect(() => {
     async function fetchTokens() {
       try {
-        console.log('Fetching tokens...');
+        //     console.log('Fetching tokens...');
         const res = await fetch('/api/tokens');
         const data = await res.json();
         setEthTokens(data);
@@ -134,42 +132,42 @@ export const BlockchainProvider = ({children}) => {
 
   const blockNumberRef = useRef(0);
   const ethDollarPrice = useRef('');
+  const fetchNewBlockNumber = async () => {
+    if (!providerHTTP) return;
 
+    try {
+      const blockNumber = await providerHTTP.getBlockNumber();
+      //   console.log('blockNumber', blockNumber);
+
+      if (blockNumberRef.current !== blockNumber) {
+        blockNumberRef.current = blockNumber;
+      }
+      const amountIn = ethers.parseEther('1');
+
+      const path = [wethAddress, usdcAddress];
+      const routerContract = new ethers.Contract(
+        uniswapRouterAddress,
+        uniswapRouterABI,
+        providerHTTP
+      );
+
+      const amounts = await routerContract.getAmountsOut(amountIn, path);
+      let ethPriceInUsdc = amounts[1];
+      ethPriceInUsdc = ethers.formatUnits(ethPriceInUsdc, 6);
+      ethPriceInUsdc = Number(ethPriceInUsdc);
+      ethPriceInUsdc = ethPriceInUsdc.toFixed(0);
+      ethDollarPrice.current = ethPriceInUsdc;
+    } catch (error) {
+      console.error('Failed to fetch new block number:', error);
+    }
+  };
   useEffect(() => {
     let intervalId;
 
-    const fetchNewBlockNumber = async () => {
-      if (!providerHTTP) return;
-
-      try {
-        const blockNumber = await providerHTTP.getBlockNumber();
-        //   console.log('blockNumber', blockNumber);
-
-        if (blockNumberRef.current !== blockNumber) {
-          blockNumberRef.current = blockNumber;
-        }
-        const amountIn = ethers.parseEther('1');
-
-        const path = [wethAddress, usdcAddress];
-        const routerContract = new ethers.Contract(
-          uniswapRouterAddress,
-          uniswapRouterABI,
-          providerHTTP
-        );
-
-        const amounts = await routerContract.getAmountsOut(amountIn, path);
-        let ethPriceInUsdc = amounts[1];
-        ethPriceInUsdc = ethers.formatUnits(ethPriceInUsdc, 6);
-        ethPriceInUsdc = Number(ethPriceInUsdc);
-        ethPriceInUsdc = ethPriceInUsdc.toFixed(0);
-        ethDollarPrice.current = ethPriceInUsdc;
-      } catch (error) {
-        console.error('Failed to fetch new block number:', error);
-      }
-    };
+    fetchNewBlockNumber();
 
     const startPolling = () => {
-      intervalId = setInterval(fetchNewBlockNumber, 12000);
+      intervalId = setInterval(fetchNewBlockNumber, 30000);
     };
 
     const stopPolling = () => {
@@ -223,6 +221,7 @@ export const BlockchainProvider = ({children}) => {
 
     async function updateDollarRef() {
       console.log('Updating dollarRef...');
+      await fetchNewBlockNumber();
       const tokenPromises = Object.keys(ALL_TOKENS)
         .filter((key) => ALL_TOKENS[key].chain_id === chain_id)
         .map(async (key) => {
@@ -250,6 +249,7 @@ export const BlockchainProvider = ({children}) => {
       }, {});
 
       dollarRef.current = updatedDollarRef;
+      console.log(updatedDollarRef);
       console.log('dollarRef updated');
     }
 
@@ -263,7 +263,7 @@ export const BlockchainProvider = ({children}) => {
       }
     }
 
-    const intervalId = setInterval(updateDollarRef, 12000);
+    const intervalId = setInterval(checkUpdateDollarRef, 12000);
 
     return () => clearInterval(intervalId);
   }, [account, chain_id, ALL_TOKENS]);
