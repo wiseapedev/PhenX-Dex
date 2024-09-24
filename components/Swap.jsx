@@ -642,6 +642,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
       </div>
     );
   }
+  const wsProvider = useRef(null);
   function QuoteView() {
     //   console.log('➡️➡️➡️ QuoteView State Change');
     const {
@@ -725,7 +726,48 @@ const Swap = ({buyLink, buyLinkKey}) => {
     }, [sellAmount, sellToken, buyToken]);
 
     const blockNumberRef = useRef(0);
+    const wsProvider = useRef(null);
+    useEffect(() => {
+      // Initialize WebSocket provider if not already initialized
+      if (!wsProvider.current) {
+        wsProvider.current = new ethers.WebSocketProvider(
+          CHAINS[chain_id].wsUrl
+        );
+      }
 
+      const provider = wsProvider.current;
+
+      // Update sellAmountRef whenever sellAmount changes
+
+      const handleNewBlock = async (blockNumber) => {
+        if (blockNumberRef.current !== blockNumber) {
+          console.log('✅✅✅ New block number:', blockNumber);
+          console.log('✅✅✅ Old block number:', blockNumberRef.current);
+          console.log('✅✅✅ chain_id:', chain_id);
+
+          if (chain_id !== 1) {
+            const isMoreThan3 = blockNumber > blockNumberRef.current + 5;
+            if (!isMoreThan3) {
+              return;
+            }
+          }
+
+          blockNumberRef.current = blockNumber;
+          console.log('✅✅✅ sellAmount:', sellAmount);
+
+          if (sellAmount !== 0 && sellToken && buyToken) {
+            fetchPrice();
+          }
+        }
+      };
+
+      provider.on('block', handleNewBlock);
+
+      return () => {
+        provider.off('block', handleNewBlock);
+      };
+    }, [sellToken, buyToken, sellAmount]);
+    /* 
     useEffect(() => {
       let intervalId;
 
@@ -757,7 +799,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
       };
 
       const startPolling = () => {
-        intervalId = setInterval(fetchNewBlockNumber, 6000);
+        intervalId = setInterval(fetchNewBlockNumber, 3000);
       };
 
       const stopPolling = () => {
@@ -769,7 +811,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
       return () => {
         stopPolling();
       };
-    }, [sellAmount]);
+    }, [sellAmount]); */
 
     async function fetchPrice() {
       if (!ALL_TOKENS[sellToken] || !ALL_TOKENS[buyToken] || !sellAmount) {

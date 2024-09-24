@@ -638,6 +638,7 @@ const CHAINS = {
     uniswapQuoterV3: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     udxRouterAddress: '0xfa60C635dE9Ea9337C88e3Cb7b00d997bCD8e05c',
     rpcUrl: process.env.NEXT_PUBLIC_ETH_RPC,
+    wsUrl: process.env.NEXT_PUBLIC_ETH_WS,
   },
   8453: {
     name: 'Base',
