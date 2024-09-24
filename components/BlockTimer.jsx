@@ -67,7 +67,7 @@ function BlockTimer({provider, chain_id}) {
     const stopPolling = () => {
       clearInterval(intervalId);
     };
-
+    fetchNewBlockNumber();
     startPolling();
 
     return () => {

@@ -726,47 +726,52 @@ const Swap = ({buyLink, buyLinkKey}) => {
     }, [sellAmount, sellToken, buyToken]);
 
     const blockNumberRef = useRef(0);
-    const wsProvider = useRef(null);
     useEffect(() => {
-      // Initialize WebSocket provider if not already initialized
-      if (!wsProvider.current) {
-        wsProvider.current = new ethers.WebSocketProvider(
-          CHAINS[chain_id].wsUrl
-        );
-      }
+      let intervalId;
 
-      const provider = wsProvider.current;
+      const fetchNewBlockNumber = async () => {
+        if (!providerHTTP) return;
 
-      // Update sellAmountRef whenever sellAmount changes
+        try {
+          if (sellAmount === 0) {
+            console.log('sellAmount === 0');
+            return;
+          }
 
-      const handleNewBlock = async (blockNumber) => {
-        if (blockNumberRef.current !== blockNumber) {
-          console.log('✅✅✅ New block number:', blockNumber);
-          console.log('✅✅✅ Old block number:', blockNumberRef.current);
-          console.log('✅✅✅ chain_id:', chain_id);
+          const blockNumber = await providerHTTP.getBlockNumber();
 
-          if (chain_id !== 1) {
-            const isMoreThan3 = blockNumber > blockNumberRef.current + 5;
-            if (!isMoreThan3) {
-              return;
+          if (blockNumberRef.current !== blockNumber) {
+            console.log('✅✅✅ New block number:', blockNumber);
+            console.log('✅✅✅ Old block number:', blockNumberRef.current);
+            console.log('✅✅✅ chain_id:', chain_id);
+
+            if (chain_id !== 1) {
+              const isMoreThan3 = blockNumber > blockNumberRef.current + 5;
+              if (!isMoreThan3) {
+                return;
+              }
+            }
+
+            blockNumberRef.current = blockNumber;
+            console.log('✅✅✅ sellAmount:', sellAmount);
+
+            if (sellAmount !== 0 && sellToken && buyToken) {
+              fetchPrice();
             }
           }
-
-          blockNumberRef.current = blockNumber;
-          console.log('✅✅✅ sellAmount:', sellAmount);
-
-          if (sellAmount !== 0 && sellToken && buyToken) {
-            fetchPrice();
-          }
+        } catch (error) {
+          console.error('Failed to fetch new block number:', error);
         }
       };
+      fetchNewBlockNumber();
+      // Start polling every 1.2 seconds
+      intervalId = setInterval(fetchNewBlockNumber, 2000);
 
-      provider.on('block', handleNewBlock);
-
+      // Clean up the interval on component unmount or when dependencies change
       return () => {
-        provider.off('block', handleNewBlock);
+        clearInterval(intervalId);
       };
-    }, [sellToken, buyToken, sellAmount]);
+    }, [sellAmount]);
     /* 
     useEffect(() => {
       let intervalId;
@@ -877,9 +882,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 // Optionally handle specific actions if V3 fails, e.g., logging or fallback strategies
               }
 
-              // Decide which quote to return based on availability and size
               if (v2Quote && v3Quote) {
-                return v2Quote > v3Quote
+                return v2Quote > v3Quote.amountOut
                   ? {bestQuote: v2Quote, isV3Only: false}
                   : {
                       bestQuote: v3Quote.amountOut,
@@ -933,7 +937,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               }
 
               if (v2Quote && v3Quote) {
-                return v2Quote > v3Quote
+                return v2Quote > v3Quote.amountOut
                   ? {bestQuote: v2Quote, isV3Only: false, isV2Only: true}
                   : {
                       bestQuote: v3Quote.amountOut,
@@ -2017,6 +2021,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
     ),
     [chartTokenAddress, showChart]
   );
+  const memoBlockTimer = useMemo(
+    () => <BlockTimer provider={providerHTTP} chain_id={chain_id} />,
+    [chain_id]
+  );
 
   // swap-container if not audit open padding top 200px
 
@@ -2173,7 +2181,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               buyTokenDisplayBalance={buyTokenDisplayBalance}
             />
           </div>{' '}
-          <BlockTimer provider={providerHTTP} chain_id={chain_id} />
+          {memoBlockTimer}
           <QuoteView />
           {isETH && showAudits && memoAudits}
         </div>
