@@ -47,8 +47,8 @@ import WalletIcon from './svgs/WalletIcon';
 import mergeTokens from './mergeTokens';
 import {CHAINS} from './lib/constants.js';
 import {sign} from 'crypto';
-/* import BlockTimer from './BlockTimer';
- */ import ContractLinks from './ContractLinks';
+import BlockTimer from './BlockTimer';
+import ContractLinks from './ContractLinks';
 import Switch from './Switch';
 import FooterBar from './Footer';
 import PendingTransaction from './PendingTransaction';
@@ -725,6 +725,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     }, [sellAmount, sellToken, buyToken]);
 
     const blockNumberRef = useRef(0);
+
     useEffect(() => {
       let intervalId;
 
@@ -735,15 +736,19 @@ const Swap = ({buyLink, buyLinkKey}) => {
           const blockNumber = await providerHTTP.getBlockNumber();
 
           if (blockNumberRef.current !== blockNumber) {
+            console.log('✅✅✅ New block number:', blockNumber);
+            console.log('✅✅✅ Old block number:', blockNumberRef.current);
+            console.log('✅✅✅ chain_id:', chain_id);
             if (chain_id !== 1) {
-              const isMoreThan3 = blockNumber > blockNumberRef.current + 3;
+              const isMoreThan3 = blockNumber > blockNumberRef.current + 5;
               if (!isMoreThan3) {
                 return;
               }
             }
             blockNumberRef.current = blockNumber;
-            if (sellAmount > 0 && sellToken && buyToken) {
-              //   fetchPrice();
+            console.log('✅✅✅ sellAmount.current:', sellAmount);
+            if (sellAmount !== 0 && sellToken && buyToken) {
+              fetchPrice();
             }
           }
         } catch (error) {
@@ -752,7 +757,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
       };
 
       const startPolling = () => {
-        intervalId = setInterval(fetchNewBlockNumber, 12000);
+        intervalId = setInterval(fetchNewBlockNumber, 6000);
       };
 
       const stopPolling = () => {
@@ -764,7 +769,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
       return () => {
         stopPolling();
       };
-    }, []);
+    }, [sellAmount]);
 
     async function fetchPrice() {
       if (!ALL_TOKENS[sellToken] || !ALL_TOKENS[buyToken] || !sellAmount) {
@@ -1787,8 +1792,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
               updateData('savedOutputAmount', '');
             }
             if (sendTransaction.status === 0) {
-              setTrigger(trigger + 1);
+              setPendingTransaction(null);
 
+              setTrigger(trigger + 1);
               enableSwapContainer();
             }
           } catch (error) {
@@ -1820,8 +1826,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 'An error occurred during the swap. Please try again.'
               );
             }
-
-            return;
+            setPendingTransaction(null);
           }
         };
 
@@ -1844,9 +1849,12 @@ const Swap = ({buyLink, buyLinkKey}) => {
                     Approve
                   </div>
                 ) : (
-                  <div className='swap-button' onClick={handleSwap}>
-                    Swap
-                  </div>
+                  <>
+                    {' '}
+                    <div className='swap-button' onClick={handleSwap}>
+                      Swap
+                    </div>
+                  </>
                 )}
               </>
             )}
@@ -2123,6 +2131,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               buyTokenDisplayBalance={buyTokenDisplayBalance}
             />
           </div>{' '}
+          <BlockTimer provider={providerHTTP} chain_id={chain_id} />
           <QuoteView />
           {isETH && showAudits && memoAudits}
         </div>

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import Tooltip from './Tooltip';
 
-function BlockTimer({provider, chain_id, CurrentGwei}) {
+function BlockTimer({provider, chain_id}) {
   const [lastBlockTime, setLastBlockTime] = useState(null);
   const [nextBlockEstimate, setNextBlockEstimate] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -77,21 +77,22 @@ function BlockTimer({provider, chain_id, CurrentGwei}) {
   }, [provider]);
 
   return (
-    <div className='token-input-box'>
+    <div className='saver-info-container'>
       {' '}
+      <div className='small-text'>Next Block & Quote Refresh Timer</div>
       <Tooltip info='Initiating trades at the start of a block can minimize the risk of transaction reversals due to slippage, especially with high volume tokens.' />
-      {lastBlockTime && (
+      {/*       {lastBlockTime && (
         <div className='small-text'>
-          Last block time: {lastBlockTime} ms ago / Gas: <CurrentGwei />
-          <br />
+          Next Block & Quote Refresh Timer
         </div>
-      )}
+      )} */}
       {nextBlockEstimate && (
         <>
-          <div className='small-text'>
+          {/*    <div className='small-text'>
             Estimated time for next block:{' '}
             {nextBlockEstimate.toLocaleTimeString()}
-          </div>
+          </div> */}
+
           <div className='progress-bar-background'>
             <div
               className='progress-bar-fill'

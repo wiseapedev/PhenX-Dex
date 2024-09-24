@@ -4,7 +4,7 @@ function PendingTransaction({transaction, swapData, chainId}) {
   const [status, setStatus] = useState('pending'); // 'pending', 'confirmed', 'failed'
   const [confirmationCount, setConfirmationCount] = useState(0);
 
-  const hash = transaction.hash;
+  const hash = transaction !== null ? transaction.hash : '';
   let explorerLink = '';
   if (chainId === 1) {
     explorerLink = `https://etherscan.io/tx/${hash}`;
@@ -13,34 +13,38 @@ function PendingTransaction({transaction, swapData, chainId}) {
   }
 
   useEffect(() => {
-    let isMounted = true;
+    if (transaction !== null) {
+      let isMounted = true;
 
-    const listenForConfirmation = async () => {
-      try {
-        const txReceipt = await transaction.wait();
+      const listenForConfirmation = async () => {
+        try {
+          const txReceipt = await transaction.wait();
 
-        if (isMounted) {
-          if (txReceipt.status === 1) {
-            setStatus('confirmed');
-          } else {
+          if (isMounted) {
+            if (txReceipt.status === 1) {
+              setStatus('confirmed');
+            } else {
+              setStatus('failed'); // transaction failed
+            }
+          }
+        } catch (error) {
+          console.error('Error waiting for transaction confirmation:', error);
+          if (isMounted) {
             setStatus('failed'); // transaction failed
           }
         }
-      } catch (error) {
-        console.error('Error waiting for transaction confirmation:', error);
-        if (isMounted) {
-          setStatus('failed'); // transaction failed
-        }
-      }
-    };
+      };
 
-    listenForConfirmation();
+      listenForConfirmation();
 
-    return () => {
-      isMounted = false;
-    };
+      return () => {
+        isMounted = false;
+      };
+    }
   }, [transaction]);
-
+  if (transaction === null) {
+    return <></>;
+  }
   return (
     <div className='pending-container'>
       <div className='pending-box'>
