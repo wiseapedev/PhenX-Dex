@@ -887,19 +887,16 @@ input:focus {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 8px;
-  height: 17px;
-  width: 80px;
-  border-radius: 12px;
-  background: var(--minor-button);
-  border: none;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: solid 1px var(--primary-color);
   color: var(--text);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
   transition: all 0.1s ease-in-out;
 }
 .mev-button:hover {
-  background-color: var(--box-inner);
+  background-color: var(--primary-color);
   color: var(--text);
   cursor: pointer;
 }

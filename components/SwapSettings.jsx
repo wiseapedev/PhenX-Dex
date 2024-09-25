@@ -1,4 +1,4 @@
-import {useState, useEffect, useContext, useRef} from 'react';
+import {useState, useEffect, useContext, useRef, use} from 'react';
 import {BlockchainContext} from './BlockchainContext';
 import {
   Settings,
@@ -162,6 +162,13 @@ function SwapSettings({
     };
 
     function MEV() {
+      const [showMEV, setShowMEV] = useState(false);
+      useEffect(() => {
+        if (window.ethereum) {
+          setShowMEV(true);
+        }
+      }, [window.ethereum]);
+
       const switchToAntiMEVRPC = async () => {
         try {
           // Check if Ethereum object is available in window (MetaMask injected)
@@ -170,7 +177,7 @@ function SwapSettings({
               method: 'wallet_addEthereumChain',
               params: [
                 {
-                  chain_id: '0x1', // Example for Ethereum Mainnet; adjust accordingly
+                  chainId: '0x1', // Correct key is 'chainId' in camelCase
                   chainName: 'Ethereum Mainnet (Anti-MEV)',
                   nativeCurrency: {
                     name: 'Ether',
@@ -192,15 +199,17 @@ function SwapSettings({
         }
       };
 
-      return (
+      return showMEV === true ? (
         <div>
           <div className='mev-button mobhide' onClick={switchToAntiMEVRPC}>
-            {' '}
-            Anti-Mev
+            Anti-MEV
           </div>
         </div>
+      ) : (
+        <> </>
       );
     }
+
     {
       (' ');
     }
@@ -317,7 +326,10 @@ function SwapSettings({
               </div>{' '}
               Slippage Tolerance
             </div>
-            <div className='us-te'></div>
+            <div className='us-te'>
+              {' '}
+              <MEV />
+            </div>
           </div>
           <div className='auto-container'>
             <div
