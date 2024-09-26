@@ -340,7 +340,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
       <div className='flex-col'>
         <div className='token-input-box'>
           <div className='flex-row'>
-            <div className='small-text'>Sell</div>
+            {/*             <div className='small-text'>Sell</div>
+             */}{' '}
             <div className='small-text'></div>
           </div>
           <div className='flex-row'>
@@ -442,7 +443,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
       <div className='flex-col'>
         <div className='token-input-box'>
           <div className='flex-row'>
-            <div className='small-text'>Buy</div>
+            {/*             <div className='small-text'>Buy</div>
+             */}{' '}
             <div className='small-text'></div>
           </div>
           <div className='flex-row'>
@@ -726,11 +728,16 @@ const Swap = ({buyLink, buyLinkKey}) => {
     }, [sellAmount, sellToken, buyToken]);
 
     const blockNumberRef = useRef(0);
+
+    const inSwap = useRef(false);
     useEffect(() => {
       let intervalId;
 
       const fetchNewBlockNumber = async () => {
         if (!providerHTTP) return;
+        if (inSwap.current === true) {
+          return;
+        }
 
         try {
           if (sellAmount === 0) {
@@ -741,10 +748,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
           const blockNumber = await providerHTTP.getBlockNumber();
 
           if (blockNumberRef.current !== blockNumber) {
-            console.log('✅✅✅ New block number:', blockNumber);
+            /*             console.log('✅✅✅ New block number:', blockNumber);
             console.log('✅✅✅ Old block number:', blockNumberRef.current);
             console.log('✅✅✅ chain_id:', chain_id);
-
+ */
             if (chain_id !== 1) {
               const isMoreThan3 = blockNumber > blockNumberRef.current + 5;
               if (!isMoreThan3) {
@@ -1824,7 +1831,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             setPendingTransaction(transactionResponse);
             console.log('transactionResponse', transactionResponse);
             console.log('swapData', swapData);
-
+            inSwap.current = true;
             const sendTransaction = await transactionResponse.wait();
             async function delay(ms) {
               return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1873,6 +1880,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
               );
             }
             setPendingTransaction(null);
+          } finally {
+            inSwap.current = false;
+            enableSwapContainer();
           }
         };
 
@@ -2021,10 +2031,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
     ),
     [chartTokenAddress, showChart]
   );
-  const memoBlockTimer = useMemo(
-    () => <BlockTimer provider={providerHTTP} chain_id={chain_id} />,
-    [chain_id]
-  );
+
+  /*   const memoBlockTimer = useMemo(() => {
+    if (chain_id !== 1) return null;
+    return <BlockTimer provider={providerHTTP} chain_id={chain_id} />;
+  }, [chain_id]); */
 
   // swap-container if not audit open padding top 200px
 
@@ -2181,7 +2192,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
               buyTokenDisplayBalance={buyTokenDisplayBalance}
             />
           </div>{' '}
-          {memoBlockTimer}
+          {/*           {memoBlockTimer}
+           */}{' '}
           <QuoteView />
           {isETH && showAudits && memoAudits}
         </div>

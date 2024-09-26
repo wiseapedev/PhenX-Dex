@@ -51,7 +51,7 @@ createWeb3Modal({
   chains: [mainnet, baseChain],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
-  enableSwaps: false,
+  enableSwaps: true,
   isSiweEnabled: false,
   isUniversalProvider: false,
 });

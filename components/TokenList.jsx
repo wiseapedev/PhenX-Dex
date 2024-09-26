@@ -193,7 +193,7 @@ function TokenList({
     <div className={`token-list-container ${fadeIn ? 'fade-in' : ''}`}>
       <div className='token-list' ref={tokenListRef}>
         <div className='token-list-top'>
-          <div className='token-list-row-sb'>
+          {/*           <div className='token-list-row-sb'>
             <div className='token-list-item-text-name'>Select a Token</div>{' '}
             <svg
               onClick={() => handleShowTokenList(false)}
@@ -211,6 +211,7 @@ function TokenList({
               <line x1='6' y1='6' x2='18' y2='18'></line>
             </svg>{' '}
           </div>
+ */}{' '}
           <div className='inputWithIcon'>
             <svg
               className='inputIcon'

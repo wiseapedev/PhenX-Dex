@@ -42,9 +42,9 @@ function PendingTransaction({transaction, swapData, chainId}) {
       };
     }
   }, [transaction]);
-  if (transaction === null) {
+  /*   if (transaction === null) {
     return <></>;
-  }
+  } */
   return (
     <div className='pending-container'>
       <div className='pending-box'>
