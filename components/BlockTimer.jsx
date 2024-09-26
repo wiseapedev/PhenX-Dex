@@ -74,7 +74,7 @@ function BlockTimer({provider, chain_id}) {
       stopPolling();
       clearInterval(progressIntervalRef.current);
     };
-  }, [provider]);
+  }, [chain_id, provider]);
 
   return (
     <div className='saver-info-container'>
