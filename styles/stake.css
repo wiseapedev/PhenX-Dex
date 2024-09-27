@@ -5,7 +5,7 @@
   align-items: center;
   width: 50%;
   height: 100%;
-  padding: 10px;
+  padding-inline-start: 20px;
   border-radius: 25px;
 }
 .main-right {
@@ -104,7 +104,6 @@
   border-radius: 25px;
   padding: 10px;
   background: var(--box-darker);
-  border: 1px solid var(--border);
   box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3);
 }
 .tabs {
@@ -130,7 +129,6 @@
   border-bottom: 2px solid transparent;
 }
 .tab:hover {
-  background: var(--box-hover);
   color: var(--text);
 }
 .Tactive {

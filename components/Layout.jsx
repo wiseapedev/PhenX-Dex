@@ -49,7 +49,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
           //   key={chain_id}
         />
       ) : (
-        <div className='whole-container'>
+        <div className='load-container'>
           <div className='bg' />
 
           <div className='main-container'>

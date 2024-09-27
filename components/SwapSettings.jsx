@@ -257,7 +257,7 @@ function SwapSettings({
     }, []);
     return (
       <div className='swap-upper' ref={containerRef}>
-        <div className='swap-upper-box'>
+        {/*     <div className='swap-upper-box'>
           <div className='upper-settings'>
             <div className='us-ts'>
               <div className='settings-icon-container'>
@@ -265,12 +265,9 @@ function SwapSettings({
               </div>{' '}
               Auto Gas
             </div>
-            {/*       <div className='us-te mobhide'>
-              <CurrentGwei provider={providerHTTP} />
-            </div> */}
           </div>{' '}
           <MemPool />{' '}
-          {/*      <div className='auto-container'>
+              <div className='auto-container'>
             <div
               className={
                 addedPriority === 'slow'
@@ -316,8 +313,8 @@ function SwapSettings({
               onChange={(e) => handlePriorityGasChange(e.target.value)}
               type='number'
             />
-          </div> */}
-        </div>
+          </div> 
+        </div>*/}
         <div className='swap-upper-box'>
           <div className='upper-settings'>
             <div className='us-ts'>
@@ -383,14 +380,12 @@ function SwapSettings({
       <div className='swap-icons-left'>
         <div className='swap-tabs-container'>
           <div className='swap-tab active'>Swap</div>
-          {/*           <div className='swap-tab'>Limit</div>
-           */}{' '}
-          <div className='swap-tab'>Bridge</div>
+          <div className='swap-tab disable'>Bridge</div>{' '}
+          <div className='swap-tab disable'>Limit</div>
         </div>
       </div>{' '}
       {/*       <div className='swap-tabs-container'>
         <div className='swap-tab active'>Swap</div>
-        <div className='swap-tab'>Limit</div>
         <div className='swap-tab'>Bridge</div>
       </div> */}
       <div className='swap-icons-right'>

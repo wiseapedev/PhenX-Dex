@@ -36,7 +36,7 @@ a {
   --standout: #00ff00;
   --secondary-color: rgb(255, 69, 0);
   --background: #151617;
-  --box-bg: #f0f0f0;
+  --box-bg: rgb(18, 19, 19);
   /*   --box-darker: rgb(19, 19, 19);
  */ /*   --box-inner: rgb(27, 27, 27);
    --box-hover: rgba(22 22 22);
@@ -110,6 +110,30 @@ input:focus {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+}
+
+.basic-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  border: solid 1px var(--border);
+  padding: 5px 12px;
+  margin-right: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.1s ease-in-out;
+  opacity: 0.8;
+  background: var(--box-inner);
+  transition: all 0.1s ease-in-out;
+  letter-spacing: 2px;
+}
+.basic-button:hover {
+  cursor: pointer;
+  opacity: 1;
+  background: var(--box-hover);
 }
 
 .toggle-switch {
@@ -234,7 +258,19 @@ input:focus {
   width: 100%; /* Take full width of its container */
   height: 100%; /* Take full height of its container, which is set by .banner-container */
 }
-
+.load-container {
+  position: relative;
+  /*   background: var(--background);
+ */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+}
 .whole-container {
   position: relative;
   /*   background: var(--background);
@@ -391,8 +427,8 @@ input:focus {
 }
 .swap-icon {
   margin-bottom: 9px;
-  height: 25px;
-  width: 25px;
+  height: 22px;
+  width: 220x;
   border-radius: 15px;
   transition: all 0.1s ease-in-out;
   cursor: pointer;
@@ -558,15 +594,16 @@ input:focus {
   align-items: center;
   width: 100%;
   border-radius: 16px;
-  /*   border: solid 1px transparent;
- */
+  border: solid 1px transparent;
+
   box-shadow: var(--box-shadow);
   background: var(--box-inner);
   color: var(--text);
   transition: all 0.1s ease-in-out;
 }
 .token-input-box:hover {
-  background-color: var(--box-hover);
+  box-shadow: var(--box-shadow);
+  border: solid 1px var(--border);
 }
 .small-text {
   font-size: 1rem;
@@ -581,13 +618,13 @@ input:focus {
 }
 .token-input[type='number'] {
   font-family: 'Open Sans', sans-serif;
-  font-weight: 500;
+  font-weight: 550;
   -moz-appearance: textfield;
   background-color: transparent;
   color: var(--text);
   outline: none;
   border: none;
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   width: 60%;
   margin-top: 1px;
   margin-bottom: 1px;
@@ -719,7 +756,7 @@ input:focus {
   width: 100%;
   height: max-content;
   overflow-x: hidden;
-  background-color: var(--box-bg);
+  background-color: var(--box-darker);
   border: 1px solid var(--border);
 
   box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3);
@@ -832,17 +869,17 @@ input:focus {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 42px;
+  height: 48px;
   border-radius: 10px;
   border: none;
   color: var(--text);
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
   opacity: 0.8;
   /*   border: solid 1px var(--primary-color);
  */
-  background: var(--box-inner);
+  background: var(--box-hover);
 }
 .swap-button:hover {
   box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.3); /* Very light green blurry box shadow */
@@ -1062,7 +1099,7 @@ input:focus {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  padding-inline: 20px;
+  padding-inline-start: 20px;
 }
 
 .nav-right {
@@ -1072,11 +1109,12 @@ input:focus {
   justify-content: flex-end;
   align-items: center;
   padding-inline: 0px;
+  padding-right: 20px;
 }
 
-.nav-right > * {
+/* .nav-right > * {
   margin-right: 20px;
-}
+} */
 .nav-item {
   margin-left: 3px;
   margin-right: 3px;
@@ -1202,6 +1240,7 @@ input:focus {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
+  padding-right: 8px;
 }
 
 .icon {
@@ -1309,7 +1348,6 @@ input:focus {
   transition: all 0.1s ease-in-out;
   color: var(--text);
   cursor: pointer;
-  background: var(--box-inner);
 }
 
 .swap-tab:hover {
@@ -1451,11 +1489,10 @@ input:focus {
   overflow: hidden;
   border-radius: 25px;
   padding: 10px;
-  background: var(--box-darker);
-
-  border: 1px solid var(--border);
-
-  box-shadow: var(--box-shadow);
+  /*   background: var(--box-darker);
+    border: 1px solid var(--border);
+ 
+  box-shadow: var(--box-shadow); */
 }
 .left-section {
   width: 30%;
@@ -1969,7 +2006,6 @@ input:focus {
   justify-content: center;
   align-items: center;
   gap: 25px;
-  margin-left: 15px;
 }
 .nav-button {
   font-size: 1.2rem;
@@ -1980,6 +2016,9 @@ input:focus {
 }
 .nav-active {
   color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 7px;
 }
 
 .dropdown-menu-container {
@@ -2215,14 +2254,14 @@ input:focus {
     border-bottom-left-radius: 0px;
   }
   .nav-left {
-    padding-inline-start: 5px;
+    padding-inline-start: 10px;
   }
   .nav-right {
     padding-inline: 0px;
   }
-  .nav-right > * {
+  /*   .nav-right > * {
     margin-right: 0px;
-  }
+  } */
   .page-container {
     padding-top: 5px;
     display: flex;

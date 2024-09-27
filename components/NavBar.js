@@ -106,7 +106,8 @@ function NavBar() {
     return (
       <div className='nav-container'>
         <div className='nav-left'>
-          <img src={'/logo.png'} className='logo-image' />
+          {/*           <img src={'/logo.png'} className='logo-image' />
+           */}{' '}
           {/* Desktop-specific navbar content */}
           <div className='nav-buttons'>
             <div
