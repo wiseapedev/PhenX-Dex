@@ -1485,7 +1485,7 @@ input:focus {
 
 .swap-container {
   transition: all 1s ease-in-out;
-  margin-inline: 5px;
+  margin-inline: 10px;
   position: relative;
   width: 450px;
   overflow: visible;
@@ -1494,10 +1494,9 @@ input:focus {
   padding: 10px;
   transition: all 0.5s ease-in-out;
 
-  /*   background: var(--box-darker);
-    border: 1px solid var(--border);
- 
-  box-shadow: var(--box-shadow); */
+  background: var(--box-darker);
+
+  box-shadow: var(--box-shadow);
 }
 .left-section {
   width: 30%;
@@ -2136,7 +2135,6 @@ input:focus {
 }
 
 .swap-fee-container {
-  margin-top: 10px;
   opacity: 0;
   display: flex;
   flex-direction: column;
@@ -2147,6 +2145,9 @@ input:focus {
   background: var(--box-darker);
   padding: 15px;
   transition: all 0.5s ease-in-out;
+  box-shadow: var(--box-shadow);
+  background: var(--box-darker);
+
   box-shadow: var(--box-shadow);
 }
 .swap-fee-title {
