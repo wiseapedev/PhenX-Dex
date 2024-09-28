@@ -2146,8 +2146,8 @@ input:focus {
   border-radius: 15px;
   background: var(--box-darker);
   padding: 15px;
-  border: solid 1px var(--border);
   transition: all 0.5s ease-in-out;
+  box-shadow: var(--box-shadow);
 }
 .swap-fee-title {
   padding-inline-start: 5px;
