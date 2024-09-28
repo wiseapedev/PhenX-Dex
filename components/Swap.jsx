@@ -598,14 +598,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
             <div className='saver-text-left'>Network Fees Saved</div>
             <div className='saver-text-right'></div>
           </div>
-          <div className='saver-text-container'>
-            <div className='saver-text-left'>Swap Fees Saved</div>
-            <div className='saver-text-right'></div>
-          </div>
-          <div className='saver-text-container'>
-            <div className='saver-text-left saver-text'>Total % to Save</div>
-            <div className='saver-text-right saver-text'></div>
-          </div>
         </div>
       );
     }
@@ -631,17 +623,17 @@ const Swap = ({buyLink, buyLinkKey}) => {
           ).toFixed(2)}%`}</div>
         </div>
         <div className='saver-text-container'>
-          <div className='saver-text-left'>Network Fees Saved</div>
-          <div className='saver-text-right'>{networkFeesSaved}%</div>
+          <div className='saver-text-left saver-text'>Network Fees Saved</div>
+          <div className='saver-text-left saver-text'>{networkFeesSaved}%</div>
         </div>
-        <div className='saver-text-container'>
+        {/*         <div className='saver-text-container'>
           <div className='saver-text-left'>Swap Fees Saved</div>
           <div className='saver-text-right'>{swapFeeSaved}%</div>
         </div>
         <div className='saver-text-container'>
           <div className='saver-text-left saver-text'>Total % to Save</div>
           <div className='saver-text-right saver-text'>{totalToSave}%</div>
-        </div>
+        </div> */}
       </div>
     );
   }

@@ -66,7 +66,8 @@ function SwapFeeCompare() {
 
   return (
     <div className='swap-fee-container'>
-      <div className='swap-fee-title'>Swap Fee Comparison</div>
+      {/*       <div className='swap-fee-title'>Swap Fee Comparison</div>
+       */}{' '}
       <div className='swap-fee-text'>
         Unlike our competitors, we {"don't"} charge any fees, below are examples
         of how much you save by using Phenx.
@@ -85,6 +86,7 @@ function SwapFeeCompare() {
       <SwapFeeItem name='Maestro' percentage={1} />
       <SwapFeeItem name='Coinbase' percentage={0.6} />
       <SwapFeeItem name='BananaGun' percentage={0.5} />
+      <SwapFeeItem name='Binance' percentage={0.5} />
       <SwapFeeItem name='Uniswap' percentage={0.25} />
     </div>
   );
