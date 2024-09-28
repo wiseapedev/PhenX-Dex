@@ -371,9 +371,12 @@ export const BlockchainProvider = ({children}) => {
     return balanceData;
   }
 
+  const saverInputAmount = useRef(0);
+
   return (
     <BlockchainContext.Provider
       value={{
+        saverInputAmount,
         chain_id,
         dollarRef,
         savedAddedPriority,

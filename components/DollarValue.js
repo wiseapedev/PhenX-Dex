@@ -26,6 +26,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
     chain_id,
     providerHTTP,
     account,
+    saverInputAmount,
   } = useContext(BlockchainContext);
 
   const wethAddress = CHAINS[chain_id].wethAddress;
@@ -82,6 +83,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
           balance = Number(balance);
           let totalValue = balance * oneEthInUSDC;
           totalValue = totalValue.toFixed(2);
+
           setEthPrice(totalValue);
         } else {
           let balance;
@@ -99,6 +101,10 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
           }
           let totalValue = balance * oneEthInUSDC;
           totalValue = totalValue.toFixed(2);
+          if (!isOutputToken) {
+            console.log(totalValue, 'totalValue');
+            saverInputAmount.current = totalValue;
+          }
           setEthPrice(totalValue);
         }
       } else {
@@ -157,8 +163,12 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
         ethOut = ethers.formatEther(ethOut);
         ethOut = Number(ethOut);
         let totalDollarValue = ethOut * oneEthInUSDC;
-        console.log(totalDollarValue, 'totalDollarValue');
+
         totalDollarValue = totalDollarValue.toFixed(2);
+        if (!isOutputToken) {
+          console.log(totalDollarValue, 'totalDollarValue');
+          saverInputAmount.current = totalDollarValue;
+        }
         setEthPrice(totalDollarValue);
       }
     } catch (error) {

@@ -52,6 +52,7 @@ import ContractLinks from './ContractLinks';
 import Switch from './Switch';
 import FooterBar from './Footer';
 import PendingTransaction from './PendingTransaction';
+import SwapFeeCompare from './SwapFeeCompare';
 
 const Swap = ({buyLink, buyLinkKey}) => {
   const {
@@ -62,6 +63,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     ETH_TOKENS,
     ALL_TOKENS,
     chain_id,
+    saverInputAmount,
   } = useContext(BlockchainContext);
 
   const isETH = chain_id === 1;
@@ -323,6 +325,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     disableSwapContainer();
     const {updateData} = useContext(BlockchainContext);
     updateData('savedInputAmount', 0);
+    saverInputAmount.current = 0;
 
     const inputRef = useRef(null);
     function handleInputAmountChange(value) {
@@ -369,7 +372,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
           <div className='flex-row'>
             <div className='small-text'>
               {' '}
-              <DollarValue Token={ALL_TOKENS[sellToken]} />
+              <DollarValue
+                Token={ALL_TOKENS[sellToken]}
+                isOutputToken={false}
+              />
             </div>
             <div className='small-text'>
               <div className='max-row'>
@@ -575,8 +581,31 @@ const Swap = ({buyLink, buyLinkKey}) => {
     // While loading, show a loading spinner or placeholder
     if (loading) {
       return (
-        <div className='flex-col'>
-          <div className='loader'></div>
+        <div className='saver-info-container'>
+          <div className='saver-text-container'>
+            <div className='saver-text-left'>Aggregation Best Route</div>
+            <div className='saver-text-right'></div>
+          </div>{' '}
+          <div className='saver-text-container'>
+            <div className='saver-text-left'>Min Tokens Out</div>
+            <div className='saver-text-right'></div>
+          </div>{' '}
+          <div className='saver-text-container'>
+            <div className='saver-text-left'>Slippage</div>
+            <div className='saver-text-right'></div>
+          </div>
+          <div className='saver-text-container'>
+            <div className='saver-text-left'>Network Fees Saved</div>
+            <div className='saver-text-right'></div>
+          </div>
+          <div className='saver-text-container'>
+            <div className='saver-text-left'>Swap Fees Saved</div>
+            <div className='saver-text-right'></div>
+          </div>
+          <div className='saver-text-container'>
+            <div className='saver-text-left saver-text'>Total % to Save</div>
+            <div className='saver-text-right saver-text'></div>
+          </div>
         </div>
       );
     }
@@ -587,14 +616,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
     return (
       <div className='saver-info-container'>
-        {/*         <div className='saver-text-container'>
-          <div className='saver-text-left'>
-            <div className='saver-icon-container'>
-              <SaverInfoIcon />
-            </div>
-          </div>
-          <div className='saver-text'>Savings</div>
-        </div> */}
         <div className='saver-text-container'>
           <div className='saver-text-left'>Aggregation Best Route</div>
           <div className='saver-text-right'>{pairRoute}</div>
@@ -2199,6 +2220,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
           <QuoteView />
           {isETH && showAudits && memoAudits}
         </div>
+        {!showChart && <SwapFeeCompare />}
         {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}
       </div>
       <FooterBar />
