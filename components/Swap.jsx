@@ -741,7 +741,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
         try {
           if (sellAmount === 0) {
-            console.log('sellAmount === 0');
+            //  console.log('sellAmount === 0');
             return;
           }
 
@@ -1334,6 +1334,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
           try {
             //    disableSwapContainer();
             toast.info('Please approve the transaction in your wallet');
+            inSwap.current = true;
 
             const routerContractEstimate = new ethers.Contract(
               routerAddress,
@@ -1828,10 +1829,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 );
               }
             }
-            setPendingTransaction(transactionResponse);
             console.log('transactionResponse', transactionResponse);
-            console.log('swapData', swapData);
-            inSwap.current = true;
+            //    console.log('swapData', swapData);
+            setPendingTransaction(transactionResponse);
+
             const sendTransaction = await transactionResponse.wait();
             async function delay(ms) {
               return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1879,6 +1880,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 'An error occurred during the swap. Please try again.'
               );
             }
+            console.error('setPendingTransaction null');
             setPendingTransaction(null);
           } finally {
             inSwap.current = false;
