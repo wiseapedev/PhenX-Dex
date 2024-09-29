@@ -1343,10 +1343,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
           }
         };
 
-        const handleSwap = async () => {
+        const handleSwap = async (retryCount = 0) => {
           try {
             //    disableSwapContainer();
-            toast.info('Please approve the transaction in your wallet');
+            //     toast.info('Please approve the transaction in your wallet');
             inSwap.current = true;
 
             const routerContractEstimate = new ethers.Contract(
@@ -1399,6 +1399,13 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 } else {
                   // Otherwise, use the input amount
                   result = inputAmountBN;
+                }
+                if (retryCount === 1) {
+                  result = (result * BigInt(90)) / BigInt(100);
+                } else if (retryCount === 2) {
+                  result = (result * BigInt(85)) / BigInt(100);
+                } else if (retryCount === 3) {
+                  result = (result * BigInt(80)) / BigInt(100);
                 }
 
                 // Return the result as a string to maintain compatibility with functions expecting BigNumberish values
@@ -1537,10 +1544,17 @@ const Swap = ({buyLink, buyLinkKey}) => {
                     (minAmountOut * slippagePercentage) / BigInt(100);
 
                   minAmountOut = minAmountOut - slippageAmount;
-                  console.log('minAmountOut', minAmountOut);
                   if (minAmountOut < BigInt(0)) {
                     minAmountOut = BigInt(0);
                   }
+                  if (retryCount === 1) {
+                    minAmountOut = (minAmountOut * BigInt(90)) / BigInt(100); // Reduce by 5%
+                  } else if (retryCount === 2) {
+                    minAmountOut = (minAmountOut * BigInt(85)) / BigInt(100); // Reduce by 10%
+                  } else if (retryCount === 3) {
+                    minAmountOut = (minAmountOut * BigInt(80)) / BigInt(100); // Reduce by 15%
+                  }
+                  console.log('minAmountOut', minAmountOut);
                 } catch (e) {
                   console.error('error', e);
                   minAmountOut = BigInt(0);
@@ -1844,9 +1858,12 @@ const Swap = ({buyLink, buyLinkKey}) => {
             }
             console.log('transactionResponse', transactionResponse);
             //    console.log('swapData', swapData);
+
             setPendingTransaction(transactionResponse);
 
             const sendTransaction = await transactionResponse.wait();
+            console.log('sendTransaction', sendTransaction);
+
             async function delay(ms) {
               return new Promise((resolve) => setTimeout(resolve, ms));
             }
@@ -1867,10 +1884,23 @@ const Swap = ({buyLink, buyLinkKey}) => {
           } catch (error) {
             enableSwapContainer();
 
-            console.error('Failed to swap:', error);
+            //   console.error('Failed to swap:', error);
 
-            // Check if the error has a specific code and message
-            if (error.code === 'INSUFFICIENT_FUNDS') {
+            if (
+              retryCount < 3 &&
+              error.message &&
+              error.message.includes('revert')
+            ) {
+              toast.info(
+                `Possible insufficient funds reducing input & amount outs by 10%`
+              );
+              async function delay(ms) {
+                return new Promise((resolve) => setTimeout(resolve, ms));
+              }
+              await delay(2000);
+
+              return handleSwap(retryCount + 1);
+            } else if (error.code === 'INSUFFICIENT_FUNDS') {
               toast.error(
                 'Insufficient funds for transfer. Please check your balance.'
               );
@@ -1894,8 +1924,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
               );
             }
             console.error('setPendingTransaction null');
-            setPendingTransaction(null);
           } finally {
+            setPendingTransaction(null);
             inSwap.current = false;
             enableSwapContainer();
           }
@@ -1922,7 +1952,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 ) : (
                   <>
                     {' '}
-                    <div className='swap-button' onClick={handleSwap}>
+                    <div className='swap-button' onClick={() => handleSwap(0)}>
                       Swap
                     </div>
                   </>
