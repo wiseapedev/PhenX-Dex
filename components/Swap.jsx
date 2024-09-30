@@ -1310,6 +1310,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
           try {
             toast.info('Please approve the transaction in your wallet');
             disableSwapContainer();
+            inSwap.current = true;
 
             const tokenContract = new ethers.Contract(
               ALL_TOKENS[sellToken].address,
@@ -1340,6 +1341,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             console.error('Failed to approve:', error);
           } finally {
             enableSwapContainer();
+            inSwap.current = false;
           }
         };
 
@@ -1496,13 +1498,19 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 const feeData = await providerHTTP.getFeeData();
                 console.log('feeData', feeData);
 
-                // Extract values from feeData
-                const gasPrice = BigInt(feeData.gasPrice || 0);
-                const maxPriorityFeePerGas = BigInt(
-                  feeData.maxPriorityFeePerGas || 0
-                );
-                const maxFeePerGas = BigInt(feeData.maxFeePerGas || 0);
+                // 0.1 Gwei in Wei
+                const zeroPointOneGwei = BigInt(10000000);
 
+                // Extract gasPrice from feeData
+                const gasPrice = BigInt(feeData.gasPrice || 0);
+
+                // Set maxPriorityFeePerGas to 0.1 Gwei
+                const maxPriorityFeePerGas = zeroPointOneGwei;
+
+                // Calculate maxFeePerGas by adding gasPrice and maxPriorityFeePerGas
+                const maxFeePerGas = maxPriorityFeePerGas + gasPrice;
+
+                // Log the values for debugging
                 console.log('gasPrice', gasPrice.toString());
                 console.log(
                   'maxPriorityFeePerGas',

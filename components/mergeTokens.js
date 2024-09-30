@@ -44,18 +44,27 @@ function mergeTokens(chain_id, ETH_TOKENS) {
       }
     });
   }
-
-  // Merge tokens from BASE_TOKENS for another chain (chain_id: 8453)
   if (chain_id === 8453) {
-    Object.keys(BASE_TOKENS).forEach((key) => {
-      const token = BASE_TOKENS[key];
+    Object.keys(ETH_TOKENS).forEach((key) => {
+      const token = ETH_TOKENS[key];
       if (token.chain_id === chain_id) {
         mergedTokens[token.id] = token;
-        //  console.log('token:', token);
+        // Track the highest ID
         maxId = Math.max(maxId, token.id || 0);
       }
     });
   }
+
+  // Merge tokens from BASE_TOKENS for another chain (chain_id: 8453)
+  /*   if (chain_id === 8453) {
+    Object.keys(BASE_TOKENS).forEach((key) => {
+      const token = BASE_TOKENS[key];
+      if (token.chain_id === chain_id) {
+        mergedTokens[token.id] = token;
+        maxId = Math.max(maxId, token.id || 0);
+      }
+    });
+  } */
 
   // Assign new unique IDs to custom tokens and merge them
   Object.keys(customTokens).forEach((key) => {
