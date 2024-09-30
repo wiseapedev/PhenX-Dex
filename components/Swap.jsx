@@ -1906,8 +1906,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
               );
             } else if (error.message && error.message.includes('slippage')) {
               toast.error('Slippage too low. Try increasing slippage.');
-            } else if (error.message && error.message.includes('gas')) {
-              toast.error('Gas fee too low. Try increasing the gas fee.');
+              /*             } else if (error.message && error.message.includes('gas')) {
+              toast.error('Gas fee too low. Try increasing the gas fee.'); */
             } else if (error.message && error.message.includes('revert')) {
               toast.error('Transaction failed due to contract revert.');
             } else if (
