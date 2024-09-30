@@ -791,7 +791,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
       return () => {
         clearInterval(intervalId);
       };
-    }, [sellAmount]);
+    }, [sellAmount, chain_id]);
     /* 
     useEffect(() => {
       let intervalId;

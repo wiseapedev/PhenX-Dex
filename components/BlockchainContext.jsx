@@ -132,8 +132,15 @@ export const BlockchainProvider = ({children}) => {
 
   const blockNumberRef = useRef(0);
   const ethDollarPrice = useRef('');
+
   const fetchNewBlockNumber = async () => {
     if (!providerHTTP) return;
+    if (selectedNetworkId !== chain_id) {
+      console.log(
+        '(selectedNetworkId !== chain_id)',
+        selectedNetworkId !== chain_id
+      );
+    }
 
     try {
       const blockNumber = await providerHTTP.getBlockNumber();
