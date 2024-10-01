@@ -64,6 +64,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     ALL_TOKENS,
     chain_id,
     saverInputAmount,
+    limit,
   } = useContext(BlockchainContext);
 
   const isETH = chain_id === 1;
@@ -758,7 +759,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             return;
           }
 
-          const blockNumber = await providerHTTP.getBlockNumber();
+          const blockNumber = await limit(() => providerHTTP.getBlockNumber());
 
           if (blockNumberRef.current !== blockNumber) {
             /*             console.log('✅✅✅ New block number:', blockNumber);
@@ -766,7 +767,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             console.log('✅✅✅ chain_id:', chain_id);
  */
             if (chain_id !== 1) {
-              const isMoreThan3 = blockNumber > blockNumberRef.current + 5;
+              const isMoreThan3 = blockNumber > blockNumberRef.current + 10;
               if (!isMoreThan3) {
                 return;
               }
@@ -1884,7 +1885,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               updateData('savedOutputAmount', '');
             }
             if (sendTransaction.status === 0) {
-              setPendingTransaction(null);
+              setPendingTransaction(false);
 
               setTrigger(trigger + 1);
               enableSwapContainer();
@@ -1899,13 +1900,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
               error.message &&
               error.message.includes('revert')
             ) {
-              toast.info(
-                `Possible insufficient funds reducing input & amount outs by 10%`
-              );
               async function delay(ms) {
                 return new Promise((resolve) => setTimeout(resolve, ms));
               }
-              await delay(2000);
+              await delay(1000);
 
               return handleSwap(retryCount + 1);
             } else if (error.code === 'INSUFFICIENT_FUNDS') {

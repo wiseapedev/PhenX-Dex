@@ -1,6 +1,7 @@
 import {ethers} from 'ethers';
 import QuoterABI from './abis/QuoterABI.json';
 import {CHAINS} from './lib/constants.js';
+import delay from './delay.js';
 
 async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chain_id) {
   const provider = new ethers.JsonRpcProvider(CHAINS[chain_id].rpcUrl);
@@ -9,7 +10,7 @@ async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chain_id) {
     QuoterABI,
     provider
   );
-  console.log('quoter', quoter);
+  // console.log('quoter', quoter);
 
   const feeTiers = [500, 3000, 10000];
   let highestQuote = null;
@@ -68,6 +69,7 @@ async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chain_id) {
         });
 
         console.log('Final fee tier', fee, 'amountOut', amountOut[0]);
+        await delay(); // Delay to avoid rate limiting
 
         if (!highestQuote || amountOut[0] > highestQuote.amountOut) {
           highestQuote = {
@@ -94,6 +96,7 @@ async function getQuoteV3(tokenIn, tokenOut, parsedSellAmount, chain_id) {
         });
 
         console.log('Direct fee tier', fee, 'amountOut', amountOut[0]);
+        await delay(); // Delay to avoid rate limiting
 
         if (
           amountOut[0] > 0 &&

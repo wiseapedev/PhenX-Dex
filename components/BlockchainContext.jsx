@@ -33,6 +33,7 @@ import {
 import {useWeb3Modal} from '@web3modal/ethers/react';
 
 import {BrowserProvider, Contract, formatUnits} from 'ethers';
+import Bottleneck from 'bottleneck';
 
 export const BlockchainContext = createContext({
   contractAddress: '',
@@ -41,12 +42,20 @@ export const BlockchainContext = createContext({
   targetSymbol: '',
   tier: '',
 });
+import delay from './delay';
 
 export const BlockchainProvider = ({children}) => {
   // const provider = useEthersProvider();
   // const {address: account} = useAccount();
   //  const signer = useEthersSigner();
   // const {open, selectedNetworkId} = useAppKitState();
+  const limiter = useRef(
+    new Bottleneck({
+      maxConcurrent: 1, // Only allow 1 concurrent request
+      minTime: 1000, // At least 200ms between requests
+    })
+  );
+  const limit = (task) => limiter.current.schedule(task);
 
   const [ETH_TOKENS, setEthTokens] = useState({});
   const [ALL_TOKENS, setAllTokens] = useState({});
@@ -61,9 +70,7 @@ export const BlockchainProvider = ({children}) => {
   const providerRPC = CHAINS[chain_id].rpcUrl;
 
   const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
-  async function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+
   useEffect(() => {
     if (selectedNetworkId) {
       //   if (selectedNetworkId === 'eip155:8453') {
@@ -159,6 +166,7 @@ export const BlockchainProvider = ({children}) => {
       );
 
       const amounts = await routerContract.getAmountsOut(amountIn, path);
+      await delay();
       let ethPriceInUsdc = amounts[1];
       ethPriceInUsdc = ethers.formatUnits(ethPriceInUsdc, 6);
       ethPriceInUsdc = Number(ethPriceInUsdc);
@@ -233,6 +241,7 @@ export const BlockchainProvider = ({children}) => {
         .filter((key) => ALL_TOKENS[key].chain_id === chain_id)
         .map(async (key) => {
           const balanceData = await getDollarValue(ALL_TOKENS[key]);
+          await delay();
           return {
             key,
             data: {
@@ -383,6 +392,7 @@ export const BlockchainProvider = ({children}) => {
   return (
     <BlockchainContext.Provider
       value={{
+        limit,
         saverInputAmount,
         chain_id,
         dollarRef,
