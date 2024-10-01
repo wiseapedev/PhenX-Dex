@@ -111,19 +111,22 @@ export const BlockchainProvider = ({children}) => {
 
   // const signer = await provider.getSigner()
   useEffect(() => {
-    async function fetchTokens() {
+    // Define the asynchronous function inside useEffect
+    const fetchTokens = async () => {
       try {
-        //     console.log('Fetching tokens...');
         const res = await fetch('/api/tokens');
         const data = await res.json();
         setEthTokens(data);
       } catch (error) {
         console.error('Failed to fetch tokens:', error);
       }
-    }
+    };
+
+    // Logic to decide when to fetch or set tokens
     if (ETH_TOKENS && Object.keys(ETH_TOKENS).length === 0) {
-      fetchTokens();
+      fetchTokens(); // No need to `await` here
     }
+
     if (ETH_TOKENS && Object.keys(ETH_TOKENS).length > 0) {
       setAllTokens(mergeTokens(chain_id, ETH_TOKENS));
     }

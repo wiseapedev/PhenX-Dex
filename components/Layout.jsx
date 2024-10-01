@@ -13,18 +13,18 @@ const Layout = ({buyLink, buyLinkKey}) => {
   const {chain_id, ETH_TOKENS, ALL_TOKENS} = useContext(BlockchainContext);
   const [tokensReady, setTokensReady] = useState(false);
 
-  /*   useEffect(() => {
+  useEffect(() => {
     setTokensReady(false);
-  }, [chain_id]); */
+  }, [chain_id]);
 
   useEffect(() => {
     if (
       Object.keys(ETH_TOKENS).length > 0 &&
       Object.keys(ALL_TOKENS).length > 0
     ) {
-      //   setTimeout(() => {
-      setTokensReady(true);
-      //   }, 1000);
+      setTimeout(() => {
+        setTokensReady(true);
+      }, 1000);
     }
   }, [ETH_TOKENS, ALL_TOKENS, chain_id]);
 
@@ -46,7 +46,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
           buyLink={buyLink}
           buyLinkKey={buyLinkKey}
           //    chain_id={chain_id}
-          //   key={chain_id}
+          key={chain_id}
         />
       ) : (
         <div className='load-container'>
