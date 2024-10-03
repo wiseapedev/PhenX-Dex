@@ -20,7 +20,7 @@ export default function ListingPage() {
   const [isConnected, setIsConnected] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState(false);
 
-  const listFeeAddress = '0x94683fd6256DaC7203D2994cf1fe1E8dA5fb7648';
+  const listFeeAddress = '0x7e122Cef5eB62674f536e315C3371578615e5E44';
   async function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
