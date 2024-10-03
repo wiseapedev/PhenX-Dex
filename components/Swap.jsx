@@ -2180,12 +2180,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
   };
   return (
     <div className='whole-container'>
-      {/*     <PendingTransaction
-        provider={provider}
-        transaction={pendingTransaction}
-        swapData={swapData}
-        chainId={chain_id}
-      /> */}
       <div className='bg' />
 
       <div className='main-container'>

@@ -7,7 +7,7 @@ import {motion, AnimatePresence} from 'framer-motion';
 
 function NavBar() {
   const router = useRouter();
-  const [activeLink, setActiveLink] = useState('');
+  const [activeLink, setActiveLink] = useState('home');
 
   // Use the custom hook to determine if the device is mobile
   const isMobile = useIsMobile();
@@ -18,6 +18,8 @@ function NavBar() {
       setActiveLink('home');
     } else if (router.pathname === '/stake') {
       setActiveLink('stake');
+    } else if (router.pathname === '/listing') {
+      setActiveLink('listing');
     }
   }, [router.pathname]);
 
@@ -29,6 +31,10 @@ function NavBar() {
   const goToStake = () => {
     router.push('/stake');
   };
+  const goToListing = () => {
+    router.push('/listing');
+  };
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(true);
 
   // Ref for the dropdown menu
@@ -98,6 +104,13 @@ function NavBar() {
               }`}>
               Stake
             </div>
+            <div
+              onClick={goToListing}
+              className={`dropdown-item ${
+                activeLink === 'listing' ? 'dropdown-active' : ''
+              }`}>
+              Listing
+            </div>
           </div>
         </div>
       </>
@@ -123,6 +136,13 @@ function NavBar() {
                 activeLink === 'stake' ? 'nav-active' : ''
               }`}>
               Stake
+            </div>
+            <div
+              onClick={goToListing}
+              className={`nav-button ${
+                activeLink === 'listing' ? 'nav-active' : ''
+              }`}>
+              Listing
             </div>
           </div>
         </div>

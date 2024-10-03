@@ -55,7 +55,7 @@ function PendingTransaction({transaction, swapData, chainId}) {
               className='loader'
               style={{margin: '0', width: '62px', height: '62px'}}
             />
-            <p className='pending-text'>Swap submitted</p>
+            <p className='pending-text'>Transaction submitted</p>
           </>
         )}
 
