@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
+
 /* use client */
 import {
   Settings,
@@ -1403,15 +1404,14 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   // Otherwise, use the input amount
                   result = inputAmountBN;
                 }
-                if (retryCount === 1) {
-                  result = (result * BigInt(90)) / BigInt(100);
-                } else if (retryCount === 2) {
-                  result = (result * BigInt(85)) / BigInt(100);
-                } else if (retryCount === 3) {
-                  result = (result * BigInt(80)) / BigInt(100);
+                if (retryCount >= 1) {
+                  let reductionPercentage = BigInt(10 * retryCount);
+                  result =
+                    (result * (BigInt(100) - reductionPercentage)) /
+                    BigInt(100);
                 }
 
-                // Return the result as a string to maintain compatibility with functions expecting BigNumberish values
+                console.log('result', result);
                 return result.toString();
               } catch (error) {
                 console.error('Failed to preventOverMax:', error);
@@ -1556,12 +1556,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   if (minAmountOut < BigInt(0)) {
                     minAmountOut = BigInt(0);
                   }
-                  if (retryCount === 1) {
-                    minAmountOut = (minAmountOut * BigInt(90)) / BigInt(100); // Reduce by 5%
-                  } else if (retryCount === 2) {
-                    minAmountOut = (minAmountOut * BigInt(85)) / BigInt(100); // Reduce by 10%
-                  } else if (retryCount === 3) {
-                    minAmountOut = (minAmountOut * BigInt(80)) / BigInt(100); // Reduce by 15%
+                  if (retryCount >= 1) {
+                    let reductionPercentage = BigInt(10 * retryCount);
+                    minAmountOut =
+                      (minAmountOut * (BigInt(100) - reductionPercentage)) /
+                      BigInt(100);
                   }
                   console.log('minAmountOut', minAmountOut);
                 } catch (e) {
@@ -1886,19 +1885,17 @@ const Swap = ({buyLink, buyLinkKey}) => {
             }
             if (sendTransaction.status === 0) {
               setPendingTransaction(false);
-
-              setTrigger(trigger + 1);
               enableSwapContainer();
+              //   setTrigger(trigger + 1);
             }
           } catch (error) {
-            enableSwapContainer();
-
-            //   console.error('Failed to swap:', error);
+            console.error('Failed to swap:', error);
 
             if (
-              retryCount < 3 &&
-              error.message &&
-              error.message.includes('revert')
+              (retryCount < 5 &&
+                error.message &&
+                error.message.includes('revert')) ||
+              error.code === 'INSUFFICIENT_FUNDS'
             ) {
               async function delay(ms) {
                 return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1929,11 +1926,12 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 'An error occurred during the swap. Please try again.'
               );
             }
-            console.error('setPendingTransaction null');
+            enableSwapContainer();
           } finally {
             setPendingTransaction(null);
-            inSwap.current = false;
             enableSwapContainer();
+
+            inSwap.current = false;
           }
         };
 

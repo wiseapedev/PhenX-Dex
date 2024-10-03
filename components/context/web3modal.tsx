@@ -19,7 +19,7 @@ const baseChain = {
   name: 'Base',
   currency: 'ETH',
   explorerUrl: 'https://basescan.org',
-  rpcUrl: 'https://mainnet.base.org',
+  rpcUrl: process.env.NEXT_PUBLIC_BASE_RPC,
 };
 
 // 3. Create a metadata object
