@@ -30,7 +30,7 @@ function SwapFeeCompare() {
   }, [sellAmount]);
 
   function SwapFeeItem({name, percentage}) {
-    const actualPercentage = percentage / 10; // 0.6 becomes 0.06 i.e 0.6%
+    const actualPercentage = percentage / 100; // 0.6 becomes 0.06 i.e 0.6%
     const dollarValue = sellAmount;
     let amountSaved = dollarValue * actualPercentage;
     amountSaved = amountSaved.toFixed(2);
