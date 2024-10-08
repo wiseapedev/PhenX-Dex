@@ -46,13 +46,14 @@ function FooterBar() {
       <div className='nav-right'>
         <a
           href='https://t.me/Mikenheimer'
-          /*           className='basic-button'
-           */ style={{
+          className='basic-button'
+          /*           style={{
             color: 'white',
             fontSize: '14px',
             textAlign: 'center',
             letterSpacing: '7px',
-          }}>
+          }} */
+        >
           SUPPORT
         </a>
       </div>

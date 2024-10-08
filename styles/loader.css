@@ -1,0 +1,313 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+  animation: gradientBackground 15s ease infinite;
+}
+
+@keyframes gradientBackground {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+h1 {
+  margin-bottom: 30px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.loader {
+  margin: 20px;
+  position: relative;
+}
+
+/* Loader 1: Spinning Circle */
+.loader1 {
+  border: 8px solid #3c3c3c;
+  border-radius: 50%;
+  border-top: 8px solid #3498db;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loader 2: Bouncing Dots */
+.loader2 {
+  display: flex;
+  justify-content: space-between;
+  width: 60px;
+}
+
+.loader2 div {
+  width: 15px;
+  height: 15px;
+  background-color: #3498db;
+  border-radius: 50%;
+  animation: bounce 1.5s infinite ease-in-out;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
+}
+
+.loader2 div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+
+.loader2 div:nth-child(3) {
+  animation-delay: -0.6s;
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Loader 3: Growing Circle */
+.loader3 {
+  width: 40px;
+  height: 40px;
+  background-color: #3498db;
+  border-radius: 50%;
+  animation: grow-shrink 1.5s infinite ease-in-out;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+}
+
+@keyframes grow-shrink {
+  0%,
+  100% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+/* Loader 4: Rotating Square */
+.loader4 {
+  width: 50px;
+  height: 50px;
+  background-color: #3498db;
+  animation: rotate 2s infinite linear;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loader 5: Fading Dots */
+.loader5 {
+  display: flex;
+  justify-content: space-between;
+  width: 70px;
+}
+
+.loader5 div {
+  width: 15px;
+  height: 15px;
+  background-color: #3498db;
+  border-radius: 50%;
+  animation: fade 1.2s infinite ease-in-out both;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
+}
+
+.loader5 div:nth-child(2) {
+  animation-delay: -0.4s;
+}
+
+.loader5 div:nth-child(3) {
+  animation-delay: -0.8s;
+}
+
+@keyframes fade {
+  0%,
+  39%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+/* Loader 6: Pulsing Dot */
+.loader6 {
+  width: 40px;
+  height: 40px;
+  background-color: #3498db;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite ease-in-out;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+/* Loader 7: Double Ring */
+.loader7 {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.loader7,
+.inner-ring {
+  border: 6px solid transparent;
+  border-radius: 50%;
+  border-top: 6px solid #3498db;
+  border-bottom: 6px solid #3498db;
+  animation: spin 2s linear infinite;
+}
+
+.inner-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 6px solid transparent;
+  border-top: 6px solid #3498db;
+  border-bottom: 6px solid #3498db;
+  animation: spin-reverse 1.5s linear infinite;
+}
+
+@keyframes spin-reverse {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Loader 9: Loading Bars */
+.loader9 {
+  display: flex;
+  justify-content: space-between;
+  width: 100px;
+}
+
+.bar {
+  width: 20px;
+  height: 10px;
+  background-color: #3498db;
+  animation: loading-bar 1.5s infinite ease-in-out;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
+}
+
+.bar1 {
+  animation-delay: 0s;
+}
+
+.bar2 {
+  animation-delay: 0.3s;
+}
+
+.bar3 {
+  animation-delay: 0.6s;
+}
+
+@keyframes loading-bar {
+  0%,
+  100% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(1);
+  }
+}
+
+/* Loader 10: Infinity Loop */
+.loader10 {
+  width: 60px;
+  height: 60px;
+  border: 8px solid #3498db;
+  border-radius: 50%;
+  border-top: 8px solid transparent;
+  animation: loop 1.5s linear infinite;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+}
+
+@keyframes loop {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loader 11: Loading Dots */
+.loader11 {
+  display: flex;
+  justify-content: space-between;
+  width: 80px;
+}
+
+.loader11 div {
+  width: 15px;
+  height: 15px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  animation: dot-flashing 1.5s infinite ease-in-out;
+  box-shadow: 0 0 15px var(--primary-color);
+}
+
+.loader11 div:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.loader11 div:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.loader11 div:nth-child(4) {
+  animation-delay: 0.9s;
+}
+
+@keyframes dot-flashing {
+  0%,
+  20%,
+  80%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}

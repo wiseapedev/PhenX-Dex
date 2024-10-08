@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import '../styles/oldCSS.css';
 import '../styles/stake.css';
+import '../styles/loader.css';
 
 // import '@rainbow-me/rainbowkit/styles.css';
 import type {AppProps} from 'next/app';

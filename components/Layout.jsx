@@ -58,11 +58,17 @@ https://beta.phenx.xyz/
       ) : (
         <div className='load-container'>
           {memoNavBar}
-          <div className='bg' />
-
-          <div className='main-container'>
-            <div className='loader'></div>
+          <div className='bg'>
+            {' '}
+            <div className='loader loader11'>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>{' '}
           </div>
+
+          <div className='main-container'></div>
           <FooterBar />
         </div>
       )}

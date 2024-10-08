@@ -167,9 +167,13 @@ export const BlockchainProvider = ({children}) => {
       return tokensDB;
     }
   };
-
   useEffect(() => {
     if (!account) return;
+    setEthTokens({});
+  }, [chain_id, account]);
+
+  useEffect(() => {
+    //  if (!account) return;
     // Define the asynchronous function inside useEffect
     const fetchTokens = async () => {
       try {
@@ -177,6 +181,7 @@ export const BlockchainProvider = ({children}) => {
         const tokensDB = await res.json();
         const walletTokens = await fetchWalletTokensAndFormat(tokensDB);
         setEthTokens(walletTokens);
+        console.log('walletTokens', walletTokens);
       } catch (error) {
         console.error('Failed to fetch tokens:', error);
       }
@@ -232,10 +237,10 @@ export const BlockchainProvider = ({children}) => {
   const fetchNewBlockNumber = async () => {
     if (!providerHTTP) return;
     if (selectedNetworkId !== chain_id) {
-      console.log(
+      /*       console.log(
         '(selectedNetworkId !== chain_id)',
         selectedNetworkId !== chain_id
-      );
+      ); */
     }
 
     try {

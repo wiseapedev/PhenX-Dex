@@ -374,7 +374,14 @@ function Audit({contractAddress, provider, chain_id}) {
     <div className='general-box'>
       <ContractLinks provider={provider} contractAddress={contractAddress} />{' '}
       <div className='beta-badge'>Beta</div>
-      {!scanMessage && <div className='loader'></div>}
+      {!scanMessage && (
+        <div className='loader loader11'>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      )}
       {scanMessage && <div className='quote-content'> {scanMessage}</div>}
       {/*       <FullAudit contractAddress={contractAddress} provider={provider} />{' '}
        */}{' '}

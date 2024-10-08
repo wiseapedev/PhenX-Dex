@@ -379,7 +379,7 @@ function SwapSettings({
       {showSettings && <GasSlipComponent />}
       <div className='swap-icons-left'>
         <div className='swap-tabs-container'>
-          <div className='swap-tab active'>Swap</div>
+          <div className='swap-tab nav-active'>Swap</div>
           <div className='swap-tab disable'>Bridge</div>{' '}
           <div className='swap-tab disable'>Limit</div>
         </div>

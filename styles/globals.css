@@ -121,17 +121,16 @@ input:focus {
   justify-content: center;
   align-items: center;
   border-radius: 20px;
-  border: solid 1px var(--border);
+  border: solid 1px var(--primary-color);
   padding: 5px 12px;
-  margin-right: 8px;
   color: var(--text);
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 14px;
   transition: all 0.1s ease-in-out;
   opacity: 0.8;
   background: var(--box-inner);
   transition: all 0.1s ease-in-out;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  textalign: 'center';
 }
 .basic-button:hover {
   cursor: pointer;
@@ -211,6 +210,9 @@ input:focus {
   background-image: url('/bg-1.jpg');
   background-size: cover;
   background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .beta-text {
   font-size: 1rem;
@@ -263,8 +265,7 @@ input:focus {
 }
 .load-container {
   position: relative;
-  /*   background: var(--background);
- */
+
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -2004,17 +2005,15 @@ input:focus {
 .sub-tabs .sub-tab:last-child {
   border-bottom-right-radius: 25px;
 }
-.loader {
+/* .loader {
   border: 8px solid var(--border);
-  border-top: 8px solid var(--primary-color); /* Blue */
+  border-top: 8px solid var(--primary-color);
   border-radius: 50%;
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
   margin: auto; /* Center the spinner */
-}
-/* Wrapper for the tick icon */
-/* Wrapper for the tick icon */
+
 .tick-icon {
   display: inline-block;
   width: 64px;
@@ -2065,6 +2064,7 @@ input:focus {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 7px;
+  text-decoration-color: var(--primary-color);
 }
 
 .dropdown-menu-container {
