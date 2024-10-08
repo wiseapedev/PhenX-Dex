@@ -3,7 +3,6 @@ import DollarValue from './DollarValue';
 import {BlockchainContext} from './BlockchainContext';
 import {useState, useEffect, useContext, useRef, useMemo, use} from 'react';
 // import {ETH_TOKENS} from './lib/constants';
-// import mergeTokens from './mergeTokens';
 
 function TokenList({
   type,

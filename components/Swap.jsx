@@ -45,7 +45,6 @@ import pairV2ABI from '../components/abis/pairV2.json';
 import LiveCoinWatch from './LiveCoinWatch';
 import IconLinks from './IconLinks';
 import WalletIcon from './svgs/WalletIcon';
-import mergeTokens from './mergeTokens';
 import {CHAINS} from './lib/constants.js';
 import {sign} from 'crypto';
 import BlockTimer from './BlockTimer';
@@ -1605,6 +1604,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               );
               return;
             }
+
             if (
               ALL_TOKENS[sellToken].symbol === 'ETH' &&
               ALL_TOKENS[buyToken].symbol === 'WETH'
@@ -1986,26 +1986,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
       const name = await tokenContract.name();
       const decimals = await tokenContract.decimals();
       let logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`; // default logo
-
       const imageUrl = `https://www.dextools.io/resources/tokens/logos/ether/${value}.png`;
 
       // Check if the image exists using Image object
-      const checkImageExists = (url) => {
-        return new Promise((resolve) => {
-          const img = new Image();
-          img.src = url;
 
-          img.onload = () => resolve(true); // Image exists
-          img.onerror = () => resolve(false); // Image doesn't exist
-        });
-      };
-
-      // Check if the custom image exists
-      const imageExists = await checkImageExists(imageUrl);
-
-      if (imageExists) {
-        logo_uri = imageUrl; // use the actual logo if it exists
-      }
       const newToken = {
         chain_id,
         name,

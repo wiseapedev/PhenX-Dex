@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {ethers} from 'ethers';
+import axios from 'axios';
 // import {useAccount} from 'wagmi';
 
 import ERC20ABI from './abis/erc20.json';
@@ -84,6 +85,112 @@ export const BlockchainProvider = ({children}) => {
     }
   }, [selectedNetworkId]);
 
+  // fetch and format user tokens in wallet api call
+  /*   const fetchTokens = async () => {
+      try {
+        const QUICKNODE_RPC_URL = 'https://your-unique-name.quiknode.pro/your-api-key/';
+        const walletAddress = '0xYourWalletAddress';
+
+        // Setup the JSON-RPC data for the request
+        const data = {
+          id: 1,
+          jsonrpc: '2.0',
+          method: 'qn_getWalletTokenBalance',
+          params: {
+            address: walletAddress,
+            perPage: 100,
+            page: 1,
+          },
+        };
+
+        // Make the request using Axios
+        const response = await axios.post(QUICKNODE_RPC_URL, data);
+        const tokenData = response.data.result;
+
+        // Format token data if needed and merge with base tokens
+        setEthTokens(tokenData);
+      } catch (error) {
+        console.error('Failed to fetch tokens:', error);
+      }
+    }; */
+
+  const fetchWalletTokensAndFormat = async (tokensDB) => {
+    const tokensDbLength = Object.keys(tokensDB).length;
+
+    try {
+      const response = await fetch('/api/get-user-tokens', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({chain_id, account}),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('data', data);
+      const userTokens = data.userTokens;
+      console.log('userTokens', userTokens);
+      const bannedSymbols = ['USD0 [www.usual.finance]'];
+
+      const formattedUserTokens = userTokens
+        .filter(
+          (token) =>
+            !Object.values(tokensDB).some(
+              (dbToken) => dbToken.symbol === token.contract_ticker_symbol
+            ) && !bannedSymbols.includes(token.contract_ticker_symbol)
+        )
+        .map((token, index) => ({
+          address: token.contract_address,
+          chain_id: chain_id,
+          decimals: token.contract_decimals,
+          id: tokensDbLength + index, // Start IDs from the length of tokensDB
+          is_partner: tokensDB[token.contract_address]?.is_partner || false,
+          logo_uri: 'https://i.ibb.co/cT4kT4T/phenxlogo-1.png',
+          name: token.contract_name,
+          symbol: token.contract_ticker_symbol,
+        }));
+
+      // Merge user tokens with tokensDB
+      const mergedTokens = {...tokensDB};
+
+      formattedUserTokens.forEach((token) => {
+        mergedTokens[token.id] = token; // Use `id` as the key for merged tokens
+      });
+
+      return mergedTokens;
+    } catch (err) {
+      console.error('Error fetching token balances:', err);
+      return tokensDB;
+    }
+  };
+
+  useEffect(() => {
+    if (!account) return;
+    // Define the asynchronous function inside useEffect
+    const fetchTokens = async () => {
+      try {
+        const res = await fetch('/api/tokens');
+        const tokensDB = await res.json();
+        const walletTokens = await fetchWalletTokensAndFormat(tokensDB);
+        setEthTokens(walletTokens);
+      } catch (error) {
+        console.error('Failed to fetch tokens:', error);
+      }
+    };
+
+    if (ETH_TOKENS && Object.keys(ETH_TOKENS).length === 0) {
+      fetchTokens();
+    }
+
+    if (ETH_TOKENS && Object.keys(ETH_TOKENS).length > 0) {
+      setAllTokens(mergeTokens(chain_id, ETH_TOKENS));
+    }
+  }, [chain_id, ETH_TOKENS, account]);
+
   useEffect(() => {
     const setupProvider = async () => {
       if (walletProvider) {
@@ -110,27 +217,6 @@ export const BlockchainProvider = ({children}) => {
   }, [walletProvider, account, chain_id]);
 
   // const signer = await provider.getSigner()
-  useEffect(() => {
-    // Define the asynchronous function inside useEffect
-    const fetchTokens = async () => {
-      try {
-        const res = await fetch('/api/tokens');
-        const data = await res.json();
-        setEthTokens(data);
-      } catch (error) {
-        console.error('Failed to fetch tokens:', error);
-      }
-    };
-
-    // Logic to decide when to fetch or set tokens
-    if (ETH_TOKENS && Object.keys(ETH_TOKENS).length === 0) {
-      fetchTokens(); // No need to `await` here
-    }
-
-    if (ETH_TOKENS && Object.keys(ETH_TOKENS).length > 0) {
-      setAllTokens(mergeTokens(chain_id, ETH_TOKENS));
-    }
-  }, [chain_id, ETH_TOKENS]);
 
   // console.log('ALL_TOKENS', ALL_TOKENS);
 
@@ -238,7 +324,6 @@ export const BlockchainProvider = ({children}) => {
     if (!account || !ALL_TOKENS) return;
 
     async function updateDollarRef() {
-      console.log('Updating dollarRef...');
       await fetchNewBlockNumber();
       const tokenPromises = Object.keys(ALL_TOKENS)
         .filter((key) => ALL_TOKENS[key].chain_id === chain_id)
@@ -268,14 +353,12 @@ export const BlockchainProvider = ({children}) => {
       }, {});
 
       dollarRef.current = updatedDollarRef;
-      console.log(updatedDollarRef);
       console.log('dollarRef updated');
     }
 
     updateDollarRef();
     function checkUpdateDollarRef() {
       if (tokenListOpenRef.current === false) {
-        console.log('tokenListOpenRef is false');
         return;
       } else {
         updateDollarRef();

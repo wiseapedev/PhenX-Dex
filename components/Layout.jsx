@@ -1,16 +1,19 @@
 // import {ConnectButton} from '@rainbow-me/rainbowkit';
-import {useEffect, useContext, useState, use} from 'react';
+import {useEffect, useContext, useState, useMemo} from 'react';
 import {ethers} from 'ethers';
 import {BlockchainContext} from './BlockchainContext';
 import Swap from './Swap';
 import dynamic from 'next/dynamic';
+import NavBar from './NavBar';
+import FooterBar from './Footer';
 
 const SwapNoSSR = dynamic(() => import('./Swap'), {
   ssr: false, // This will disable server-side rendering for the Swap component
 });
 
 const Layout = ({buyLink, buyLinkKey}) => {
-  const {chain_id, ETH_TOKENS, ALL_TOKENS} = useContext(BlockchainContext);
+  const {chain_id, ETH_TOKENS, ALL_TOKENS, account} =
+    useContext(BlockchainContext);
   const [tokensReady, setTokensReady] = useState(false);
 
   useEffect(() => {
@@ -19,12 +22,14 @@ const Layout = ({buyLink, buyLinkKey}) => {
 
   useEffect(() => {
     if (
+      ETH_TOKENS &&
+      ALL_TOKENS &&
       Object.keys(ETH_TOKENS).length > 0 &&
       Object.keys(ALL_TOKENS).length > 0
     ) {
       setTimeout(() => {
         setTokensReady(true);
-      }, 1000);
+      }, 500);
     }
   }, [ETH_TOKENS, ALL_TOKENS, chain_id]);
 
@@ -39,22 +44,26 @@ https://beta.phenx.xyz/
     return () => unwatch();
   }, [config]);
  */
+  const memoNavBar = useMemo(() => <NavBar />, [account]);
+
   return (
     <>
       {tokensReady ? (
         <SwapNoSSR
           buyLink={buyLink}
           buyLinkKey={buyLinkKey}
-          //    chain_id={chain_id}
+          chain_id={chain_id}
           key={chain_id}
         />
       ) : (
         <div className='load-container'>
+          {memoNavBar}
           <div className='bg' />
 
           <div className='main-container'>
             <div className='loader'></div>
           </div>
+          <FooterBar />
         </div>
       )}
     </>
