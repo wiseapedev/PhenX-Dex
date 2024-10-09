@@ -79,7 +79,7 @@ function NavBar() {
           <div className='nav-right'>
             {/*             <w3m-network-button size='md' label='▼' />{' '}
              */}{' '}
-            <w3m-button label='Connect' size='md' />
+            <w3m-button balance={'false'} label='Connect' size='md' />
           </div>
 
           {/* Dropdown Menu */}
@@ -149,7 +149,7 @@ function NavBar() {
         <div className='nav-right'>
           <w3m-network-button />
 
-          <w3m-button label='Connect' size='sm' />
+          <w3m-button balance={'false'} label='Connect' size='md' />
         </div>
       </div>
     );

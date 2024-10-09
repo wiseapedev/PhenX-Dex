@@ -18,7 +18,8 @@ import NavBar from './NavBar';
 import MemPool from './MemPool';
 import SwapSettings from './SwapSettings';
 import {useState, useEffect, useContext, useRef, useMemo, use} from 'react';
-import {ethers} from 'ethers';
+import {ethers, Interface} from 'ethers';
+
 import BigNumber from 'bignumber.js';
 import {BlockchainContext} from './BlockchainContext';
 import qs from 'qs';
@@ -29,6 +30,7 @@ import Audit from './z-custom/audit';
 import OpenBeta from './z-custom/OpenBeta';
 import BannerAd from './z-custom/BannerAd';
 import BannerAd2 from './z-custom/BannerAd2';
+import {arrayify} from 'ethers';
 
 import Iframe from './z-custom/Iframe';
 import BackToTopButton from './BackToTopButton';
@@ -53,6 +55,7 @@ import Switch from './Switch';
 import FooterBar from './Footer';
 import PendingTransaction from './PendingTransaction';
 import SwapFeeCompare from './SwapFeeCompare';
+const Irouter = new Interface(routerABI);
 
 const Swap = ({buyLink, buyLinkKey}) => {
   const {
@@ -1536,7 +1539,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               gasFees = await getNonEthGasFees();
             }
 
-            async function reduceAmountOut(amountOut) {
+            function reduceAmountOut(amountOut) {
               try {
                 let minAmountOut = amountOut; // Convert to BigInt
 
@@ -1633,7 +1636,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
                     }
                   );
                   console.log('estimatedGas', estimatedGas);
-
                   transactionResponse = await routerContract.tokenToEthV3(
                     swapData.tokenIn,
                     swapData.tokenOut,
@@ -1648,6 +1650,31 @@ const Swap = ({buyLink, buyLinkKey}) => {
                       gasLimit: addGasBuffer(estimatedGas),
                     }
                   );
+                  /*              const transaction = {
+                    to: routerAddress,
+                    data: Irouter.encodeFunctionData('tokenToEthV3', [
+                      swapData.tokenIn,
+                      swapData.tokenOut,
+                      BigInt(swapData.fee),
+                      swapData.recipient,
+                      BigInt(safeInputAmount),
+                      BigInt(reduceAmountOut(swapData.amountOut)), // Ensure this is also a BigInt
+                    ]),
+                    gasLimit: BigInt(addGasBuffer(estimatedGas)),
+                    maxPriorityFeePerGas: BigInt(gasFees.maxPriorityFeePerGas),
+                    maxFeePerGas: BigInt(gasFees.maxFeePerGas),
+                    value: BigInt(0),
+                  };
+
+                  const transactionHash = ethers.keccak256(transaction.data);
+                  console.log('transactionHash', transactionHash);
+
+                  transactionResponse = await signer.signMessage(
+                    ethers.getBytes(transactionHash)
+                  );
+                  console.log('transactionResponse', transactionResponse);
+ */
+                  /*            */
                 } else if (swapData.swapType === 'ETH/TOKEN') {
                   estimatedGas = await routerContract.ethToTokenV3.estimateGas(
                     swapData.tokenIn,
@@ -1661,6 +1688,23 @@ const Swap = ({buyLink, buyLinkKey}) => {
                       value: safeInputAmount,
                     }
                   );
+                  /*                 const transaction = {
+                    to: routerAddress,
+                    data: Irouter.encodeFunctionData('ethToTokenV3', [
+                      swapData.tokenIn,
+                      swapData.tokenOut,
+                      BigInt(swapData.fee),
+                      swapData.recipient,
+                      BigInt(reduceAmountOut(swapData.amountOut)),
+                    ]),
+                    gasLimit: BigInt(addGasBuffer(estimatedGas)),
+                    maxPriorityFeePerGas: BigInt(gasFees.maxPriorityFeePerGas),
+                    maxFeePerGas: BigInt(gasFees.maxFeePerGas),
+                    value: BigInt(safeInputAmount),
+                  };
+                  transactionResponse = await signer.signTransaction(
+                    transaction
+                  ); */
 
                   transactionResponse = await routerContract.ethToTokenV3(
                     swapData.tokenIn,
@@ -1870,6 +1914,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
             setPendingTransaction(transactionResponse);
 
             const sendTransaction = await transactionResponse.wait();
+            /*      const sendTransaction = await providerHTTP.send(
+              'eth_sendRawTransaction',
+              [transactionResponse]
+            ); */
             console.log('sendTransaction', sendTransaction);
 
             async function delay(ms) {

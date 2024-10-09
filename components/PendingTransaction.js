@@ -51,10 +51,12 @@ function PendingTransaction({transaction, swapData, chainId}) {
         {status === 'pending' && (
           <>
             {' '}
-            <div
-              className='loader'
-              style={{margin: '0', width: '62px', height: '62px'}}
-            />
+            <div className='loader loader11'>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>{' '}
             <p className='pending-text'>Transaction submitted</p>
           </>
         )}
