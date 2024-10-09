@@ -44,7 +44,13 @@ function MyApp({Component, pageProps}: AppProps) {
       window.location.href = 'https://phenx.xyz/';
     }
   }, []); */
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 0);
+  }, []);
   const [isMobile, setIsMobile] = useState(false);
   // This could be placed in a file that's executed in the Node.js environment,
   // such as next.config.js or a custom server setup.
@@ -60,6 +66,27 @@ function MyApp({Component, pageProps}: AppProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // components/LoadingScreen.js
+  function LoadingScreen() {
+    return (
+      <div className='load-container'>
+        <div className='bg'>
+          {' '}
+          <div className='loader loader11'>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>{' '}
+        </div>
+
+        <div className='main-container'></div>
+      </div>
+    );
+  }
+  if (loading) {
+    return <LoadingScreen />;
+  }
   return (
     <AppKit>
       <ToastContainer

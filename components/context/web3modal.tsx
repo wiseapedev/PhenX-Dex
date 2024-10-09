@@ -34,24 +34,26 @@ const metadata = {
 };
 
 // 4. Create Ethers config
+// Configure the Web3Modal to disable social logins
 const ethersConfig = defaultConfig({
-  /* Required */
   metadata,
-  /* Optional */
-  enableEIP6963: true, // true by default
-  enableInjected: false, // true by default
-  enableCoinbase: true, // true by default
-  rpcUrl: '...', // used for the Coinbase SDK
-  defaultChainId: 1, // used for the Coinbase SDK
-});
+  enableEIP6963: true,
+  enableInjected: true,
+  enableCoinbase: true, // Enable Coinbase Wallet
 
+  auth: {
+    email: false, // Disable email login
+    socials: [], // Disable social logins
+    showWallets: true, // Only show wallets
+  },
+  coinbasePreference: 'all',
+});
 // 5. Create a AppKit instance
 createWeb3Modal({
   ethersConfig,
   chains: [mainnet, baseChain],
   projectId,
-  enableAnalytics: true, // Optional - defaults to your Cloud configuration
-  enableSwaps: true,
+  enableSwaps: false,
   isSiweEnabled: false,
   isUniversalProvider: false,
 });
