@@ -71,6 +71,17 @@ const Swap = ({buyLink, buyLinkKey}) => {
   } = useContext(BlockchainContext);
 
   const isETH = chain_id === 1;
+  function findKeyBySymbol(symbol) {
+    let token = symbol;
+    try {
+      token = Object.keys(ALL_TOKENS).find(
+        (key) => ALL_TOKENS[key].symbol === symbol
+      );
+    } catch (error) {
+      console.error('Error finding token by symbol:', error);
+    }
+    return token;
+  }
 
   const providerRPC = CHAINS[chain_id].rpcUrl;
   const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
@@ -135,7 +146,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
   }
   function getBuyToken() {
     if (!buyLink) {
-      return Object.keys(ALL_TOKENS)[2];
+      if (chain_id !== 1) {
+        return findKeyBySymbol('USDC');
+      } else {
+        return Object.keys(ALL_TOKENS)[2];
+      }
       //  return 'pnx';
     } else {
       return buyLinkKey;
@@ -150,18 +165,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
   const [showChart, setShowChart] = useState(false);
   const [showAudits, setShowAudits] = useState(false);
-
-  function findKeyBySymbol(symbol) {
-    let token = symbol;
-    try {
-      token = Object.keys(ALL_TOKENS).find(
-        (key) => ALL_TOKENS[key].symbol === symbol
-      );
-    } catch (error) {
-      console.error('Error finding token by symbol:', error);
-    }
-    return token;
-  }
 
   const [sellToken, setSellToken] = useState(findKeyBySymbol('ETH'));
   const [sellTokenDisplayBalance, setSellTokenDisplayBalance] = useState(0);
@@ -395,6 +398,16 @@ const Swap = ({buyLink, buyLinkKey}) => {
       </div>
     );
   }
+  const memoYouPay = useMemo(() => {
+    return (
+      <YouPay
+        setShowTokenList={setShowTokenList}
+        ALL_TOKENS={ALL_TOKENS}
+        sellTokenDisplayBalance={sellTokenDisplayBalance}
+      />
+    );
+  }, [setShowTokenList, ALL_TOKENS, sellTokenDisplayBalance]);
+
   function YouReceive({setShowTokenList, ALL_TOKENS, buyTokenDisplayBalance}) {
     const {savedOutputAmount, savedInputAmount} = useContext(BlockchainContext);
     const [outputAmount, setOutputAmount] = useState(savedOutputAmount.current);
@@ -503,6 +516,15 @@ const Swap = ({buyLink, buyLinkKey}) => {
       </div>
     );
   }
+  const memoYouReceive = useMemo(() => {
+    return (
+      <YouReceive
+        setShowTokenList={setShowTokenList}
+        ALL_TOKENS={ALL_TOKENS}
+        buyTokenDisplayBalance={buyTokenDisplayBalance}
+      />
+    );
+  }, [setShowTokenList, ALL_TOKENS, buyTokenDisplayBalance]);
   function SaverInfo({swapData, savedSlippage}) {
     const [slippagePercentage, setSlippagePercentage] = useState(
       savedSlippage.current || 0
@@ -661,7 +683,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
       </div>
     );
   }
-  const wsProvider = useRef(null);
+
+  const memoQuoteView = useMemo(() => {
+    return <QuoteView />;
+  }, [sellToken, buyToken]);
   function QuoteView() {
     //   console.log('➡️➡️➡️ QuoteView State Change');
     const {
@@ -1370,7 +1395,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             let estimatedGas;
             function addGasBuffer(gasLimit) {
               let gas = Number(gasLimit);
-              let buffer = gas * 0.15;
+              let buffer = gas * 0.2;
               let totalGas = gas + buffer;
               return Math.ceil(totalGas);
               //      return gasLimit;
@@ -1544,7 +1569,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 let minAmountOut = amountOut; // Convert to BigInt
 
                 try {
-                  const slippage = Number(savedSlippage.current) / 100;
+                  const slippage = (Number(savedSlippage.current) + 2) / 100;
+                  console.log(
+                    Number(savedSlippage.current),
+                    ' Number(savedSlippage.current)'
+                  );
                   console.log(slippage, ' slippage');
 
                   let slippagePercentage = BigInt(
@@ -2215,6 +2244,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
       <div className='bg' />
 
       <div className='main-container'>
+        {/*         <button onClick={() => testSetState()}>test</button>
+         */}{' '}
         {memoNavBar}
         <div className='swap-container'>
           {' '}
@@ -2269,8 +2300,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
           </div>{' '}
           {/*           {memoBlockTimer}
            */}{' '}
-          <QuoteView />
-          {isETH && showAudits && memoAudits}
+          <QuoteView /> {isETH && showAudits && memoAudits}
         </div>
         {!showChart && <SwapFeeCompare />}
         {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}

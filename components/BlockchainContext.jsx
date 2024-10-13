@@ -167,11 +167,11 @@ export const BlockchainProvider = ({children}) => {
       return tokensDB;
     }
   };
-  useEffect(() => {
+  /*   useEffect(() => {
     if (!account) return;
     setEthTokens({});
   }, [chain_id, account]);
-
+ */
   useEffect(() => {
     //  if (!account) return;
     // Define the asynchronous function inside useEffect
