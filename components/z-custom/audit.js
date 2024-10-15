@@ -167,11 +167,15 @@ function Audit({contractAddress, provider, chain_id}) {
 
       message = (
         <>
-          <div className='quote-content-header mb10'>
-            {data?.token_name || 'Not Specified'} (
-            {data?.token_symbol || 'Not Specified'}){' '}
-            {formatPercent(data.buy_tax || 0)} /{' '}
-            {formatPercent(data.sell_tax || 0)}
+          <div className='quote-content-header'>
+            <div>
+              {data?.token_name || 'Not Specified'} (
+              {data?.token_symbol || 'Not Specified'})
+            </div>
+            <div>
+              Buy:{''} {formatPercent(data.buy_tax || 0)} / Sell:{' '}
+              {formatPercent(data.sell_tax || 0)}
+            </div>
           </div>
           {lpLockInfo}{' '}
           <div className='flex-wrap'>
@@ -372,7 +376,8 @@ function Audit({contractAddress, provider, chain_id}) {
 
   return (
     <div className='general-box'>
-      <ContractLinks provider={provider} contractAddress={contractAddress} />{' '}
+      {/*       <ContractLinks provider={provider} contractAddress={contractAddress} />{' '}
+       */}{' '}
       <div className='beta-badge'>Beta</div>
       {!scanMessage && (
         <div className='loader loader11'>

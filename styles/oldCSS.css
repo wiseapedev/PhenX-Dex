@@ -211,10 +211,10 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  color: #d3d3d3;
-  font-size: 1rem;
+  color: var(--text);
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 3px;
+  padding: 4px;
 }
 .mb10 {
   margin-bottom: 10px;

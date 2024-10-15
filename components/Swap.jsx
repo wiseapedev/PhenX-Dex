@@ -50,7 +50,6 @@ import WalletIcon from './svgs/WalletIcon';
 import {CHAINS} from './lib/constants.js';
 import {sign} from 'crypto';
 import BlockTimer from './BlockTimer';
-import ContractLinks from './ContractLinks';
 import Switch from './Switch';
 import FooterBar from './Footer';
 import PendingTransaction from './PendingTransaction';

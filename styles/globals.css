@@ -37,18 +37,15 @@ a {
   --secondary-color: rgb(255, 69, 0);
   --background: #151617;
   --box-bg: rgb(18, 19, 19);
-  /*   --box-darker: rgb(19, 19, 19);
- */ /*   --box-inner: rgb(27, 27, 27);
-   --box-hover: rgba(22 22 22);
-     --box-inner: rgb(23, 24, 24);
+  --box-darker: rgb(19, 19, 19);
+  --box-inner: rgb(27, 27, 27, 255);
+  --box-hover: rgba(22 22 22);
 
-*/
-
-  --box-shadow: 0 0 0 1px rgb(23, 24, 24);
+  /*   --box-shadow: 0 0 0 1px rgb(23, 24, 24);
   --box-darker: rgb(18, 19, 19);
   --box-inner: rgb(23, 24, 24);
 
-  --box-hover: rgba(255, 255, 255, 0.05);
+  --box-hover: rgba(255, 255, 255, 0.05); */
   /*   --box-hover-light: rgba(255, 255, 255, 0.07);
  */
   --tab-hover: rgba(27, 29, 31);
@@ -208,6 +205,7 @@ input:focus {
   width: 100%;
   height: 100%;
   background-image: url('/bg-1.jpg');
+
   background-size: cover;
   background-repeat: no-repeat;
   display: flex;
@@ -373,9 +371,9 @@ input:focus {
 }
 .nav-container {
   position: fixed;
-  /* background: rgba(0, 0, 0, 0.4); 
-  backdrop-filter: blur(10px);  
-  -webkit-backdrop-filter: blur(10px); */
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   height: 5vh;
   top: 0px;
   left: 0;
@@ -390,9 +388,9 @@ input:focus {
 
 .footer-container {
   position: relative;
-  /*   background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); */
+  -webkit-backdrop-filter: blur(10px);
   height: 5vh;
   bottom: 0px;
   left: 0;
@@ -432,7 +430,7 @@ input:focus {
 .swap-icon {
   margin-bottom: 9px;
   height: 22px;
-  width: 220x;
+  width: 22x;
   border-radius: 15px;
   transition: all 0.1s ease-in-out;
   cursor: pointer;
@@ -886,7 +884,8 @@ input:focus {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: var(--box-inner);
+  background-color: var(--box-darker);
+  box-shadow: var(--box-shadow);
   margin-top: 3px;
   padding: 5px;
   border-radius: 5px;
@@ -902,7 +901,7 @@ input:focus {
 
 .quote-content {
   position: relative;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--text-gray);
   margin-bottom: 5px;
 }
@@ -1290,8 +1289,8 @@ input:focus {
 }
 
 .icon {
-  width: 30px; /* Adjust icon size as needed */
-  height: 30px; /* Adjust icon size as needed */
+  width: 24px; /* Adjust icon size as needed */
+  height: 24px; /* Adjust icon size as needed */
   fill: currentColor; /* Icon color inherits from the anchor tag */
   transition: all 0.1s ease-in-out;
 }
@@ -1523,7 +1522,9 @@ input:focus {
   display: flex;
   justify-content: flex-end;
   border-radius: 25px;
-  box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3);
+  /*   box-shadow: 0 5.40728px 10.8146px rgba(0, 0, 0, 0.3);
+ */
+  border: solid 1px var(--border);
 }
 
 .swap-container {
@@ -1537,9 +1538,9 @@ input:focus {
   padding: 10px;
   transition: all 0.5s ease-in-out;
 
-  background: var(--box-darker);
-
-  box-shadow: var(--box-shadow);
+  /*   background: var(--box-darker);
+  border: solid 1px var(--border);
+  box-shadow: var(--box-shadow); */
 }
 .left-section {
   width: 30%;
@@ -1601,9 +1602,10 @@ input:focus {
 .general-box {
   transition: all 0.5s ease-in-out;
   margin-top: 10px;
-  /*   background-color: var(--box-darker);
+  background-color: var(--box-darker);
   border: 1px solid var(--border);
- */
+  padding: 8px;
+
   border-radius: 15px;
   display: flex;
   position: relative;
@@ -2191,8 +2193,7 @@ input:focus {
   transition: all 0.5s ease-in-out;
   box-shadow: var(--box-shadow);
   background: var(--box-darker);
-
-  box-shadow: var(--box-shadow);
+  border: solid 1px var(--border);
 }
 .swap-fee-title {
   padding-inline-start: 5px;
