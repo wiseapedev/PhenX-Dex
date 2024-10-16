@@ -11,7 +11,7 @@ const mainnet = {
   name: 'Ethereum',
   currency: 'ETH',
   explorerUrl: 'https://etherscan.io',
-  //  rpcUrl: process.env.NEXT_PUBLIC_ETH_RPC,
+  rpcUrl: 'https://ethereum-rpc.publicnode.com',
 };
 
 const baseChain = {
@@ -19,7 +19,7 @@ const baseChain = {
   name: 'Base',
   currency: 'ETH',
   explorerUrl: 'https://basescan.org',
-  // rpcUrl: process.env.NEXT_PUBLIC_BASE_RPC,
+  rpcUrl: 'https://base-rpc.publicnode.com',
 };
 
 // 3. Create a metadata object
