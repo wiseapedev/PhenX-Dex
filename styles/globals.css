@@ -118,7 +118,7 @@ input:focus {
   justify-content: center;
   align-items: center;
   border-radius: 20px;
-  border: solid 1px var(--primary-color);
+  border: solid 1px var(--border);
   padding: 5px 12px;
   color: var(--text);
   font-size: 14px;
@@ -272,6 +272,7 @@ input:focus {
   padding: 0;
   height: 100vh;
   width: 100vw;
+  pointer-events: all;
 }
 .whole-container {
   position: relative;

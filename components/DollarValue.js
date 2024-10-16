@@ -16,7 +16,10 @@ import {BlockchainContext} from './BlockchainContext';
 import uniswapRouterABI from './abis/UniswapRouter.json';
 import wethABI from './abis/wethABI.json';
 import {CHAINS} from './lib/constants.js';
-import getQuoteV3 from './getQuoteV3';
+// import getQuoteV3 from './getQuoteV3';
+import getTokenBalance from './rpc-calls/getTokenBalance';
+import getAmountOutV2 from './rpc-calls/getAmountOutV2';
+import getUniswapQuoteV3 from './rpc-calls/getUniswapQuoteV3';
 
 function DollarValue({Token, isTokenList, isOutputToken}) {
   const {
@@ -24,14 +27,12 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
     savedInputAmount,
     savedOutputAmount,
     chain_id,
-    providerHTTP,
     account,
     saverInputAmount,
   } = useContext(BlockchainContext);
 
   const wethAddress = CHAINS[chain_id].wethAddress;
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
-  // const providerHTTP = useEthersproviderHTTP();
 
   const [ethPrice, setEthPrice] = useState('');
   const RATE_LIMIT = 500;
@@ -55,7 +56,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
       }
     }, RATE_LIMIT);
     return () => clearInterval(handle);
-  }, [ethDollarPrice, providerHTTP, account, ethPrice]);
+  }, [ethDollarPrice, account, ethPrice]);
 
   async function changeTokenPrice() {
     try {
@@ -67,17 +68,48 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
           let balance;
 
           if (Token.symbol === 'WETH') {
-            const wethContract = new ethers.Contract(
-              wethAddress,
-              wethABI,
-              providerHTTP
-            );
-            balance = await wethContract.balanceOf(account);
+            try {
+              const response = await fetch('/api/rpc-call/get-weth-balance', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({chain_id, account, wethAddress}),
+              });
+
+              const data = await response.json();
+              if (response.ok) {
+                console.log('WETH Balance:', data.balance);
+                balance = data.balance; // Return the balance for display or further use
+              } else {
+                console.error('Error:', data.error);
+              }
+            } catch (error) {
+              console.error('Failed to fetch WETH balance:', error);
+            }
             if (balance === 0) {
               return;
             }
           } else if (Token.symbol === 'ETH') {
-            balance = await providerHTTP.getBalance(account);
+            try {
+              const response = await fetch('/api/rpc-call/get-balance', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({chain_id, account}),
+              });
+
+              const data = await response.json();
+              if (response.ok) {
+                console.log('Balance:', data.balance);
+                balance = data.balance; // Return the balance for display or further use
+              } else {
+                console.error('Error:', data.error);
+              }
+            } catch (error) {
+              console.error('Failed to fetch balance:', error);
+            }
           }
           balance = ethers.formatEther(balance);
           balance = Number(balance);
@@ -108,12 +140,14 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
           setEthPrice(totalValue);
         }
       } else {
-        let token = new ethers.Contract(Token.address, erc20Abi, providerHTTP);
-
         let tokenBalance;
 
         if (isTokenList) {
-          tokenBalance = await token.balanceOf(account);
+          tokenBalance = await getTokenBalance(
+            chain_id,
+            account,
+            Token.address
+          );
         } else {
           if (isOutputToken) {
             tokenBalance = savedOutputAmount.current;
@@ -130,18 +164,26 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
         }
 
         const path = [Token.address, wethAddress];
-        const routerContract = new ethers.Contract(
-          uniswapRouterAddress,
-          uniswapRouterABI,
-          providerHTTP
-        );
+
         let amountOut;
         let amountOutV3;
         try {
-          amountOut = await routerContract.getAmountsOut(tokenBalance, path);
+          // amountOut = await routerContract.getAmountsOut(tokenBalance, path);
+          amountOut = await getAmountOutV2(
+            chain_id,
+            tokenBalance,
+            path,
+            uniswapRouterAddress
+          );
         } catch (error) {}
         try {
-          amountOutV3 = await getQuoteV3(
+          /*           amountOutV3 = await getQuoteV3(
+            path[0],
+            path[1],
+            tokenBalance,
+            chain_id
+          ); */
+          amountOutV3 = await getUniswapQuoteV3(
             path[0],
             path[1],
             tokenBalance,

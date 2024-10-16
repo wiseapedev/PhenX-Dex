@@ -1,5 +1,3 @@
-import {id} from 'ethers';
-
 export const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
 
@@ -637,8 +635,6 @@ const CHAINS = {
     uniswapRouterAddressV3: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
     uniswapQuoterV3: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     udxRouterAddress: '0xfa60C635dE9Ea9337C88e3Cb7b00d997bCD8e05c',
-    rpcUrl: process.env.NEXT_PUBLIC_ETH_RPC,
-    wsUrl: process.env.NEXT_PUBLIC_ETH_WS,
   },
   8453: {
     name: 'Base',
@@ -651,7 +647,6 @@ const CHAINS = {
     uniswapFactoryAddressV3: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
     uniswapQuoterV3: '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a',
     udxRouterAddress: '0xd94Fe4376Fc177EA46016dccab814D7c821AD70c',
-    rpcUrl: process.env.NEXT_PUBLIC_BASE_RPC,
   },
 };
 // export {ETH_TOKENS};

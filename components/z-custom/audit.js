@@ -2,8 +2,7 @@ import {ethers} from 'ethers';
 import {use, useContext, useEffect, useState} from 'react';
 import ContractLinks from '../ContractLinks';
 
-const isTest = Boolean(process.env.NEXT_PUBLIC_TEST === 'true');
-
+const isTest = false;
 const ShieldIcon = () => {
   /*   return (
     <svg
@@ -37,7 +36,7 @@ const CloseIcon = () => {
   ); */
   return '';
 };
-function Audit({contractAddress, provider, chain_id}) {
+function Audit({contractAddress, provider, chain_id, authToken}) {
   const handleClick = () => {
     alert('Coming soon');
   };
@@ -326,6 +325,7 @@ function Audit({contractAddress, provider, chain_id}) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
         },
         body: JSON.stringify({
           contractCode: code,

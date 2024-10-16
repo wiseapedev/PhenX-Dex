@@ -22,7 +22,6 @@ import {ethers, Interface} from 'ethers';
 
 import BigNumber from 'bignumber.js';
 import {BlockchainContext} from './BlockchainContext';
-import qs from 'qs';
 import {erc20Abi} from 'viem';
 import TokenList from './TokenList';
 import {toast} from 'react-toastify';
@@ -39,7 +38,7 @@ import wethABI from './abis/wethABI.json';
 import DollarValue from './DollarValue';
 import uniswapRouterABI from './abis/UniswapRouter.json';
 // import {ConnectButton} from '@rainbow-me/rainbowkit';
-import getQuoteV3 from '../components/getQuoteV3';
+// import getQuoteV3 from '../components/getQuoteV3';
 import uniswapRouterV3ABI from '../components/abis/uniswapRouterV3.json';
 import uniswapRouterV2ABI from '../components/abis/uniswapRouterV2.json';
 import uniswapFactoryV2ABI from '../components/abis/uniswapFactoryV2.json';
@@ -54,6 +53,10 @@ import Switch from './Switch';
 import FooterBar from './Footer';
 import PendingTransaction from './PendingTransaction';
 import SwapFeeCompare from './SwapFeeCompare';
+import fetchBlockNumber from './rpc-calls/fetchBlockNumber';
+import getAmountOutV2 from './rpc-calls/getAmountOutV2.js';
+import getUniswapQuoteV3 from './rpc-calls/getUniswapQuoteV3.js';
+
 const Irouter = new Interface(routerABI);
 
 const Swap = ({buyLink, buyLinkKey}) => {
@@ -67,6 +70,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     chain_id,
     saverInputAmount,
     limit,
+    authToken,
   } = useContext(BlockchainContext);
 
   const isETH = chain_id === 1;
@@ -82,8 +86,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
     return token;
   }
 
-  const providerRPC = CHAINS[chain_id].rpcUrl;
-  const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
   const feeAddress = '0x1c2061fACa9DF7B6c02e7EB8dEBed1f37B24C6A9';
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
   const routerAddressV3 = CHAINS[chain_id].uniswapRouterAddressV3;
@@ -264,16 +266,48 @@ const Swap = ({buyLink, buyLinkKey}) => {
     try {
       if (account && tokenKey) {
         const token = ALL_TOKENS[tokenKey];
-        const tokenContract = new ethers.Contract(
-          token.address,
-          erc20Abi,
-          providerHTTP
-        );
+        const tokenAddress = token.address;
         let balance;
         if (token.symbol === 'ETH') {
-          balance = await providerHTTP.getBalance(account);
+          try {
+            const response = await fetch('/api/rpc-call/get-balance', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({chain_id, account}),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+              console.log('Balance:', data.balance);
+              balance = data.balance; // Return the balance for display or further use
+            } else {
+              console.error('Error:', data.error);
+            }
+          } catch (error) {
+            console.error('Failed to fetch balance:', error);
+          }
         } else {
-          balance = await tokenContract.balanceOf(account);
+          try {
+            const response = await fetch('/api/rpc-call/get-token-balance', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({chain_id, account, tokenAddress}),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+              console.log('Token Balance:', data.tokenBalance);
+              balance = data.tokenBalance; // Return the balance for display or further use
+            } else {
+              console.error('Error:', data.error);
+            }
+          } catch (error) {
+            console.error('Failed to fetch token balance:', error);
+          }
         }
 
         balance = ethers.formatUnits(balance, token.decimals);
@@ -694,7 +728,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
       updateData,
       signer,
       provider,
-      providerHTTP,
       savedSlippage,
       savedPriorityGas,
       savedOutputAmount,
@@ -752,8 +785,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
         // if input amount is 0, reset swap data
         if (inputAmount === 0) {
-          if (swapData) {
-            //   toast.error('Please enter an amount to swap');
+          if (swapData && sellAmount !== 0) {
+            //        toast.error('Please enter an amount to swap');
+            setSellAmount(0);
             setSwapData(null);
           }
         }
@@ -775,7 +809,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
       let intervalId;
 
       const fetchNewBlockNumber = async () => {
-        if (!providerHTTP) return;
         if (inSwap.current === true) {
           return;
         }
@@ -786,7 +819,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             return;
           }
 
-          const blockNumber = await limit(() => providerHTTP.getBlockNumber());
+          const blockNumber = await fetchBlockNumber(chain_id);
 
           if (blockNumberRef.current !== blockNumber) {
             /*             console.log('✅✅✅ New block number:', blockNumber);
@@ -813,7 +846,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
       };
       fetchNewBlockNumber();
       // Start polling every 1.2 seconds
-      intervalId = setInterval(fetchNewBlockNumber, 2000);
+      intervalId = setInterval(fetchNewBlockNumber, 12000);
 
       // Clean up the interval on component unmount or when dependencies change
       return () => {
@@ -878,12 +911,12 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
         async function getPriceData() {
           try {
-            const routerContract = new ethers.Contract(
+            /*            const routerContract = new ethers.Contract(
               uniswapRouterAddress,
               uniswapRouterABI,
               providerHTTP
             );
-
+ */
             const defineSwapType = () => {
               const buyTokenSymbol = ALL_TOKENS[buyToken].symbol;
               const sellTokenSymbol = ALL_TOKENS[sellToken].symbol;
@@ -905,10 +938,45 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
               // Try to fetch Uniswap V2 quote
               try {
-                const amountsOutV2 = await routerContract.getAmountsOut(
+                /*          const amountsOutV2 = await routerContract.getAmountsOut(
                   parsedSellAmount,
                   [wethAddress, ALL_TOKENS[buyToken].address]
-                );
+                ); */
+
+                let amountsOutV2;
+
+                try {
+                  const apiPath = [wethAddress, ALL_TOKENS[buyToken].address];
+
+                  // Make the POST request to the backend API
+                  const response = await fetch(
+                    '/api/rpc-call/get-amounts-out',
+                    {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        chain_id, // Chain ID (e.g., Ethereum Mainnet = 1)
+                        amountIn: parsedSellAmount.toString(), // Convert BigInt to string before sending
+                        path: apiPath, // Token addresses array
+                        uniswapRouterAddress, // Uniswap Router Address
+                      }),
+                    }
+                  );
+
+                  const data = await response.json(); // Parse the response data
+
+                  if (response.ok) {
+                    amountsOutV2 = data.amounts; // Assign the amounts array from the response
+                    console.log('Swap amounts:', data.amounts); // Log the amounts array from the response
+                  } else {
+                    console.error('Error:', data.error); // Handle error if any
+                  }
+                } catch (error) {
+                  console.error('Error fetching swap amounts:', error); // Catch any fetch errors
+                }
+
                 v2Quote = amountsOutV2[1]; // Assuming the result is in the second position
                 console.log('V2 Quote:', v2Quote);
               } catch (error) {
@@ -918,12 +986,19 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
               // Try to fetch Uniswap V3 quote
               try {
-                v3Quote = await getQuoteV3(
+                /*                v3Quote = await getQuoteV3(
+                  wethAddress,
+                  ALL_TOKENS[buyToken].address,
+                  parsedSellAmount,
+                  chain_id
+                ); */
+                v3Quote = await getUniswapQuoteV3(
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
                   parsedSellAmount,
                   chain_id
                 );
+
                 console.log('V3 Quote:', v3Quote);
               } catch (error) {
                 console.error('Fetching V3 quote failed:', error);
@@ -959,9 +1034,16 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
               // Attempt to fetch the Uniswap V2 quote
               try {
-                const amountsOutV2 = await routerContract.getAmountsOut(
+                /*                 const amountsOutV2 = await routerContract.getAmountsOut(
                   parsedSellAmount,
                   [ALL_TOKENS[sellToken].address, wethAddress]
+                ); */
+                const apiPath = [ALL_TOKENS[sellToken].address, wethAddress];
+                const amountsOutV2 = await getAmountOutV2(
+                  chain_id,
+                  parsedSellAmount,
+                  apiPath,
+                  uniswapRouterAddress
                 );
                 v2Quote = amountsOutV2[1]; // Assuming the result is the output amount of interest
                 console.log('V2 Quote:', v2Quote);
@@ -972,7 +1054,13 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
               // Attempt to fetch the Uniswap V3 quote
               try {
-                v3Quote = await getQuoteV3(
+                /*                 v3Quote = await getQuoteV3(
+                  ALL_TOKENS[sellToken].address,
+                  wethAddress,
+                  parsedSellAmount,
+                  chain_id
+                ); */
+                v3Quote = await getUniswapQuoteV3(
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
                   parsedSellAmount,
@@ -1030,9 +1118,15 @@ const Swap = ({buyLink, buyLinkKey}) => {
               };
 
               try {
-                const amountsOutV2 = await routerContract.getAmountsOut(
+                /*               const amountsOutV2 = await routerContract.getAmountsOut(
                   parsedSellAmount,
                   pathV2
+                ); */
+                const amountsOutV2 = await getAmountOutV2(
+                  chain_id,
+                  parsedSellAmount,
+                  pathV2,
+                  uniswapRouterAddress
                 );
                 v2Quote = amountsOutV2[amountsOutV2.length - 1]; // Assuming last amount is the output
                 console.log('V2 Quote:', v2Quote);
@@ -1042,9 +1136,15 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
               // Try fetching V3 quote directly
               try {
-                const directV3Quote = await getQuoteV3(
+                /*         const directV3Quote = await getQuoteV3(
                   pathV3.tokenIn,
                   pathV3.tokenOut,
+                  parsedSellAmount,
+                  chain_id
+                ); */
+                const directV3Quote = await getUniswapQuoteV3(
+                  String(pathV3.tokenIn),
+                  String(pathV3.tokenOut),
                   parsedSellAmount,
                   chain_id
                 );
@@ -1059,11 +1159,24 @@ const Swap = ({buyLink, buyLinkKey}) => {
               }
               // sell token to weth v2 to buy token v3
               try {
-                const amountsOutV2ToV3 = await routerContract.getAmountsOut(
+                /*           const amountsOutV2ToV3 = await routerContract.getAmountsOut(
                   parsedSellAmount,
                   [ALL_TOKENS[sellToken].address, wethAddress]
+                ); */
+                const pathV2ToV3 = [ALL_TOKENS[sellToken].address, wethAddress];
+                const amountsOutV2ToV3 = await getAmountOutV2(
+                  chain_id,
+                  parsedSellAmount,
+                  pathV2ToV3,
+                  uniswapRouterAddress
                 );
-                const v2ToV3 = await getQuoteV3(
+                /*       const v2ToV3 = await getQuoteV3(
+                  wethAddress,
+                  ALL_TOKENS[buyToken].address,
+                  amountsOutV2ToV3[1],
+                  chain_id
+                ); */
+                const v2ToV3 = await getUniswapQuoteV3(
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
                   amountsOutV2ToV3[1],
@@ -1076,16 +1189,30 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 console.error('Error fetching V2 to V3 quote:', error);
               }
               try {
-                const v3ToV2 = await getQuoteV3(
+                /*            const v3ToV2 = await getQuoteV3(
+                  ALL_TOKENS[sellToken].address,
+                  wethAddress,
+                  parsedSellAmount,
+                  chain_id
+                ); */
+                const v3ToV2 = await getUniswapQuoteV3(
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
                   parsedSellAmount,
                   chain_id
                 );
                 v3QuoteFee = v3ToV2.fee;
-                const amountsOutV3ToV2 = await routerContract.getAmountsOut(
+                /*                 const amountsOutV3ToV2 = await routerContract.getAmountsOut(
                   v3ToV2.amountOut,
                   [wethAddress, ALL_TOKENS[buyToken].address]
+                );
+ */
+                const pathV3ToV2 = [wethAddress, ALL_TOKENS[buyToken].address];
+                const amountsOutV3ToV2 = await getAmountOutV2(
+                  chain_id,
+                  v3ToV2.amountOut,
+                  pathV3ToV2,
+                  uniswapRouterAddress
                 );
                 v3ToV2Quote = amountsOutV3ToV2[1];
                 console.log('V3 to V2 Quote:', v3ToV2Quote);
@@ -1379,12 +1506,12 @@ const Swap = ({buyLink, buyLinkKey}) => {
             //     toast.info('Please approve the transaction in your wallet');
             inSwap.current = true;
 
-            const routerContractEstimate = new ethers.Contract(
+            /*         const routerContractEstimate = new ethers.Contract(
               routerAddress,
               routerABI,
               providerHTTP
             );
-
+ */
             const routerContract = new ethers.Contract(
               routerAddress,
               routerABI,
@@ -1408,11 +1535,27 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
                 if (ALL_TOKENS[sellToken].symbol === 'ETH') {
                   // Get balance as BigInt
-                  userBalanceBN = BigInt(
-                    await providerHTTP.getBalance(account)
-                  );
+                  try {
+                    const response = await fetch('/api/rpc-call/get-balance', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({chain_id, account}),
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                      console.log('Balance:', data.balance);
+                      userBalanceBN = data.balance; // Return the balance for display or further use
+                    } else {
+                      console.error('Error:', data.error);
+                    }
+                  } catch (error) {
+                    console.error('Failed to fetch balance:', error);
+                  }
                 } else {
-                  const tokenContract = new ethers.Contract(
+                  /*                   const tokenContract = new ethers.Contract(
                     ALL_TOKENS[sellToken].address,
                     erc20Abi,
                     providerHTTP
@@ -1420,8 +1563,32 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   // Get token balance as BigInt
                   userBalanceBN = BigInt(
                     await tokenContract.balanceOf(account)
-                  );
+                  ); */
+                  try {
+                    const tokenAddress = ALL_TOKENS[sellToken].address;
+                    const response = await fetch(
+                      '/api/rpc-call/get-token-balance',
+                      {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({chain_id, account, tokenAddress}),
+                      }
+                    );
+
+                    const data = await response.json();
+                    if (response.ok) {
+                      console.log('Token Balance:', data.tokenBalance);
+                      userBalanceBN = data.tokenBalance; // Return the balance for display or further use
+                    } else {
+                      console.error('Error:', data.error);
+                    }
+                  } catch (error) {
+                    console.error('Failed to fetch token balance:', error);
+                  }
                 }
+                userBalanceBN = BigInt(userBalanceBN);
 
                 if (inputAmountBN > userBalanceBN) {
                   // If the input amount is greater than the user's balance, use the user's balance
@@ -1445,7 +1612,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             }
             async function getGasFees() {
               try {
-                const payload = {
+                /*            const payload = {
                   jsonrpc: '2.0',
                   id: 1,
                   method: 'bn_gasPrice',
@@ -1456,6 +1623,33 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   payload.method,
                   payload.params
                 );
+                console.log('data', data); */
+                async function fetchGasPrice(chain_id) {
+                  try {
+                    const response = await fetch(
+                      '/api/rpc-call/get-gas-price',
+                      {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({chain_id}),
+                      }
+                    );
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                      console.log('Gas Price:', data);
+                      return data.gasPrice;
+                    } else {
+                      console.error('Error:', data.error);
+                    }
+                  } catch (error) {
+                    console.error('Failed to fetch gas price:', error);
+                  }
+                }
+                const data = await fetchGasPrice(chain_id);
                 console.log('data', data);
                 const estimatedPrices = data.blockPrices[0].estimatedPrices;
 
@@ -1522,9 +1716,29 @@ const Swap = ({buyLink, buyLinkKey}) => {
 } */
             async function getNonEthGasFees() {
               try {
-                const feeData = await providerHTTP.getFeeData();
-                console.log('feeData', feeData);
+                async function fetchFeeData(chain_id) {
+                  try {
+                    const response = await fetch('/api/rpc-call/get-fee-data', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({chain_id}),
+                    });
 
+                    const data = await response.json();
+
+                    if (response.ok) {
+                      console.log('Fee Data:', data.feeData);
+                      return data.feeData;
+                    } else {
+                      console.error('Error:', data.error);
+                    }
+                  } catch (error) {
+                    console.error('Failed to fetch fee data:', error);
+                  }
+                }
+                const feeData = await fetchFeeData(chain_id);
                 // 0.1 Gwei in Wei
                 const zeroPointOneGwei = BigInt(10000000);
 
@@ -1565,7 +1779,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
             function reduceAmountOut(amountOut) {
               try {
-                let minAmountOut = amountOut; // Convert to BigInt
+                let minAmountOut = BigInt(amountOut);
 
                 try {
                   const slippage = (Number(savedSlippage.current) + 2) / 100;
@@ -2057,54 +2271,89 @@ const Swap = ({buyLink, buyLinkKey}) => {
     }
 
     try {
-      const tokenContract = new ethers.Contract(value, erc20Abi, providerHTTP);
-      const symbol = await tokenContract.symbol();
-      const name = await tokenContract.name();
-      const decimals = await tokenContract.decimals();
-      let logo_uri = `https://i.ibb.co/PQjTqqW/phenxlogo-1.png`; // default logo
-      const imageUrl = `https://www.dextools.io/resources/tokens/logos/ether/${value}.png`;
+      async function fetchTokenData(chain_id, tokenAddress) {
+        try {
+          const response = await fetch('/api/rpc-call/get-token-data', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({chain_id, tokenAddress}),
+          });
 
-      // Check if the image exists using Image object
+          const data = await response.json();
 
-      const newToken = {
-        chain_id,
-        name,
-        symbol,
-        address: value,
-        decimals: typeof decimals === 'bigint' ? Number(decimals) : decimals,
-        logo_uri,
-        id: Object.keys(ALL_TOKENS).length + 1,
-      };
+          if (response.ok) {
+            // Destructure the token data from the response
+            const {chain_id, name, symbol, address, decimals, logo_uri} = data;
 
-      const existingToken = Object.values(ALL_TOKENS).find(
-        (token) => token.symbol === symbol
-      );
+            // Use the destructured data as needed
+            console.log('Token Data:', {
+              chain_id,
+              name,
+              symbol,
+              address,
+              decimals,
+              logo_uri,
+            });
 
-      if (!existingToken) {
-        let customTokens =
-          JSON.parse(localStorage.getItem('customTokens')) || {};
-        const customTokenLength = Object.keys(customTokens).length;
-        customTokens[customTokenLength] = newToken;
-        localStorage.setItem('customTokens', JSON.stringify(customTokens));
+            // Create the newToken object
+            const newToken = {
+              chain_id,
+              name,
+              symbol,
+              address,
+              decimals,
+              logo_uri,
+              id: Object.keys(ALL_TOKENS).length + 1,
+            };
 
-        const alltokenslength = Object.keys(ALL_TOKENS).length;
-        console.log('alltokenslength', alltokenslength);
-        ALL_TOKENS[alltokenslength + 1] = newToken;
-        console.log(ALL_TOKENS[alltokenslength + 1]);
-        setBuyToken(ALL_TOKENS[alltokenslength + 1].id);
-        toast.success(`${symbol} imported successfully`);
-
-        if (showTokenList !== false) {
-          setShowTokenList(false);
+            console.log('New Token:', newToken);
+            return newToken;
+          } else {
+            console.error('Error:', data.error);
+          }
+        } catch (error) {
+          console.error('Failed to fetch token data:', error);
         }
-      } else {
-        console.log(existingToken);
-        setBuyToken(ALL_TOKENS[existingToken.id].id);
-        if (showTokenList !== false) {
-          setShowTokenList(false);
-        }
+      }
 
-        console.warn(`Token ${symbol} already exists in ALL_TOKENS.`);
+      const newToken = await fetchTokenData(chain_id, value); // Assuming 'value' is the token address
+
+      if (newToken) {
+        // Corrected to reference newToken.symbol
+        const existingToken = Object.values(ALL_TOKENS).find(
+          (token) => token.symbol === newToken.symbol
+        );
+
+        if (!existingToken) {
+          let customTokens =
+            JSON.parse(localStorage.getItem('customTokens')) || {};
+          const customTokenLength = Object.keys(customTokens).length;
+          customTokens[customTokenLength] = newToken;
+          localStorage.setItem('customTokens', JSON.stringify(customTokens));
+
+          const alltokenslength = Object.keys(ALL_TOKENS).length;
+          console.log('alltokenslength', alltokenslength);
+          ALL_TOKENS[alltokenslength + 1] = newToken;
+          console.log(ALL_TOKENS[alltokenslength + 1]);
+          setBuyToken(ALL_TOKENS[alltokenslength + 1].id);
+          toast.success(`${newToken.symbol} imported successfully`);
+
+          if (showTokenList !== false) {
+            setShowTokenList(false);
+          }
+        } else {
+          console.log(existingToken);
+          setBuyToken(ALL_TOKENS[existingToken.id].id);
+          if (showTokenList !== false) {
+            setShowTokenList(false);
+          }
+
+          console.warn(
+            `Token ${newToken.symbol} already exists in ALL_TOKENS.`
+          );
+        }
       }
     } catch (error) {
       console.error('Failed to import token:', error);
@@ -2127,7 +2376,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
   const memoNavBar = useMemo(() => <NavBar />, [account]);
 
   const memoAudits = useMemo(
-    () => <Audit contractAddress={chartTokenAddress} provider={providerHTTP} />,
+    () => <Audit contractAddress={chartTokenAddress} authToken={authToken} />,
     [chartTokenAddress, showAudits]
   );
   const memoCharts = useMemo(

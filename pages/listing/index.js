@@ -10,7 +10,8 @@ import PendingTransaction from '../../components/PendingTransaction';
 import {erc20Abi} from 'viem';
 
 export default function ListingPage() {
-  const {provider, account, chain_id, signer} = useContext(BlockchainContext);
+  const {provider, account, chain_id, signer, authToken} =
+    useContext(BlockchainContext);
   const [contractAddress, setContractAddress] = useState('');
   const [name, setName] = useState('');
   const [ticker, setTicker] = useState('');
@@ -79,7 +80,10 @@ export default function ListingPage() {
     try {
       const response = await fetch('/api/check-contract', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
+        },
         body: JSON.stringify({contractAddress: address}),
       });
 
@@ -151,6 +155,7 @@ export default function ListingPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
         },
         body: JSON.stringify(listingData),
       });

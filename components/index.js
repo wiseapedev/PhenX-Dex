@@ -5,7 +5,7 @@ import {ethers} from 'ethers';
 import {BlockchainContext} from '../../components/BlockchainContext';
 
 export default function ListingPage() {
-  const {provider} = useContext(BlockchainContext);
+  const {provider, authToken} = useContext(BlockchainContext);
   const [contractAddress, setContractAddress] = useState('');
   const [name, setName] = useState('');
   const [ticker, setTicker] = useState('');
@@ -60,6 +60,8 @@ export default function ListingPage() {
       const response = await fetch('/api/check-contract', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
+        Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
+
         body: JSON.stringify({contractAddress: address}),
       });
 
@@ -135,6 +137,7 @@ export default function ListingPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
         },
         body: JSON.stringify(listingData),
       });

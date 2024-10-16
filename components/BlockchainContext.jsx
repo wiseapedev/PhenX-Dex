@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import {ethers} from 'ethers';
 import axios from 'axios';
 // import {useAccount} from 'wagmi';
+import CryptoJS from 'crypto-js';
 
 import ERC20ABI from './abis/erc20.json';
 import uniswapRouterABI from './abis/UniswapRouter.json';
@@ -30,6 +31,7 @@ import {
 } from '@web3modal/ethers/react';
 // import {useAppKitProvider, useAppKitAccount} from '@reown/appkit/react';
 // import {useAppKitState} from '@reown/appkit/react';
+import fetchBlockNumber from './rpc-calls/fetchBlockNumber';
 
 import {useWeb3Modal} from '@web3modal/ethers/react';
 
@@ -68,9 +70,7 @@ export const BlockchainProvider = ({children}) => {
   // const {walletProvider} = useAppKitProvider();
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
-  const providerRPC = CHAINS[chain_id].rpcUrl;
-
-  const providerHTTP = new ethers.JsonRpcProvider(providerRPC);
+  const [authToken, setAuthToken] = useState(null); // To store the JWT token
 
   useEffect(() => {
     if (selectedNetworkId) {
@@ -84,6 +84,49 @@ export const BlockchainProvider = ({children}) => {
       console.log('selectedNetworkId', selectedNetworkId);
     }
   }, [selectedNetworkId]);
+
+  function AuthButton({}) {
+    const loginWithWallet = async () => {
+      try {
+        console.log('loginWithWallet called');
+
+        if (!signer || !account) {
+          console.error('Signer or account not available');
+          return;
+        }
+
+        const message = `I am logging in to the platform. Wallet address: ${account}`;
+
+        // Ethers.js v6: sign the message using the signer
+        const signature = await signer.signMessage(message); // User signs the message
+
+        // Send signed message and wallet address to the backend (without Authorization header)
+        const response = await fetch('/api/auth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({message, signature, walletAddress: account}),
+        });
+
+        const data = await response.json();
+        if (data.token) {
+          setAuthToken(data.token); // Store JWT token for future requests
+          console.log('Auth token received:', data.token);
+        } else {
+          console.error('Authentication failed');
+        }
+      } catch (error) {
+        console.error('Error logging in:', error);
+      }
+    };
+
+    return (
+      <button className='swap-button' onClick={loginWithWallet}>
+        Click Here
+      </button>
+    );
+  }
 
   // fetch and format user tokens in wallet api call
   /*   const fetchTokens = async () => {
@@ -115,6 +158,7 @@ export const BlockchainProvider = ({children}) => {
     }; */
 
   const fetchWalletTokensAndFormat = async (tokensDB) => {
+    if (!authToken) return;
     const tokensDbLength = Object.keys(tokensDB).length;
 
     try {
@@ -122,7 +166,9 @@ export const BlockchainProvider = ({children}) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
         },
+
         body: JSON.stringify({chain_id, account}),
       });
 
@@ -175,9 +221,18 @@ export const BlockchainProvider = ({children}) => {
   useEffect(() => {
     //  if (!account) return;
     // Define the asynchronous function inside useEffect
+    if (!authToken) return;
     const fetchTokens = async () => {
       try {
-        const res = await fetch('/api/tokens');
+        const res = await fetch('/api/tokens', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
+          },
+
+          body: JSON.stringify({chain_id, account}),
+        });
         const tokensDB = await res.json();
         const walletTokens = await fetchWalletTokensAndFormat(tokensDB);
         setEthTokens(walletTokens);
@@ -194,7 +249,7 @@ export const BlockchainProvider = ({children}) => {
     if (ETH_TOKENS && Object.keys(ETH_TOKENS).length > 0) {
       setAllTokens(mergeTokens(chain_id, ETH_TOKENS));
     }
-  }, [chain_id, ETH_TOKENS, account]);
+  }, [chain_id, ETH_TOKENS, account, authToken]);
 
   useEffect(() => {
     const setupProvider = async () => {
@@ -220,10 +275,9 @@ export const BlockchainProvider = ({children}) => {
 
     setupProvider(); // Call the async function
   }, [walletProvider, account, chain_id]);
-
-  // const signer = await provider.getSigner()
-
-  // console.log('ALL_TOKENS', ALL_TOKENS);
+  const encryptWalletAddress = (walletAddress, secret) => {
+    return CryptoJS.AES.encrypt(walletAddress, secret).toString();
+  };
 
   const dollarRef = useRef(ALL_TOKENS);
 
@@ -235,16 +289,20 @@ export const BlockchainProvider = ({children}) => {
   const ethDollarPrice = useRef('');
 
   const fetchNewBlockNumber = async () => {
-    if (!providerHTTP) return;
+    if (!account || !authToken) {
+      console.log('!account || !authToken');
+      return;
+    }
     if (selectedNetworkId !== chain_id) {
       /*       console.log(
         '(selectedNetworkId !== chain_id)',
         selectedNetworkId !== chain_id
       ); */
     }
+    let amounts = [];
 
     try {
-      const blockNumber = await providerHTTP.getBlockNumber();
+      const blockNumber = await fetchBlockNumber(chain_id);
       //   console.log('blockNumber', blockNumber);
 
       if (blockNumberRef.current !== blockNumber) {
@@ -253,13 +311,34 @@ export const BlockchainProvider = ({children}) => {
       const amountIn = ethers.parseEther('1');
 
       const path = [wethAddress, usdcAddress];
-      const routerContract = new ethers.Contract(
-        uniswapRouterAddress,
-        uniswapRouterABI,
-        providerHTTP
-      );
 
-      const amounts = await routerContract.getAmountsOut(amountIn, path);
+      try {
+        // Make the POST request to the backend API
+        const response = await fetch('/api/rpc-call/get-amounts-out', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chain_id, // Chain ID (e.g., Ethereum Mainnet = 1)
+            amountIn: amountIn.toString(), // Convert BigInt to string before sending
+            path, // Path of token addresses
+            uniswapRouterAddress, // Uniswap Router Address
+          }),
+        });
+
+        const data = await response.json(); // Parse the response data
+
+        if (response.ok) {
+          amounts = data.amounts; // Log the amounts array from the response
+          console.log('Swap amounts:', data.amounts); // Log the amounts array from the response
+        } else {
+          console.error('Error:', data.error); // Handle error if any
+        }
+      } catch (error) {
+        console.error('Error fetching swap amounts:', error); // Catch any fetch errors
+      }
+
       await delay();
       let ethPriceInUsdc = amounts[1];
       ethPriceInUsdc = ethers.formatUnits(ethPriceInUsdc, 6);
@@ -288,7 +367,7 @@ export const BlockchainProvider = ({children}) => {
     return () => {
       stopPolling();
     };
-  }, [providerHTTP, chain_id]);
+  }, [chain_id]);
 
   const savedPriorityGas = useRef(30);
   const savedSlippage = useRef(7);
@@ -338,8 +417,12 @@ export const BlockchainProvider = ({children}) => {
           return {
             key,
             data: {
-              dollarValue: balanceData.dollarValue || '',
-              balance: balanceData.balance || '',
+              dollarValue:
+                Number(balanceData.dollarValue) < 1
+                  ? ''
+                  : balanceData.dollarValue,
+              balance:
+                Number(balanceData.dollarValue) < 1 ? '' : balanceData.balance,
               symbol: ALL_TOKENS[key].symbol,
               is_partner: ALL_TOKENS[key].is_partner,
               chain_id: ALL_TOKENS[key].chain_id,
@@ -352,6 +435,7 @@ export const BlockchainProvider = ({children}) => {
         });
 
       const results = await Promise.all(tokenPromises);
+      console.log('results', results);
       const updatedDollarRef = results.reduce((acc, {key, data}) => {
         acc[key] = data;
         return acc;
@@ -388,17 +472,48 @@ export const BlockchainProvider = ({children}) => {
           let balance;
 
           if (Token.symbol === 'WETH') {
-            const wethContract = new ethers.Contract(
-              wethAddress,
-              wethABI,
-              providerHTTP
-            );
-            balance = await wethContract.balanceOf(account);
+            try {
+              const response = await fetch('/api/rpc-call/get-weth-balance', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({chain_id, account, wethAddress}),
+              });
+
+              const data = await response.json();
+              if (response.ok) {
+                console.log('WETH Balance:', data.balance);
+                balance = data.balance; // Return the balance for display or further use
+              } else {
+                console.error('Error:', data.error);
+              }
+            } catch (error) {
+              console.error('Failed to fetch WETH balance:', error);
+            }
             if (balance === 0) {
               return;
             }
           } else if (Token.symbol === 'ETH') {
-            balance = await providerHTTP.getBalance(account);
+            try {
+              const response = await fetch('/api/rpc-call/get-balance', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({chain_id, account}),
+              });
+
+              const data = await response.json();
+              if (response.ok) {
+                console.log('Balance:', data.balance);
+                balance = data.balance; // Return the balance for display or further use
+              } else {
+                console.error('Error:', data.error);
+              }
+            } catch (error) {
+              console.error('Failed to fetch balance:', error);
+            }
           }
           balance = ethers.formatEther(balance);
           balance = Number(balance);
@@ -425,12 +540,29 @@ export const BlockchainProvider = ({children}) => {
           ethPrice = totalValue;
         }
       } else {
-        let token = new ethers.Contract(Token.address, erc20Abi, providerHTTP);
-
         let tokenBalance;
 
         if (isTokenList) {
-          tokenBalance = await token.balanceOf(account);
+          const tokenAddress = Token.address;
+          try {
+            const response = await fetch('/api/rpc-call/get-token-balance', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({chain_id, account, tokenAddress}),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+              console.log('Token Balance:', data.tokenBalance);
+              tokenBalance = data.tokenBalance; // Return the balance for display or further use
+            } else {
+              console.error('Error:', data.error);
+            }
+          } catch (error) {
+            console.error('Failed to fetch token balance:', error);
+          }
         } else {
           if (isOutputToken) {
             tokenBalance = savedOutputAmount.current;
@@ -438,7 +570,7 @@ export const BlockchainProvider = ({children}) => {
             tokenBalance = savedInputAmount.current;
           }
           tokenBalance = tokenBalance != null ? tokenBalance : 0;
-          if (tokenBalance === 0n) {
+          if (tokenBalance === 0n || tokenBalance == undefined) {
             return;
           }
 
@@ -446,17 +578,49 @@ export const BlockchainProvider = ({children}) => {
           //    console.log(tokenBalance, 'Token Balance');
 
           tokenBalance = ethers.parseUnits(tokenBalance, Token.decimals);
-          //    console.log(tokenBalance.toString(), 'Token Balance');
+          console.log(tokenBalance.toString(), 'Token Balance');
         }
 
         const path = [Token.address, wethAddress];
-        const routerContract = new ethers.Contract(
-          uniswapRouterAddress,
-          uniswapRouterABI,
-          providerHTTP
-        );
-        let amountOut;
-        amountOut = await routerContract.getAmountsOut(tokenBalance, path);
+        if (
+          tokenBalance === 0n ||
+          tokenBalance == undefined ||
+          tokenBalance == 0 ||
+          tokenBalance == '0'
+        ) {
+          let balanceData = {
+            balance: 0,
+            dollarValue: 0,
+          };
+
+          return balanceData;
+        }
+        let amountOut = [];
+        try {
+          const response = await fetch('/api/rpc-call/get-amounts-out', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chain_id, // Chain ID (e.g., Ethereum Mainnet = 1)
+              amountIn: tokenBalance.toString(), // Convert BigInt to string before sending:
+              path, // Path of token addresses
+              uniswapRouterAddress, // Uniswap router address
+            }),
+          });
+
+          const data = await response.json(); // Parse the response data
+
+          if (response.ok) {
+            amountOut = data.amounts;
+          } else {
+            console.error('Error:', data.error); // Handle error if any
+          }
+        } catch (error) {
+          console.error('Error fetching swap amounts:', error); // Catch any fetch errors
+        }
+
         formattedBalance = ethers.formatUnits(tokenBalance, Token.decimals);
         formattedBalance = Number(formattedBalance).toFixed(3);
         let ethOut = amountOut[1];
@@ -483,6 +647,8 @@ export const BlockchainProvider = ({children}) => {
   return (
     <BlockchainContext.Provider
       value={{
+        AuthButton,
+        authToken,
         limit,
         saverInputAmount,
         chain_id,
@@ -503,7 +669,6 @@ export const BlockchainProvider = ({children}) => {
         tokenListOpenRef,
         ALL_TOKENS,
         ETH_TOKENS,
-        providerHTTP,
       }}>
       {children}
     </BlockchainContext.Provider>
