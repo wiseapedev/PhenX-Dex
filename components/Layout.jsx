@@ -6,28 +6,16 @@ import NavBar from './NavBar';
 import FooterBar from './Footer';
 
 const SwapNoSSR = dynamic(() => import('./Swap'), {
-  ssr: false, // This will disable server-side rendering for the Swap component
+  ssr: false, // Disable server-side rendering for the Swap component
 });
 
 const Layout = ({buyLink, buyLinkKey}) => {
   const {chain_id, ETH_TOKENS, ALL_TOKENS, account, AuthButton, authToken} =
     useContext(BlockchainContext);
   const [tokensReady, setTokensReady] = useState(false);
-  const [stateChanged, setStateChanged] = useState(1);
 
-  // Polling logic for account and authToken every 5 seconds
-  /*   useEffect(() => {
-    const interval = setInterval(() => {
-      if (account && authToken) {
-        setStateChanged((prev) => prev + 1);
-      }
-    }, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(interval); // Clear interval on unmount
-  }, [account, authToken]);
-
- */ useEffect(() => {
-    setTokensReady(false);
+  useEffect(() => {
+    setTokensReady(false); // Reset tokensReady on chain_id change
   }, [chain_id]);
 
   useEffect(() => {
@@ -38,46 +26,42 @@ const Layout = ({buyLink, buyLinkKey}) => {
       Object.keys(ALL_TOKENS).length > 0 &&
       authToken
     ) {
-      setTimeout(() => {
-        setTokensReady(true);
-      }, 500);
+      setTimeout(() => setTokensReady(true), 500); // Small delay for smooth rendering
     }
   }, [ETH_TOKENS, ALL_TOKENS, chain_id, authToken, account]);
 
   const memoNavBar = useMemo(() => <NavBar />, [account]);
 
-  if (!account) {
-    return (
-      <div className='load-container'>
-        {memoNavBar}
-        <div className='bg' />
-        <div className='wrong-network-container'>
-          <div className='wrong-network-text'>Please connect your wallet</div>
-        </div>
-        <div className='main-container'></div>
-        <FooterBar />
-      </div>
-    );
-  } else if (!authToken && account) {
-    return (
-      <div className='load-container'>
-        {memoNavBar}
-        <div className='bg' />
-        <div className='wrong-network-container'>
-          <div className='wrong-network-text'>
-            Please sign a message to prove wallet ownership
-            <AuthButton />
-          </div>
-        </div>
-        <div className='main-container'></div>
-        <FooterBar />
-      </div>
-    );
-  }
-
   return (
     <>
-      {tokensReady ? (
+      <div className='bg' />
+      {!account && (
+        <div className='load-container'>
+          <NavBar />
+          <div className='wrong-network-container'>
+            <div className='wrong-network-text'>Please connect your wallet</div>
+          </div>
+          <div className='main-container'></div>
+          <FooterBar />
+        </div>
+      )}
+
+      {account && !authToken && (
+        <div className='load-container'>
+          <NavBar />
+
+          <div className='wrong-network-container'>
+            <div className='wrong-network-text'>
+              Please sign a message to prove wallet ownership
+              <AuthButton />
+            </div>
+          </div>
+          <div className='main-container'></div>
+          <FooterBar />
+        </div>
+      )}
+
+      {account && authToken && tokensReady ? (
         <SwapNoSSR
           buyLink={buyLink}
           buyLinkKey={buyLinkKey}
@@ -85,9 +69,11 @@ const Layout = ({buyLink, buyLinkKey}) => {
           key={chain_id}
         />
       ) : (
-        <div className='load-container'>
-          {memoNavBar}
-          <div className='bg'>
+        account &&
+        authToken && (
+          <div className='load-container'>
+            <NavBar />
+
             <div className='loader loader11'>
               <div></div>
               <div></div>
@@ -95,9 +81,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
               <div></div>
             </div>
           </div>
-          <div className='main-container'></div>
-          <FooterBar />
-        </div>
+        )
       )}
     </>
   );

@@ -6,7 +6,10 @@
 
 html,
 body {
-  background: linear-gradient(rgb(19, 19, 19) 0%, rgb(19, 19, 19) 100%);
+  /*   background: linear-gradient(rgb(19, 19, 19) 0%, rgb(19, 19, 19) 100%);
+ */
+
+  background: #151617;
   padding: 0;
   margin: 0;
   font-family: 'Inter';
@@ -266,7 +269,7 @@ input:focus {
 
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   margin: 0;
   padding: 0;

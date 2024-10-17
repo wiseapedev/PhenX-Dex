@@ -414,6 +414,17 @@ export const BlockchainProvider = ({children}) => {
         .map(async (key) => {
           const balanceData = await getDollarValue(ALL_TOKENS[key]);
           await delay();
+
+          async function delay2() {
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                resolve();
+              }, 500);
+            });
+          }
+          await delay2();
+
+          await delay();
           return {
             key,
             data: {
