@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit';
 // Create a rate limiter to prevent excessive requests by IP and wallet address
 const walletRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1-minute window
-  max: 10, // limit each wallet and IP to 10 requests per minute
+  max: 20, // limit each wallet and IP to 10 requests per minute
   keyGenerator: (req, res) => {
     // Use both wallet address and IP for rate limiting
     return `${req.walletAddress || ''}:${req.ip}`; // combine wallet address and IP

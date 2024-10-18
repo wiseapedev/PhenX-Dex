@@ -2,7 +2,8 @@ async function getUniswapQuoteV3(
   tokenIn,
   tokenOut,
   parsedSellAmount,
-  chain_id
+  chain_id,
+  authToken
 ) {
   try {
     if (!tokenIn || !tokenOut || !parsedSellAmount || !chain_id) {
@@ -13,6 +14,7 @@ async function getUniswapQuoteV3(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`, // Pass authToken dynamically if needed
       },
       body: JSON.stringify({
         tokenIn,

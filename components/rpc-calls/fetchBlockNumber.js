@@ -1,4 +1,4 @@
-async function fetchBlockNumber(chain_id) {
+async function fetchBlockNumber(chain_id, authToken) {
   try {
     if (!chain_id) {
       //  console.error('Invalid or missing parameters for block number');
@@ -8,6 +8,7 @@ async function fetchBlockNumber(chain_id) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`, // Pass auth token dynamically
       },
       body: JSON.stringify({chain_id}), // Pass chain_id dynamically
     });

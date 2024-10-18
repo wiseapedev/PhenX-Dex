@@ -302,7 +302,7 @@ export const BlockchainProvider = ({children}) => {
     let amounts = [];
 
     try {
-      const blockNumber = await fetchBlockNumber(chain_id);
+      const blockNumber = await fetchBlockNumber(chain_id, authToken);
       //   console.log('blockNumber', blockNumber);
 
       if (blockNumberRef.current !== blockNumber) {
@@ -318,6 +318,7 @@ export const BlockchainProvider = ({children}) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
           },
           body: JSON.stringify({
             chain_id, // Chain ID (e.g., Ethereum Mainnet = 1)
@@ -488,6 +489,7 @@ export const BlockchainProvider = ({children}) => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
+                  Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
                 },
                 body: JSON.stringify({chain_id, account, wethAddress}),
               });
@@ -511,6 +513,7 @@ export const BlockchainProvider = ({children}) => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
+                  Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
                 },
                 body: JSON.stringify({chain_id, account}),
               });
@@ -560,6 +563,7 @@ export const BlockchainProvider = ({children}) => {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
               },
               body: JSON.stringify({chain_id, account, tokenAddress}),
             });
@@ -612,6 +616,7 @@ export const BlockchainProvider = ({children}) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
             },
             body: JSON.stringify({
               chain_id, // Chain ID (e.g., Ethereum Mainnet = 1)

@@ -29,6 +29,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
     chain_id,
     account,
     saverInputAmount,
+    authToken,
   } = useContext(BlockchainContext);
 
   const wethAddress = CHAINS[chain_id].wethAddress;
@@ -73,6 +74,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
+                  Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
                 },
                 body: JSON.stringify({chain_id, account, wethAddress}),
               });
@@ -96,6 +98,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
+                  Authorization: `Bearer ${authToken}`,
                 },
                 body: JSON.stringify({chain_id, account}),
               });
@@ -146,7 +149,8 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
           tokenBalance = await getTokenBalance(
             chain_id,
             account,
-            Token.address
+            Token.address,
+            authToken
           );
         } else {
           if (isOutputToken) {
@@ -173,7 +177,8 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
             chain_id,
             tokenBalance,
             path,
-            uniswapRouterAddress
+            uniswapRouterAddress,
+            authToken
           );
         } catch (error) {}
         try {
@@ -187,7 +192,8 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
             path[0],
             path[1],
             tokenBalance,
-            chain_id
+            chain_id,
+            authToken
           );
         } catch (error) {}
 

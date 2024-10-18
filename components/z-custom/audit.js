@@ -37,28 +37,68 @@ const CloseIcon = () => {
   return '';
 };
 function Audit({contractAddress, provider, chain_id, authToken}) {
-  const handleClick = () => {
-    alert('Coming soon');
-  };
+  const [scanMessage, setScanMessage] = useState(null);
 
   async function scanContract(contractAddress) {
     try {
-      if (isTest == true) {
+      const response = await fetch('/api/rpc-call/scan-contract', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
+        },
+        body: JSON.stringify({contractAddress, chain_id}), // Ensure chain_id is available
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return data.result; // Ensure data.result exists in the backend response
+      } else {
+        console.error('Error scanning contract:', data.error);
         return null;
       }
-      const response = await provider.send('gp_tokenSecurity', [
-        contractAddress,
-      ]);
-      const result = response[contractAddress.toLowerCase()];
-      if (result === undefined) {
-        return null;
-      }
-      return result;
     } catch (error) {
+      console.error('Failed to scan contract:', error);
       return null;
     }
   }
-  const [scanMessage, setScanMessage] = useState(null);
+
+  async function handleScan(contractAddress, attempts = 5, delay = 2000) {
+    try {
+      if (contractAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+        contractAddress = '0xce3ee7435a5bedbe73b92f39828b0cfd9d0ff568';
+      }
+      const data = await scanContract(contractAddress);
+      const scanMessage = await getMessage(data);
+      if (scanMessage === null) {
+        throw new Error('Error in getMessage');
+      }
+      setScanMessage(scanMessage);
+    } catch (error) {
+      console.error('Error in handleScan:', error.message);
+      if (attempts > 0) {
+        console.log(
+          `Retrying in ${delay / 1000} seconds... attempts left: ${attempts}`
+        );
+        setTimeout(
+          () => handleScan(contractAddress, attempts - 1, delay * 2),
+          delay
+        );
+      } else {
+        console.error('Max retry attempts reached. Stopping retries.');
+        setScanMessage(
+          'Failed to scan after multiple attempts. Please try again later.'
+        );
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (contractAddress) {
+      handleScan(contractAddress);
+    }
+  }, [contractAddress]);
 
   async function getMessage(data, contractAddress) {
     let message = null;
@@ -273,38 +313,6 @@ function Audit({contractAddress, provider, chain_id, authToken}) {
 
     return message;
   }
-
-  async function handleScan(contractAddress, attempts = 10) {
-    if (isTest == true) {
-      return null;
-    }
-    try {
-      if (contractAddress === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
-        contractAddress = '0xce3ee7435a5bedbe73b92f39828b0cfd9d0ff568';
-      }
-      const data = await scanContract(contractAddress);
-      const scanMessage = await getMessage(data);
-      if (scanMessage === null) {
-        throw new Error('Error in getMessage');
-      }
-      setScanMessage(scanMessage);
-    } catch (error) {
-      console.error('Error in handleScan:');
-      if (attempts > 0) {
-        setTimeout(() => handleScan(contractAddress, attempts - 1), 2000); // Retry after 2 seconds
-      } else {
-        console.error('Max retry attempts reached.');
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (contractAddress) {
-      handleScan(contractAddress);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contractAddress]);
-
   function FullAudit({contractAddress, provider}) {
     const [showFullAudit, setShowFullAudit] = useState(null);
     const [data, setData] = useState(<div className='loader'></div>);

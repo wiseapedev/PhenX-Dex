@@ -1,6 +1,6 @@
 // pages/api/rpc-call/get-amount-out2.js
 import {ethers} from 'ethers';
-import {throttleRateLimiter} from './throttleRateLimiter';
+import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
 import uniswapRouterABI from './abis/UniswapRouter.json';
 
 // Define a mapping of chain IDs to their corresponding RPC URLs
@@ -11,28 +11,37 @@ const RPC_URLS = {
 };
 
 export default async function handler(req, res) {
-  await throttleRateLimiter(req, res, async () => {
-    const {
-      chain_id,
-      tokenAddress,
-      wethAddress,
-      tokenBalance,
-      uniswapRouterAddress,
-    } = req.body;
-
-    // Validate request parameters
-    if (
-      !chain_id ||
-      !RPC_URLS[chain_id] ||
-      !tokenAddress ||
-      !wethAddress ||
-      !tokenBalance ||
-      !uniswapRouterAddress
-    ) {
-      return res.status(400).json({error: 'Invalid or missing parameters'});
-    }
+  await rpcAuthMiddleware(req, res, async () => {
+    const middlewarePromise = new Promise((resolve, reject) => {
+      rpcAuthMiddleware(req, res, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
 
     try {
+      await middlewarePromise;
+
+      const {
+        chain_id,
+        tokenAddress,
+        wethAddress,
+        tokenBalance,
+        uniswapRouterAddress,
+      } = req.body;
+
+      // Validate request parameters
+      if (
+        !chain_id ||
+        !RPC_URLS[chain_id] ||
+        !tokenAddress ||
+        !wethAddress ||
+        !tokenBalance ||
+        !uniswapRouterAddress
+      ) {
+        return res.status(400).json({error: 'Invalid or missing parameters'});
+      }
+
       // Create a provider based on the chain_id
       const provider = new ethers.JsonRpcProvider(RPC_URLS[chain_id]);
 

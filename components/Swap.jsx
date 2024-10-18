@@ -274,6 +274,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
               },
               body: JSON.stringify({chain_id, account}),
             });
@@ -294,6 +295,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
               },
               body: JSON.stringify({chain_id, account, tokenAddress}),
             });
@@ -819,7 +821,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             return;
           }
 
-          const blockNumber = await fetchBlockNumber(chain_id);
+          const blockNumber = await fetchBlockNumber(chain_id, authToken);
 
           if (blockNumberRef.current !== blockNumber) {
             /*             console.log('✅✅✅ New block number:', blockNumber);
@@ -948,6 +950,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
                       },
                       body: JSON.stringify({
                         chain_id,
@@ -983,7 +986,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
                   parsedSellAmount,
-                  chain_id
+                  chain_id,
+                  authToken
                 );
 
                 console.log('V3 Quote:', v3Quote);
@@ -1030,7 +1034,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   chain_id,
                   parsedSellAmount,
                   apiPath,
-                  uniswapRouterAddress
+                  uniswapRouterAddress,
+                  authToken
                 );
                 v2Quote = amountsOutV2[1]; // Assuming the result is the output amount of interest
                 console.log('V2 Quote:', v2Quote);
@@ -1051,7 +1056,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
                   parsedSellAmount,
-                  chain_id
+                  chain_id,
+                  authToken
                 );
                 console.log('V3 Quote:', v3Quote);
               } catch (error) {
@@ -1113,7 +1119,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   chain_id,
                   parsedSellAmount,
                   pathV2,
-                  uniswapRouterAddress
+                  uniswapRouterAddress,
+                  authToken
                 );
                 v2Quote = amountsOutV2[amountsOutV2.length - 1]; // Assuming last amount is the output
                 console.log('V2 Quote:', v2Quote);
@@ -1133,7 +1140,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   String(pathV3.tokenIn),
                   String(pathV3.tokenOut),
                   parsedSellAmount,
-                  chain_id
+                  chain_id,
+                  authToken
                 );
                 v3Quote = directV3Quote.amountOut;
                 v3QuoteFee = directV3Quote.fee;
@@ -1155,7 +1163,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   chain_id,
                   parsedSellAmount,
                   pathV2ToV3,
-                  uniswapRouterAddress
+                  uniswapRouterAddress,
+                  authToken
                 );
                 /*       const v2ToV3 = await getQuoteV3(
                   wethAddress,
@@ -1167,7 +1176,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
                   amountsOutV2ToV3[1],
-                  chain_id
+                  chain_id,
+                  authToken
                 );
                 v2ToV3Quote = v2ToV3.amountOut;
                 v3QuoteFee = v2ToV3.fee;
@@ -1186,7 +1196,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
                   parsedSellAmount,
-                  chain_id
+                  chain_id,
+                  authToken
                 );
                 v3QuoteFee = v3ToV2.fee;
                 /*                 const amountsOutV3ToV2 = await routerContract.getAmountsOut(
@@ -1199,7 +1210,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   chain_id,
                   v3ToV2.amountOut,
                   pathV3ToV2,
-                  uniswapRouterAddress
+                  uniswapRouterAddress,
+                  authToken
                 );
                 v3ToV2Quote = amountsOutV3ToV2[1];
                 console.log('V3 to V2 Quote:', v3ToV2Quote);
@@ -1223,9 +1235,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
               let bestQuote = quotes.reduce((max, quote) => {
                 if (quote > max) {
                   console.log(`New best quote found: ${quote}`);
-                  return quote;
+                  return BigInt(quote);
                 }
-                return max;
+                return BigInt(max);
               }, BigInt(0));
 
               console.log(
@@ -1237,9 +1249,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
               const bestDirectQuote = directQuotes.reduce((max, quote) => {
                 if (quote > max) {
                   console.log(`New best direct quote found: ${quote}`);
-                  return quote;
+                  return BigInt(quote);
                 }
-                return max;
+                return BigInt(max);
               }, BigInt(0));
 
               console.log(
@@ -1269,10 +1281,23 @@ const Swap = ({buyLink, buyLinkKey}) => {
               }
 
               // Update flags based on the final selected best quote
-              const isV3Only = [v3Quote].includes(bestQuote);
+              /*        const isV3Only = [v3Quote].includes(bestQuote);
               const isV2Only = [v2Quote].includes(bestQuote);
               const isV2ToV3 = [v2ToV3Quote].includes(bestQuote);
-              const isV3ToV2 = [v3ToV2Quote].includes(bestQuote);
+              const isV3ToV2 = [v3ToV2Quote].includes(bestQuote); */
+              v3Quote = v3Quote ? BigInt(v3Quote) : null;
+              v2Quote = v2Quote ? BigInt(v2Quote) : null;
+              v2ToV3Quote = v2ToV3Quote ? BigInt(v2ToV3Quote) : null;
+              v3ToV2Quote = v3ToV2Quote ? BigInt(v3ToV2Quote) : null;
+              const isV3Only = v3Quote !== null && bestQuote === v3Quote;
+              const isV2Only = v2Quote !== null && bestQuote === v2Quote;
+              const isV2ToV3 =
+                v2ToV3Quote !== null && bestQuote === v2ToV3Quote;
+              const isV3ToV2 =
+                v3ToV2Quote !== null && bestQuote === v3ToV2Quote;
+              console.log('Best quote:', bestQuote, typeof bestQuote);
+              console.log('v2Quote:', v2Quote, typeof v2Quote);
+              console.log('v3Quote:', v3Quote, typeof v3Quote);
 
               // Extract the fee if the final best quote is from a V3 route
               const fee = isV3Only ? v3QuoteFee : 0;
@@ -1527,6 +1552,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
                       },
                       body: JSON.stringify({chain_id, account}),
                     });
@@ -1559,6 +1585,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
+                          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
                         },
                         body: JSON.stringify({chain_id, account, tokenAddress}),
                       }
@@ -1619,7 +1646,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
+                          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
                         },
+
                         body: JSON.stringify({chain_id}),
                       }
                     );
@@ -1709,6 +1738,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
                       },
                       body: JSON.stringify({chain_id}),
                     });
@@ -2264,6 +2294,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
             },
             body: JSON.stringify({chain_id, tokenAddress}),
           });
@@ -2363,7 +2394,13 @@ const Swap = ({buyLink, buyLinkKey}) => {
   const memoNavBar = useMemo(() => <NavBar />, [account]);
 
   const memoAudits = useMemo(
-    () => <Audit contractAddress={chartTokenAddress} authToken={authToken} />,
+    () => (
+      <Audit
+        contractAddress={chartTokenAddress}
+        authToken={authToken}
+        chain_id={chain_id}
+      />
+    ),
     [chartTokenAddress, showAudits]
   );
   const memoCharts = useMemo(

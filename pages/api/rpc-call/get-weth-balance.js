@@ -1,7 +1,7 @@
 // pages/api/rpc-call/get-weth-balance.js
 import {ethers} from 'ethers';
 import wethABI from './abis/wethABI.json';
-import {throttleRateLimiter} from './throttleRateLimiter'; // If you are rate-limiting requests
+import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
 
 // Define a mapping of chain IDs to their corresponding RPC URLs
 const RPC_URLS = {
@@ -11,7 +11,14 @@ const RPC_URLS = {
 };
 
 export default async function handler(req, res) {
-  await throttleRateLimiter(req, res, async () => {
+  const middlewarePromise = new Promise((resolve, reject) => {
+    rpcAuthMiddleware(req, res, (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+  try {
+    await middlewarePromise; // Ensure middleware completes successfully
     const {chain_id, account, wethAddress} = req.body;
 
     // Validate request parameters
@@ -19,21 +26,19 @@ export default async function handler(req, res) {
       return res.status(400).json({error: 'Invalid or missing parameters'});
     }
 
-    try {
-      // Create a provider based on the chain_id
-      const provider = new ethers.JsonRpcProvider(RPC_URLS[chain_id]);
+    // Create a provider based on the chain_id
+    const provider = new ethers.JsonRpcProvider(RPC_URLS[chain_id]);
 
-      // Create a contract instance for the WETH token
-      const wethContract = new ethers.Contract(wethAddress, wethABI, provider);
+    // Create a contract instance for the WETH token
+    const wethContract = new ethers.Contract(wethAddress, wethABI, provider);
 
-      // Fetch the balance for the given account
-      const balance = await wethContract.balanceOf(account);
+    // Fetch the balance for the given account
+    const balance = await wethContract.balanceOf(account);
 
-      // Return the balance in a human-readable format (convert from Wei)
-      res.status(200).json({balance: balance.toString()});
-    } catch (error) {
-      console.error('Error fetching WETH balance:', error);
-      res.status(500).json({error: 'Failed to fetch WETH balance'});
-    }
-  });
+    // Return the balance in a human-readable format (convert from Wei)
+    res.status(200).json({balance: balance.toString()});
+  } catch (error) {
+    console.error('Error fetching WETH balance:', error);
+    res.status(500).json({error: 'Failed to fetch WETH balance'});
+  }
 }

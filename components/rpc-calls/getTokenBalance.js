@@ -1,4 +1,4 @@
-async function getTokenBalance(chain_id, account, tokenAddress) {
+async function getTokenBalance(chain_id, account, tokenAddress, authToken) {
   try {
     if (!chain_id || !account || !tokenAddress) {
       //  console.error('Invalid or missing parameters for token balance');
@@ -8,6 +8,7 @@ async function getTokenBalance(chain_id, account, tokenAddress) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
       },
       body: JSON.stringify({chain_id, account, tokenAddress}),
     });

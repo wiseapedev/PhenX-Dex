@@ -1,4 +1,10 @@
-async function getAmountOutV2(chain_id, amountIn, path, uniswapRouterAddress) {
+async function getAmountOutV2(
+  chain_id,
+  amountIn,
+  path,
+  uniswapRouterAddress,
+  authToken
+) {
   try {
     if (!amountIn || !path || !uniswapRouterAddress) {
       return null;
@@ -8,6 +14,7 @@ async function getAmountOutV2(chain_id, amountIn, path, uniswapRouterAddress) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
       },
       body: JSON.stringify({
         chain_id, // Chain ID (e.g., Ethereum Mainnet = 1)
