@@ -936,19 +936,12 @@ const Swap = ({buyLink, buyLinkKey}) => {
               let v2Quote = null;
               let v3Quote = null;
 
-              // Try to fetch Uniswap V2 quote
+              // Fetch V2 Quote
               try {
-                /*          const amountsOutV2 = await routerContract.getAmountsOut(
-                  parsedSellAmount,
-                  [wethAddress, ALL_TOKENS[buyToken].address]
-                ); */
-
                 let amountsOutV2;
 
                 try {
                   const apiPath = [wethAddress, ALL_TOKENS[buyToken].address];
-
-                  // Make the POST request to the backend API
                   const response = await fetch(
                     '/api/rpc-call/get-amounts-out',
                     {
@@ -957,41 +950,35 @@ const Swap = ({buyLink, buyLinkKey}) => {
                         'Content-Type': 'application/json',
                       },
                       body: JSON.stringify({
-                        chain_id, // Chain ID (e.g., Ethereum Mainnet = 1)
-                        amountIn: parsedSellAmount.toString(), // Convert BigInt to string before sending
-                        path: apiPath, // Token addresses array
-                        uniswapRouterAddress, // Uniswap Router Address
+                        chain_id,
+                        amountIn: parsedSellAmount.toString(),
+                        path: apiPath,
+                        uniswapRouterAddress,
                       }),
                     }
                   );
 
-                  const data = await response.json(); // Parse the response data
+                  const data = await response.json();
 
                   if (response.ok) {
-                    amountsOutV2 = data.amounts; // Assign the amounts array from the response
-                    console.log('Swap amounts:', data.amounts); // Log the amounts array from the response
+                    amountsOutV2 = data.amounts;
+                    v2Quote = amountsOutV2[1];
+                    console.log('V2 Quote:', v2Quote);
                   } else {
-                    console.error('Error:', data.error); // Handle error if any
+                    console.error('Error with V2 quote:', data.error);
+                    v2Quote = null; // Explicitly set to null instead of false
                   }
                 } catch (error) {
-                  console.error('Error fetching swap amounts:', error); // Catch any fetch errors
+                  console.error('Error fetching V2 quote:', error);
+                  v2Quote = null; // Explicitly set to null instead of false
                 }
-
-                v2Quote = amountsOutV2[1]; // Assuming the result is in the second position
-                console.log('V2 Quote:', v2Quote);
               } catch (error) {
                 console.error('Fetching V2 quote failed:', error);
-                // Optionally handle specific actions if V2 fails, e.g., logging or fallback strategies
               }
 
-              // Try to fetch Uniswap V3 quote
+              // Ensure we always attempt to fetch V3 Quote, even if V2 failed
               try {
-                /*                v3Quote = await getQuoteV3(
-                  wethAddress,
-                  ALL_TOKENS[buyToken].address,
-                  parsedSellAmount,
-                  chain_id
-                ); */
+                console.log('Attempting to fetch V3 quote');
                 v3Quote = await getUniswapQuoteV3(
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
@@ -1002,9 +989,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 console.log('V3 Quote:', v3Quote);
               } catch (error) {
                 console.error('Fetching V3 quote failed:', error);
-                // Optionally handle specific actions if V3 fails, e.g., logging or fallback strategies
               }
 
+              // Decide best quote between V2 and V3
               if (v2Quote && v3Quote) {
                 return v2Quote > v3Quote.amountOut
                   ? {bestQuote: v2Quote, isV3Only: false}
@@ -1023,11 +1010,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   fee: v3Quote.fee,
                 };
               } else {
-                // Handle the case where neither quote is available
                 console.error('No quotes available for ETH to Token swap.');
                 return null; // Indicate failure to fetch any quotes
               }
             };
+
             const getTokenToEthBestQuote = async () => {
               let v2Quote = null;
               let v3Quote = null;
