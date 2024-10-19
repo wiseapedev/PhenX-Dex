@@ -133,15 +133,15 @@ function Audit({contractAddress, provider, chain_id, authToken}) {
               const lockDetails = holder.locked_detail[0];
               lpLockInfo.push(
                 <div key={holder.tag}>
-                  <div className='quote-line'>
+                  <div className='swap-fee-item'>
                     <div className='quote-content'>Liquidity Location:</div>
                     <div className='quote-content'> {holder.tag}</div>
                   </div>
-                  <div className='quote-line'>
+                  <div className='swap-fee-item'>
                     <div className='quote-content'>Liquidity % Locked:</div>
                     <div className='quote-content'> {lockedPercent}</div>
                   </div>
-                  <div className='quote-line'>
+                  <div className='swap-fee-item'>
                     <div className='quote-content'>Liquidity Unlock Date:</div>
                     <div className='quote-content'>
                       {' '}

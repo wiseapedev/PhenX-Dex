@@ -69,8 +69,7 @@ function SwapFeeCompare() {
       {/*       <div className='swap-fee-title'>Swap Fee Comparison</div>
        */}{' '}
       <div className='swap-fee-text'>
-        Unlike our competitors, we {"don't"} charge any fees, below are examples
-        of how much you save by using Phenx.
+        Below are examples of how much you save by using Phenx.
       </div>
       <div className='swap-fee-item'>
         <div className='swap-fee-box-left'>

@@ -69,7 +69,6 @@ const Swap = ({buyLink, buyLinkKey}) => {
     ALL_TOKENS,
     chain_id,
     saverInputAmount,
-    limit,
     authToken,
   } = useContext(BlockchainContext);
 
@@ -281,7 +280,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
             const data = await response.json();
             if (response.ok) {
-              console.log('Balance:', data.balance);
+              //    console.log('Balance:', data.balance);
               balance = data.balance; // Return the balance for display or further use
             } else {
               console.error('Error:', data.error);
@@ -302,7 +301,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
             const data = await response.json();
             if (response.ok) {
-              console.log('Token Balance:', data.tokenBalance);
+              //      console.log('Token Balance:', data.tokenBalance);
               balance = data.tokenBalance; // Return the balance for display or further use
             } else {
               console.error('Error:', data.error);
@@ -642,7 +641,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     // While loading, show a loading spinner or placeholder
     if (loading) {
       return (
-        <div className='saver-info-container'>
+        <div className='general-box'>
           <div className='saver-text-container'>
             <div className='saver-text-left'>Aggregation Best Route</div>
             <div className='saver-text-right'></div>
@@ -668,7 +667,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     const totalToSave = networkFeesSaved + swapFeeSaved;
 
     return (
-      <div className='saver-info-container'>
+      <div className='general-box'>
         <div className='saver-text-container'>
           <div className='saver-text-left'>Aggregation Best Route</div>
           <div className='saver-text-right'>{pairRoute}</div>
@@ -2443,10 +2442,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
             '18.75vh';
         }
         if (showChart === true && showAudits === true) {
-          document.querySelector('.main-container').style.paddingTop = '12.5vh';
+          document.querySelector('.main-container').style.paddingTop = '9.5vh';
         }
         if (showChart === true && showAudits === false) {
-          document.querySelector('.main-container').style.paddingTop = '12.5vh';
+          document.querySelector('.main-container').style.paddingTop = '9.5vh';
         }
       } else {
         document.querySelector('.main-container').style.paddingTop = '9.5vh';
@@ -2517,72 +2516,64 @@ const Swap = ({buyLink, buyLinkKey}) => {
     value: '1000000000000000',
   };
   return (
-    <div className='whole-container'>
-      <div className='bg' />
-
-      <div className='main-container'>
-        {/*         <button onClick={() => testSetState()}>test</button>
-         */}{' '}
-        {memoNavBar}
-        <div className='swap-container'>
-          {' '}
-          <SwapSettings
-            setShowChartState={setShowChartState}
-            showChart={showChart}
-            setShowAudits={setShowAudits}
-            showAudits={showAudits}
+    <div className='main-container'>
+      <div className='swap-container'>
+        {' '}
+        <SwapSettings
+          setShowChartState={setShowChartState}
+          showChart={showChart}
+          setShowAudits={setShowAudits}
+          showAudits={showAudits}
+        />
+        {showTokenList === 'sellToken' && (
+          <TokenList
+            ALL_TOKENS={ALL_TOKENS}
+            handleBuyTokenChange={handleBuyTokenChange}
+            handleSellTokenChange={handleSellTokenChange}
+            type='sellToken'
+            handleShowTokenList={handleShowTokenList}
+            key={chain_id}
+            setShowTokenList={setShowTokenList}
+            buyToken={buyToken}
+            sellToken={sellToken}
+            handleContractImport={handleContractImport}
           />
-          {showTokenList === 'sellToken' && (
-            <TokenList
-              ALL_TOKENS={ALL_TOKENS}
-              handleBuyTokenChange={handleBuyTokenChange}
-              handleSellTokenChange={handleSellTokenChange}
-              type='sellToken'
-              handleShowTokenList={handleShowTokenList}
-              key={chain_id}
-              setShowTokenList={setShowTokenList}
-              buyToken={buyToken}
-              sellToken={sellToken}
-              handleContractImport={handleContractImport}
-            />
-          )}
-          {showTokenList === 'buyToken' && (
-            <TokenList
-              ALL_TOKENS={ALL_TOKENS}
-              handleBuyTokenChange={handleBuyTokenChange}
-              handleSellTokenChange={handleSellTokenChange}
-              type='buyToken'
-              handleShowTokenList={handleShowTokenList}
-              key={chain_id}
-              setShowTokenList={setShowTokenList}
-              buyToken={buyToken}
-              sellToken={sellToken}
-              handleContractImport={handleContractImport}
-            />
-          )}
-          <div className='tokens-select-container'>
-            <YouPay
-              setShowTokenList={handleShowTokenList}
-              ALL_TOKENS={ALL_TOKENS}
-              sellTokenDisplayBalance={sellTokenDisplayBalance}
-            />
-            <div className='swap-tokens' onClick={swapTokens}>
-              <img src={'/swap-icon.png'} alt={''} width={34} height={34} />
-            </div>
-            <YouReceive
-              setShowTokenList={handleShowTokenList}
-              ALL_TOKENS={ALL_TOKENS}
-              buyTokenDisplayBalance={buyTokenDisplayBalance}
-            />
-          </div>{' '}
-          {/*           {memoBlockTimer}
-           */}{' '}
-          <QuoteView /> {isETH && showAudits && memoAudits}
-        </div>
-        {!showChart && <SwapFeeCompare />}
-        {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}
+        )}
+        {showTokenList === 'buyToken' && (
+          <TokenList
+            ALL_TOKENS={ALL_TOKENS}
+            handleBuyTokenChange={handleBuyTokenChange}
+            handleSellTokenChange={handleSellTokenChange}
+            type='buyToken'
+            handleShowTokenList={handleShowTokenList}
+            key={chain_id}
+            setShowTokenList={setShowTokenList}
+            buyToken={buyToken}
+            sellToken={sellToken}
+            handleContractImport={handleContractImport}
+          />
+        )}
+        <div className='tokens-select-container'>
+          <YouPay
+            setShowTokenList={handleShowTokenList}
+            ALL_TOKENS={ALL_TOKENS}
+            sellTokenDisplayBalance={sellTokenDisplayBalance}
+          />
+          <div className='swap-tokens' onClick={swapTokens}>
+            <img src={'/swap-icon.png'} alt={''} width={34} height={34} />
+          </div>
+          <YouReceive
+            setShowTokenList={handleShowTokenList}
+            ALL_TOKENS={ALL_TOKENS}
+            buyTokenDisplayBalance={buyTokenDisplayBalance}
+          />
+        </div>{' '}
+        {/*           {memoBlockTimer}
+         */}{' '}
+        <QuoteView /> {isETH && showAudits && memoAudits}
       </div>
-      <FooterBar />
+      {!showChart && <SwapFeeCompare />}
+      {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}
     </div>
   );
 };

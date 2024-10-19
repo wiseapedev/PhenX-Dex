@@ -32,8 +32,9 @@ import {
 // import {useAppKitProvider, useAppKitAccount} from '@reown/appkit/react';
 // import {useAppKitState} from '@reown/appkit/react';
 import fetchBlockNumber from './rpc-calls/fetchBlockNumber';
+import {toast} from 'react-toastify';
 
-import {useWeb3Modal} from '@web3modal/ethers/react';
+import {useDisconnect} from '@web3modal/ethers/react';
 
 import {BrowserProvider, Contract, formatUnits} from 'ethers';
 import Bottleneck from 'bottleneck';
@@ -52,32 +53,104 @@ export const BlockchainProvider = ({children}) => {
   // const {address: account} = useAccount();
   //  const signer = useEthersSigner();
   // const {open, selectedNetworkId} = useAppKitState();
-  const limiter = useRef(
+  /*   const limiter = useRef(
     new Bottleneck({
       maxConcurrent: 1, // Only allow 1 concurrent request
       minTime: 1000, // At least 200ms between requests
     })
   );
-  const limit = (task) => limiter.current.schedule(task);
+  const limit = (task) => limiter.current.schedule(task); */
 
   const [ETH_TOKENS, setEthTokens] = useState({});
   const [ALL_TOKENS, setAllTokens] = useState({});
-  const {address: account, chainId} = useWeb3ModalAccount();
   const [chain_id, setChainId] = useState(1);
 
-  const selectedNetworkId = useMemo(() => chainId, [chainId]);
   const {walletProvider} = useWeb3ModalProvider();
   // const {walletProvider} = useAppKitProvider();
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
-  const [authToken, setAuthToken] = useState(null); // To store the JWT token
+  const {isConnected} = useWeb3ModalAccount();
+  const {disconnect} = useDisconnect();
 
+  const {address: account, chainId} = useWeb3ModalAccount();
+  const selectedNetworkId = useMemo(() => chainId, [chainId]);
+  const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+
+  // Authentication logic
+  useEffect(() => {
+    let isMounted = true; // Avoid updating state after unmount
+
+    const authenticate = async () => {
+      if (isConnected && account) {
+        try {
+          const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({walletAddress: account}),
+          });
+
+          const data = await response.json();
+          if (data.token && isMounted) {
+            if (data.token !== authToken) {
+              localStorage.setItem('authToken', data.token);
+              setAuthToken(data.token);
+              toast.success('Authentication successful');
+            }
+          } else {
+            console.error('Authentication failed');
+          }
+        } catch (error) {
+          console.error('Error authenticating:', error);
+        }
+      }
+    };
+
+    if (isConnected && account) {
+      authenticate();
+    }
+
+    return () => {
+      isMounted = false; // Cleanup to prevent memory leaks
+    };
+  }, [account, isConnected]); // Only triggers on account or connection state changes
+
+  // Polling for token validity
+  useEffect(() => {
+    const checkTokenValidity = async () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        try {
+          const response = await fetch('/api/verify-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await response.json();
+          if (!data.isValid) {
+            localStorage.removeItem('authToken');
+            setAuthToken(null);
+            disconnect();
+            toast.error('Authentication token expired. Please log in again.');
+            // Disconnect wallet if token is invalid
+          }
+        } catch (error) {
+          console.error('Failed to verify token:', error);
+        }
+      }
+    };
+
+    const intervalId = setInterval(checkTokenValidity, 10000); // Poll every 1 minute
+    return () => clearInterval(intervalId); // Cleanup on component unmount
+  }, []); // No need to depend on authToken, as localStorage is the single source of truth
+
+  // Handle network changes
   useEffect(() => {
     if (selectedNetworkId) {
-      //   if (selectedNetworkId === 'eip155:8453') {
       if (selectedNetworkId === 8453) {
         setChainId(8453);
-        //   } else if (selectedNetworkId === 'eip155:1') {
       } else if (selectedNetworkId === 1) {
         setChainId(1);
       }
@@ -127,35 +200,6 @@ export const BlockchainProvider = ({children}) => {
       </button>
     );
   }
-
-  // fetch and format user tokens in wallet api call
-  /*   const fetchTokens = async () => {
-      try {
-        const QUICKNODE_RPC_URL = 'https://your-unique-name.quiknode.pro/your-api-key/';
-        const walletAddress = '0xYourWalletAddress';
-
-        // Setup the JSON-RPC data for the request
-        const data = {
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'qn_getWalletTokenBalance',
-          params: {
-            address: walletAddress,
-            perPage: 100,
-            page: 1,
-          },
-        };
-
-        // Make the request using Axios
-        const response = await axios.post(QUICKNODE_RPC_URL, data);
-        const tokenData = response.data.result;
-
-        // Format token data if needed and merge with base tokens
-        setEthTokens(tokenData);
-      } catch (error) {
-        console.error('Failed to fetch tokens:', error);
-      }
-    }; */
 
   const fetchWalletTokensAndFormat = async (tokensDB) => {
     if (!authToken) return;
@@ -218,27 +262,33 @@ export const BlockchainProvider = ({children}) => {
     setEthTokens({});
   }, [chain_id, account]);
  */
+  const isFetching = useRef(false); // useRef to persist across renders
+
   useEffect(() => {
-    //  if (!account) return;
-    // Define the asynchronous function inside useEffect
-    if (!authToken) return;
     const fetchTokens = async () => {
+      if (isFetching.current || !authToken || !account) return;
+
       try {
+        isFetching.current = true; // Set the flag to prevent double fetching
+
         const res = await fetch('/api/tokens', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
           },
-
           body: JSON.stringify({chain_id, account}),
         });
+
         const tokensDB = await res.json();
         const walletTokens = await fetchWalletTokensAndFormat(tokensDB);
+
         setEthTokens(walletTokens);
         console.log('walletTokens', walletTokens);
       } catch (error) {
         console.error('Failed to fetch tokens:', error);
+      } finally {
+        isFetching.current = false; // Reset the flag after fetch completes
       }
     };
 
@@ -496,7 +546,7 @@ export const BlockchainProvider = ({children}) => {
 
               const data = await response.json();
               if (response.ok) {
-                console.log('WETH Balance:', data.balance);
+                //      console.log('WETH Balance:', data.balance);
                 balance = data.balance; // Return the balance for display or further use
               } else {
                 console.error('Error:', data.error);
@@ -520,7 +570,7 @@ export const BlockchainProvider = ({children}) => {
 
               const data = await response.json();
               if (response.ok) {
-                console.log('Balance:', data.balance);
+                //          console.log('Balance:', data.balance);
                 balance = data.balance; // Return the balance for display or further use
               } else {
                 console.error('Error:', data.error);
@@ -570,7 +620,7 @@ export const BlockchainProvider = ({children}) => {
 
             const data = await response.json();
             if (response.ok) {
-              console.log('Token Balance:', data.tokenBalance);
+              //     console.log('Token Balance:', data.tokenBalance);
               tokenBalance = data.tokenBalance; // Return the balance for display or further use
             } else {
               console.error('Error:', data.error);
@@ -593,7 +643,7 @@ export const BlockchainProvider = ({children}) => {
           //    console.log(tokenBalance, 'Token Balance');
 
           tokenBalance = ethers.parseUnits(tokenBalance, Token.decimals);
-          console.log(tokenBalance.toString(), 'Token Balance');
+          //   console.log(tokenBalance.toString(), 'Token Balance');
         }
 
         const path = [Token.address, wethAddress];
@@ -665,7 +715,6 @@ export const BlockchainProvider = ({children}) => {
       value={{
         AuthButton,
         authToken,
-        limit,
         saverInputAmount,
         chain_id,
         dollarRef,

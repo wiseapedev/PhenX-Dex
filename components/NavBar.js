@@ -7,20 +7,24 @@ import {motion, AnimatePresence} from 'framer-motion';
 
 function NavBar() {
   const router = useRouter();
-  const [activeLink, setActiveLink] = useState('home');
+  const initialActiveLink = () => {
+    if (router.pathname === '/') {
+      return 'home';
+    } else if (router.pathname === '/stake') {
+      return 'stake';
+    } else if (router.pathname === '/listing') {
+      return 'listing';
+    } else {
+      return ''; // Default fallback if no match
+    }
+  };
+  const [activeLink, setActiveLink] = useState(initialActiveLink);
 
   // Use the custom hook to determine if the device is mobile
   const isMobile = useIsMobile();
 
-  // Set active class based on current route
   useEffect(() => {
-    if (router.pathname === '/') {
-      setActiveLink('home');
-    } else if (router.pathname === '/stake') {
-      setActiveLink('stake');
-    } else if (router.pathname === '/listing') {
-      setActiveLink('listing');
-    }
+    setActiveLink(initialActiveLink());
   }, [router.pathname]);
 
   // Navigation handlers
@@ -35,7 +39,7 @@ function NavBar() {
     router.push('/listing');
   };
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Ref for the dropdown menu
   const dropdownRef = useRef(null);
@@ -149,7 +153,7 @@ function NavBar() {
         <div className='nav-right'>
           <w3m-network-button />
 
-          <w3m-button balance={'false'} label='Connect' size='md' />
+          <w3m-button balance={'false'} label='Connect' size='sm' />
         </div>
       </div>
     );

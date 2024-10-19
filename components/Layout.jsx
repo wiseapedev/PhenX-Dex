@@ -1,5 +1,5 @@
 // import {ConnectButton} from '@rainbow-me/rainbowkit';
-import {useEffect, useContext, useState, useMemo} from 'react';
+import {useEffect, useContext, useState, useMemo, useRef} from 'react';
 import {BlockchainContext} from './BlockchainContext';
 import dynamic from 'next/dynamic';
 import NavBar from './NavBar';
@@ -31,35 +31,50 @@ const Layout = ({buyLink, buyLinkKey}) => {
   }, [ETH_TOKENS, ALL_TOKENS, chain_id, authToken, account]);
 
   const memoNavBar = useMemo(() => <NavBar />, [account]);
+  const memoFooterBar = useMemo(() => <FooterBar />, [account]);
+  function WrongNetwork() {
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+      const container = containerRef.current;
+      if (container) {
+        container.style.opacity = '0';
+        setTimeout(() => {
+          container.style.transition = 'opacity 1s ease';
+          container.style.opacity = '1';
+        }, 100); // delay to ensure the opacity change is noticed
+      }
+    }, []);
+
+    return (
+      <div className='load-container' ref={containerRef}>
+        <div className='wrong-network-container'>
+          <div className='wrong-network-text'>Please connect your wallet</div>
+        </div>
+        <div className='main-container'></div>
+      </div>
+    );
+  }
+
+  function Loader() {
+    return (
+      <div className='load-container'>
+        <div className='loader loader11'>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
+    <div className='whole-container'>
+      {memoNavBar}
       <div className='bg' />
-      {!account && (
-        <div className='load-container'>
-          <NavBar />
-          <div className='wrong-network-container'>
-            <div className='wrong-network-text'>Please connect your wallet</div>
-          </div>
-          <div className='main-container'></div>
-          <FooterBar />
-        </div>
-      )}
 
-      {account && !authToken && (
-        <div className='load-container'>
-          <NavBar />
-
-          <div className='wrong-network-container'>
-            <div className='wrong-network-text'>
-              Please sign a message to prove wallet ownership
-              <AuthButton />
-            </div>
-          </div>
-          <div className='main-container'></div>
-          <FooterBar />
-        </div>
-      )}
+      {!account && <WrongNetwork />}
 
       {account && authToken && tokensReady ? (
         <SwapNoSSR
@@ -69,21 +84,11 @@ const Layout = ({buyLink, buyLinkKey}) => {
           key={chain_id}
         />
       ) : (
-        account &&
-        authToken && (
-          <div className='load-container'>
-            <NavBar />
-
-            <div className='loader loader11'>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-            </div>
-          </div>
-        )
+        account && authToken && <Loader />
       )}
-    </>
+
+      {memoFooterBar}
+    </div>
   );
 };
 

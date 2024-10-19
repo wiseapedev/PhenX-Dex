@@ -4,7 +4,7 @@ import rateLimit from 'express-rate-limit';
 // Create a rate limiter that limits RPC requests by IP address (higher limits)
 const rpcIpRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window
-  max: 200, // Limit each IP to 100 requests per minute for RPC routes
+  max: 500, // Limit each IP to 100 requests per minute for RPC routes
   keyGenerator: (req, res) => {
     return req.ip; // Use IP for rate limiting
   },
@@ -18,7 +18,7 @@ const rpcIpRateLimiter = rateLimit({
 // Create a rate limiter that limits RPC requests by wallet address (higher limits)
 const rpcWalletRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window
-  max: 100, // Limit each wallet to 100 requests per minute for RPC routes
+  max: 500, // Limit each wallet to 100 requests per minute for RPC routes
   keyGenerator: (req, res) => {
     return req.walletAddress;
   },
