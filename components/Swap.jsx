@@ -1260,13 +1260,18 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
               // Checking improvement percentage if the best quote is from a mixed route
               if (
-                [v2ToV3Quote, v3ToV2Quote].includes(bestQuote) &&
-                bestQuote !== BigInt(0) &&
-                bestDirectQuote !== BigInt(0)
+                (v2ToV3Quote !== null &&
+                  BigInt(bestQuote) === BigInt(v2ToV3Quote)) ||
+                (v3ToV2Quote !== null &&
+                  BigInt(bestQuote) === BigInt(v3ToV2Quote) &&
+                  BigInt(bestQuote) !== BigInt(0) &&
+                  BigInt(bestDirectQuote) !== BigInt(0))
               ) {
                 const improvement =
-                  ((bestQuote - bestDirectQuote) * BigInt(100)) /
-                  bestDirectQuote;
+                  ((BigInt(bestQuote) - BigInt(bestDirectQuote)) *
+                    BigInt(100)) /
+                  BigInt(bestDirectQuote);
+
                 console.log(
                   `Improvement percentage: ${improvement}% from mixed route`
                 );
@@ -1276,7 +1281,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                   console.log(
                     'Choosing the best direct quote due to less than 5% improvement by mixed route.'
                   );
-                  bestQuote = bestDirectQuote;
+                  bestQuote = BigInt(bestDirectQuote);
                 }
               }
 
@@ -2116,7 +2121,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
                     reduceAmountOut(swapData.amountOut),
                     swapData.deadline,
                     {
-                      maxFeePerGas: gasFeestr.maxFeePerGas,
+                      maxFeePerGas: gasFees.maxFeePerGas,
                       maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
                     }
                   );
