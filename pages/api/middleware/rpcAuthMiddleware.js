@@ -1,10 +1,12 @@
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 
+const limitAmount = 500;
+
 // Create a rate limiter that limits RPC requests by IP address (higher limits)
 const rpcIpRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window
-  max: 500, // Limit each IP to 100 requests per minute for RPC routes
+  max: limitAmount, // Limit each IP to 100 requests per minute for RPC routes
   keyGenerator: (req, res) => {
     return req.ip; // Use IP for rate limiting
   },
@@ -18,7 +20,7 @@ const rpcIpRateLimiter = rateLimit({
 // Create a rate limiter that limits RPC requests by wallet address (higher limits)
 const rpcWalletRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window
-  max: 500, // Limit each wallet to 100 requests per minute for RPC routes
+  max: limitAmount, // Limit each wallet to 100 requests per minute for RPC routes
   keyGenerator: (req, res) => {
     return req.walletAddress;
   },
@@ -27,6 +29,19 @@ const rpcWalletRateLimiter = rateLimit({
       error:
         'Too many requests from this wallet for RPC. Please try again later.',
     });
+  },
+});
+const rpcAuthTokenRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: limitAmount,
+  keyGenerator: (req) => {
+    const token = req.headers.authorization
+      ? req.headers.authorization.split(' ')[1]
+      : '';
+    return token;
+  },
+  handler: (req, res) => {
+    return res.status(429).json({error: 'Too many requests from this token.'});
   },
 });
 
@@ -50,7 +65,9 @@ export async function rpcAuthMiddleware(req, res, next) {
       req.walletAddress = decoded.walletAddress;
 
       // Apply rate limiting based on wallet address for RPC requests
-      rpcWalletRateLimiter(req, res, next); // Rate limit requests based on wallet address
+      await rpcWalletRateLimiter(req, res, async () => {
+        await rpcAuthTokenRateLimiter(req, res, next); // Rate limit by token as well
+      });
     } catch (error) {
       return res.status(401).json({message: 'Unauthorized: Invalid token'});
     }

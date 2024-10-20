@@ -142,7 +142,7 @@ export const BlockchainProvider = ({children}) => {
       }
     };
 
-    const intervalId = setInterval(checkTokenValidity, 10000); // Poll every 1 minute
+    const intervalId = setInterval(checkTokenValidity, 15000); // Poll every 1 minute
     return () => clearInterval(intervalId); // Cleanup on component unmount
   }, []); // No need to depend on authToken, as localStorage is the single source of truth
 
@@ -464,18 +464,16 @@ export const BlockchainProvider = ({children}) => {
         .filter((key) => ALL_TOKENS[key].chain_id === chain_id)
         .map(async (key) => {
           const balanceData = await getDollarValue(ALL_TOKENS[key]);
-          await delay();
 
           async function delay2() {
             return new Promise((resolve) => {
               setTimeout(() => {
                 resolve();
-              }, 500);
+              }, 100);
             });
           }
           await delay2();
 
-          await delay();
           return {
             key,
             data: {

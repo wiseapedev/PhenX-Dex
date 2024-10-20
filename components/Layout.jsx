@@ -32,6 +32,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
 
   const memoNavBar = useMemo(() => <NavBar />, [account]);
   const memoFooterBar = useMemo(() => <FooterBar />, [account]);
+
   function WrongNetwork() {
     const containerRef = useRef(null);
 

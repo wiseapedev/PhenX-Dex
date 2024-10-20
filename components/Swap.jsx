@@ -14,7 +14,7 @@ import {
 } from './SVGMAIN.js';
 // import {useAppKitProvider, useAppKitAccount} from '@reown/appkit/react';
 import NavBar from './NavBar';
-
+import AdComponent from './AdComponent';
 import MemPool from './MemPool';
 import SwapSettings from './SwapSettings';
 import {useState, useEffect, useContext, useRef, useMemo, use} from 'react';
@@ -116,6 +116,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
     } else {
       return parseFloat(balance).toFixed(2);
     }
+  }
+  function handleAdChart(value) {
+    setBuyToken(findKeyBySymbol(value));
+    setShowChartState(true);
   }
   function disableSwapContainer() {
     try {
@@ -2431,21 +2435,21 @@ const Swap = ({buyLink, buyLinkKey}) => {
       const isUltraWide = aspectRatio > 2; // Consider screens with an aspect ratio greater than 2 as ultra-wide
 
       if (isUltraWide) {
-        document.querySelector('.main-container').style.paddingTop = '9vh';
+        document.querySelector('.main-container').style.paddingTop = '7vh';
       } else if (isMobile === false) {
         if (showAudits === false && showChart === false) {
           document.querySelector('.main-container').style.paddingTop =
-            '21.25vh';
+            '18.25vh';
         }
         if (showAudits === true && showChart === false) {
           document.querySelector('.main-container').style.paddingTop =
             '18.75vh';
         }
         if (showChart === true && showAudits === true) {
-          document.querySelector('.main-container').style.paddingTop = '9.5vh';
+          document.querySelector('.main-container').style.paddingTop = '8.5vh';
         }
         if (showChart === true && showAudits === false) {
-          document.querySelector('.main-container').style.paddingTop = '9.5vh';
+          document.querySelector('.main-container').style.paddingTop = '8.5vh';
         }
       } else {
         document.querySelector('.main-container').style.paddingTop = '9.5vh';
@@ -2517,6 +2521,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
   };
   return (
     <div className='main-container'>
+      <AdComponent handleAdChart={handleAdChart} />
       <div className='swap-container'>
         {' '}
         <SwapSettings

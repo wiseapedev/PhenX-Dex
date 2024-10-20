@@ -120,15 +120,16 @@ input:focus {
   align-items: center;
   border-radius: 20px;
   border: solid 1px var(--border);
-  padding: 5px 12px;
+  padding: 6px 12px;
   color: var(--text);
-  font-size: 14px;
+  font-size: 0.9rem;
   transition: all 0.1s ease-in-out;
   opacity: 0.8;
   background: var(--box-inner);
   transition: all 0.1s ease-in-out;
   letter-spacing: 3px;
   textalign: 'center';
+  margin-right: 1vw;
 }
 .basic-button:hover {
   cursor: pointer;
@@ -2078,7 +2079,7 @@ input:focus {
   bottom: 0;
   height: 100vh;
   width: 100vw;
-  z-index: 6;
+  z-index: 199;
   pointer-events: none;
 }
 .dropdown-menu {
@@ -2095,7 +2096,7 @@ input:focus {
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
   padding: 20px;
-  z-index: 1000;
+  z-index: 200;
   transform: translateY(100%);
   background: var(--box-darker);
 }
@@ -2307,6 +2308,101 @@ input:focus {
 
   cursor: pointer;
 }
+.ad-container {
+  position: fixed;
+  bottom: 5vh;
+  left: 0;
+  width: fit-content;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 16px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.ad-header {
+  display: flex;
+  align-items: center;
+}
+
+.ad-image {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  margin-right: 16px;
+}
+
+.ad-details h2 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.ad-details p {
+  font-size: 14px;
+  margin: 4px 0 0 0;
+  max-width: 350px;
+}
+
+.ad-actions {
+  gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  border-radius: 10px;
+}
+
+.ad-button-chart {
+  background-color: var(--box-inner);
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ad-button-chart:hover {
+  background-color: var(--box-hover);
+  transition: all 0.1s ease-in-out;
+}
+
+.ad-button {
+  background-color: var(--box-inner);
+  border-radius: 10px;
+  text-align: center;
+  width: fit-content;
+  border: none;
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ad-button:hover {
+  background-color: var(--box-hover);
+  transition: all 0.1s ease-in-out;
+}
+.ad-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: var(--box-inner);
+  border-radius: 5px;
+  text-align: center;
+  border: none;
+  color: white;
+  padding: 2px 6px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ad-close:hover {
+  background-color: var(--box-hover);
+  transition: all 0.1s ease-in-out;
+}
 
 @keyframes spin {
   0% {
@@ -2320,10 +2416,30 @@ input:focus {
 }
 
 @media (max-width: 600px) {
+  .ad-container {
+    height: fit-content;
+    position: fixed;
+    z-index: 190;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 1);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 0;
+    width: 100%;
+    color: white;
+    display: flex;
+    flex-direction: column;
+  }
   .swap-fee-container {
     padding: 5px;
     width: 95%;
     margin-bottom: 50px;
+  }
+
+  .basic-button {
+    margin-right: 2vw;
   }
   .listing-container {
     height: 80vh;
@@ -2348,7 +2464,7 @@ input:focus {
     width: 100%;
     height: 70vh;
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 5vh;
   }
   .swap-upper {
     padding: 10px;
