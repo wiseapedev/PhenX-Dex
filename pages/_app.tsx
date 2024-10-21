@@ -44,6 +44,24 @@ function MyApp({Component, pageProps}: AppProps) {
       window.location.href = 'https://phenx.xyz/';
     }
   }, []); */
+  useEffect(() => {
+    const handleGlobalError = (event) => {
+      // Check if the error message contains the specific "application error" string
+      if (event.message && event.message.includes('application error')) {
+        console.error('Application error detected:', event.message);
+        window.location.reload(); // Reload the page on specific error
+      }
+    };
+
+    // Listen for error events globally
+    window.addEventListener('error', handleGlobalError);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, []);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
