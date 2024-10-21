@@ -680,10 +680,8 @@ input:focus {
   display: flex;
   position: relative;
   flex-direction: row;
-  -webkit-box-align: center;
   align-items: center;
   background-color: rgb(19, 19, 19);
-  opacity: 1;
   color: rgb(255, 255, 255);
   cursor: pointer;
   height: 36px;
@@ -696,13 +694,15 @@ input:focus {
   width: initial;
   padding: 4px 8px 4px 4px;
   gap: 8px;
-  -webkit-box-pack: justify;
   justify-content: space-between;
   margin-left: 12px;
   box-shadow: rgba(34, 34, 34, 0.04) 0px 0px 10px 0px;
   visibility: visible;
-  animation: auto ease 0s 1 normal none running none;
+  white-space: nowrap; /* Forces the text to stay on one line */
+  overflow: hidden; /* Hides any overflow text */
+  text-overflow: ellipsis; /* Adds '...' to indicate hidden text */
 }
+
 .token-select-box:hover {
   background-color: var(--tab-hover);
 }

@@ -2392,7 +2392,10 @@ const Swap = ({buyLink, buyLinkKey}) => {
       if (newToken) {
         // Corrected to reference newToken.symbol
         const existingToken = Object.values(ALL_TOKENS).find(
-          (token) => token.symbol === newToken.symbol
+          (token) =>
+            token.symbol === newToken.symbol ||
+            token.address === newToken.address ||
+            token.name === newToken.name
         );
 
         if (!existingToken) {
