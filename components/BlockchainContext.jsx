@@ -142,17 +142,19 @@ export const BlockchainProvider = ({children}) => {
       }
     };
 
-    const intervalId = setInterval(checkTokenValidity, 15000); // Poll every 1 minute
+    //    const intervalId = setInterval(checkTokenValidity, 15000); // Poll every 1 minute
     return () => clearInterval(intervalId); // Cleanup on component unmount
   }, []); // No need to depend on authToken, as localStorage is the single source of truth
 
   // Handle network changes
   useEffect(() => {
     if (selectedNetworkId) {
-      if (selectedNetworkId === 8453) {
-        setChainId(8453);
-      } else if (selectedNetworkId === 1) {
-        setChainId(1);
+      if (selectedNetworkId !== chain_id) {
+        if (selectedNetworkId === 8453) {
+          setChainId(8453);
+        } else if (selectedNetworkId === 1) {
+          setChainId(1);
+        }
       }
       console.log('selectedNetworkId', selectedNetworkId);
     }
