@@ -999,19 +999,32 @@ const Swap = ({buyLink, buyLinkKey}) => {
               }
 
               // Decide best quote between V2 and V3
-              if (v2Quote && v3Quote) {
-                return v2Quote > v3Quote.amountOut
-                  ? {bestQuote: v2Quote, isV3Only: false}
+              if (v2Quote !== null && v3Quote !== null) {
+                // Convert both v2Quote and v3Quote.amountOut to BigInt for comparison
+                const v2QuoteBigInt = BigInt(v2Quote);
+                const v3QuoteAmountOutBigInt = BigInt(v3Quote.amountOut);
+
+                console.log(
+                  '⚡ v2QuoteBigInt > v3QuoteAmountOutBigInt',
+                  v2QuoteBigInt > v3QuoteAmountOutBigInt
+                );
+
+                return v2QuoteBigInt > v3QuoteAmountOutBigInt
+                  ? {bestQuote: v2QuoteBigInt, isV3Only: false}
                   : {
-                      bestQuote: v3Quote.amountOut,
+                      bestQuote: v3QuoteAmountOutBigInt,
                       fee: v3Quote.fee,
                       isV3Only: true,
                     };
-              } else if (v2Quote) {
-                return {bestQuote: v2Quote, isV3Only: false, isV2Only: true};
-              } else if (v3Quote) {
+              } else if (v2Quote !== null) {
                 return {
-                  bestQuote: v3Quote.amountOut,
+                  bestQuote: BigInt(v2Quote),
+                  isV3Only: false,
+                  isV2Only: true,
+                };
+              } else if (v3Quote !== null) {
+                return {
+                  bestQuote: BigInt(v3Quote.amountOut),
                   isV3Only: true,
                   isV2Only: false,
                   fee: v3Quote.fee,
@@ -1068,20 +1081,37 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 // Similarly, handle this failure appropriately
               }
 
-              if (v2Quote && v3Quote) {
-                return v2Quote > v3Quote.amountOut
-                  ? {bestQuote: v2Quote, isV3Only: false, isV2Only: true}
+              if (v2Quote !== null && v3Quote !== null) {
+                // Convert both v2Quote and v3Quote.amountOut to BigInt for comparison
+                const v2QuoteBigInt = BigInt(v2Quote);
+                const v3QuoteAmountOutBigInt = BigInt(v3Quote.amountOut);
+
+                console.log(
+                  '⚡ v2QuoteBigInt > v3QuoteAmountOutBigInt',
+                  v2QuoteBigInt > v3QuoteAmountOutBigInt
+                );
+
+                return v2QuoteBigInt > v3QuoteAmountOutBigInt
+                  ? {
+                      bestQuote: v2QuoteBigInt,
+                      isV3Only: false,
+                      isV2Only: true,
+                    }
                   : {
-                      bestQuote: v3Quote.amountOut,
+                      bestQuote: v3QuoteAmountOutBigInt,
                       isV3Only: true,
                       isV2Only: false,
                       fee: v3Quote.fee,
                     };
-              } else if (v2Quote) {
-                return {bestQuote: v2Quote, isV3Only: false, isV2Only: true};
-              } else if (v3Quote) {
+              } else if (v2Quote !== null) {
                 return {
-                  bestQuote: v3Quote.amountOut,
+                  bestQuote: BigInt(v2Quote),
+                  isV3Only: false,
+                  isV2Only: true,
+                };
+              } else if (v3Quote !== null) {
+                return {
+                  bestQuote: BigInt(v3Quote.amountOut),
                   isV3Only: true,
                   isV2Only: false,
                   fee: v3Quote.fee,
@@ -1222,40 +1252,52 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 console.error('Error fetching V3 to V2 quote:', error);
               }
               const quotes = [
-                v2Quote,
-                v3Quote,
-                v2ToV3Quote,
-                v3ToV2Quote,
-              ].filter((q) => q !== null);
+                v2Quote !== null ? BigInt(v2Quote) : null,
+                v3Quote !== null ? BigInt(v3Quote) : null,
+                v2ToV3Quote !== null ? BigInt(v2ToV3Quote) : null,
+                v3ToV2Quote !== null ? BigInt(v3ToV2Quote) : null,
+              ].filter((q) => q !== null); // Filter out null values
+
               if (quotes.length === 0) {
                 console.error(
                   'No valid quotes were found for Token to Token swap.'
                 );
-                return {bestQuote: 0, isV3Only: false, isV2Only: false, fee: 0};
+                return {
+                  bestQuote: BigInt(0),
+                  isV3Only: false,
+                  isV2Only: false,
+                  fee: BigInt(0),
+                };
               }
 
-              // Determine the best quote from all available quotes
-              let bestQuote = quotes.reduce((max, quote) => {
-                if (quote > max) {
+              let bestQuote = BigInt(0);
+
+              for (const quote of quotes) {
+                if (BigInt(quote) > bestQuote) {
                   console.log(`New best quote found: ${quote}`);
-                  return BigInt(quote);
+                  bestQuote = BigInt(quote);
                 }
-                return BigInt(max);
-              }, BigInt(0));
+              }
 
               console.log(
                 `Overall best quote before any comparison: ${bestQuote}`
               );
 
-              // Identify the best direct quote for comparison
-              const directQuotes = [v2Quote, v3Quote].filter(Boolean); // Filter out non-existent direct quotes
-              const bestDirectQuote = directQuotes.reduce((max, quote) => {
-                if (quote > max) {
+              console.log('v2Quote:', v2Quote);
+              console.log('v3Quote:', v3Quote);
+              const directQuotes = [v2Quote, v3Quote]
+                .filter((quote) => quote !== null) // Filter out null values explicitly
+                .map(BigInt); // Ensure all quotes are BigInt before comparison
+
+              let bestDirectQuote = BigInt(0); // Initialize the best quote as BigInt(0)
+
+              // Manually iterate to find the maximum BigInt value
+              for (const quote of directQuotes) {
+                if (quote > bestDirectQuote) {
                   console.log(`New best direct quote found: ${quote}`);
-                  return BigInt(quote);
+                  bestDirectQuote = quote; // Update best quote
                 }
-                return BigInt(max);
-              }, BigInt(0));
+              }
 
               console.log(
                 `Best direct quote for comparison: ${bestDirectQuote}`
