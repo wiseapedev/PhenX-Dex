@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 const limitAmount = 500;
 
 // Create a rate limiter that limits RPC requests by IP address (higher limits)

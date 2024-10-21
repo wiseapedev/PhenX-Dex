@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import {ethers} from 'ethers';
 import rateLimit from 'express-rate-limit';
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 // Create a rate limiter to prevent excessive requests by IP and wallet address
 const walletRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1-minute window

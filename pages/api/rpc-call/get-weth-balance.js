@@ -2,7 +2,7 @@
 import {ethers} from 'ethers';
 import wethABI from './abis/wethABI.json';
 import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 // Define a mapping of chain IDs to their corresponding RPC URLs
 const RPC_URLS = {
   1: process.env.ETH_RPC, // Ethereum Mainnet

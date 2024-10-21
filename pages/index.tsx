@@ -1,6 +1,6 @@
 // pages/index.tsx
 // import {ConnectButton} from '@rainbow-me/rainbowkit';
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 import type {NextPage} from 'next';
 import Head from 'next/head';
 import Layout from '../components/Layout';
