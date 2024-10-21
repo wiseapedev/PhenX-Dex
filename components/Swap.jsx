@@ -1010,11 +1010,12 @@ const Swap = ({buyLink, buyLinkKey}) => {
                 );
 
                 return v2QuoteBigInt > v3QuoteAmountOutBigInt
-                  ? {bestQuote: v2QuoteBigInt, isV3Only: false}
+                  ? {bestQuote: v2QuoteBigInt, isV3Only: false, isV2Only: true}
                   : {
                       bestQuote: v3QuoteAmountOutBigInt,
                       fee: v3Quote.fee,
                       isV3Only: true,
+                      isV2Only: false,
                     };
               } else if (v2Quote !== null) {
                 return {
