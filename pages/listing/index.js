@@ -8,7 +8,7 @@ import Footer from '../../components/Footer';
 import PendingTransaction from '../../components/PendingTransaction';
 
 import {erc20Abi} from 'viem';
-export const runtime = 'experimental-edge';
+
 export default function ListingPage() {
   const {provider, account, chain_id, signer, authToken} =
     useContext(BlockchainContext);

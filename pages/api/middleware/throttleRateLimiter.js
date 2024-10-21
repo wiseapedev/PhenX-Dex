@@ -1,6 +1,6 @@
 // middleware/throttleRateLimiter.js
 import rateLimit from 'express-rate-limit';
-export const runtime = 'experimental-edge';
+
 // Throttling logic instead of rejecting
 export const throttleRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window

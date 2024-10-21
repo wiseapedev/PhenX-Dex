@@ -1,7 +1,7 @@
 // /pages/api/get-ad.js
 import {createClient} from '@supabase/supabase-js';
 import rateLimit from 'express-rate-limit';
-export const runtime = 'experimental-edge';
+
 // Supabase connection
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

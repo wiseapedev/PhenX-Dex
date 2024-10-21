@@ -2,7 +2,7 @@
 import {ethers} from 'ethers';
 import erc20Abi from './abis/erc20.json'; // Assuming your ERC-20 ABI is here
 import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
-export const runtime = 'experimental-edge';
+
 const RPC_URLS = {
   1: process.env.ETH_RPC, // Ethereum Mainnet
   8453: process.env.BASE_RPC, // Base

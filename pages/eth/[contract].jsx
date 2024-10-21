@@ -3,7 +3,7 @@
 import {useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
 import Layout from '../../components/Layout';
-export const runtime = 'experimental-edge';
+
 export default function BuyContract() {
   const chain_id = 1;
   const router = useRouter();

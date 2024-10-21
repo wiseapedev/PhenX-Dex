@@ -1,6 +1,6 @@
 import {createClient} from '@supabase/supabase-js';
 import authMiddleware from './middleware/auth'; // Import your auth middleware
-export const runtime = 'experimental-edge';
+
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

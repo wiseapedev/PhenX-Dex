@@ -1,6 +1,6 @@
 import axios from 'axios';
 import authMiddleware from './middleware/auth';
-export const runtime = 'experimental-edge';
+
 export default async function handler(req, res) {
   // Use authentication middleware
   authMiddleware(req, res, async () => {
