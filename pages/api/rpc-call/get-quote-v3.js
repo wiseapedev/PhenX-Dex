@@ -2,7 +2,7 @@ import {ethers} from 'ethers';
 import QuoterABI from './abis/QuoterABI.json';
 import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
 import {CHAINS} from './CHAINS';
-
+export const runtime = 'edge';
 const RPC_URLS = {
   1: process.env.ETH_RPC, // Ethereum Mainnet
   8453: process.env.BASE_RPC, // Base

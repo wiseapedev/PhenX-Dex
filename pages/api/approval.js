@@ -1,6 +1,6 @@
 // pages/api/swap.js
 import cryptoJS from 'crypto-js';
-
+export const runtime = 'edge';
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const {query} = req;

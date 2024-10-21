@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
-
+export const runtime = 'edge';
 const RPC_URLS = {
   1: process.env.ETH_RPC, // Ethereum Mainnet
   8453: process.env.BASE_RPC, // Base

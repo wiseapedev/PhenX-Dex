@@ -2,7 +2,7 @@
 import {ethers} from 'ethers';
 import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
 import uniswapRouterABI from './abis/UniswapRouter.json';
-
+export const runtime = 'edge';
 // Define a mapping of chain IDs to their corresponding RPC URLs
 const RPC_URLS = {
   1: process.env.ETH_RPC, // Ethereum Mainnet

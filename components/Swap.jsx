@@ -47,7 +47,6 @@ import LiveCoinWatch from './LiveCoinWatch';
 import IconLinks from './IconLinks';
 import WalletIcon from './svgs/WalletIcon';
 import {CHAINS} from './lib/constants.js';
-import {sign} from 'crypto';
 import BlockTimer from './BlockTimer';
 import Switch from './Switch';
 import FooterBar from './Footer';
@@ -2519,6 +2518,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
     type: 2,
     value: '1000000000000000',
   };
+
   return (
     <div className='main-container'>
       <AdComponent handleAdChart={handleAdChart} />

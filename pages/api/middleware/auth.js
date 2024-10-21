@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
-
+export const runtime = 'edge';
 // Create a rate limiter that limits requests by IP address
 const ipRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window

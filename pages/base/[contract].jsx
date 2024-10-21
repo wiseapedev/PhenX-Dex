@@ -5,7 +5,7 @@ import {useRouter} from 'next/router';
 import Layout from '../../components/Layout';
 import {ethers} from 'ethers';
 import {CHAINS} from '../../components/lib/constants';
-
+export const runtime = 'edge';
 export default function BuyContract() {
   const chain_id = 1;
   const router = useRouter();
