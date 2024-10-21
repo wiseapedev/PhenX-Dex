@@ -113,10 +113,14 @@ export const BlockchainProvider = ({children}) => {
       isMounted = false; // Cleanup to prevent memory leaks
     };
   }, [account, isConnected]); // Only triggers on account or connection state changes
+  const isCheckingRef = useRef(false); // Persistent reference across renders
 
   // Polling for token validity
   useEffect(() => {
     const checkTokenValidity = async () => {
+      if (isCheckingRef.current) return; // Prevent overlapping checks
+      isCheckingRef.current = true;
+
       const token = localStorage.getItem('authToken');
       if (token) {
         try {
@@ -129,23 +133,25 @@ export const BlockchainProvider = ({children}) => {
           });
 
           const data = await response.json();
-          if (!data.isValid) {
+          if (data && !data.isValid && isConnected && account) {
+            disconnect();
             localStorage.removeItem('authToken');
             setAuthToken(null);
-            disconnect();
             toast.error('Authentication token expired. Please log in again.');
-            // Disconnect wallet if token is invalid
           }
         } catch (error) {
           console.error('Failed to verify token:', error);
+        } finally {
+          isCheckingRef.current = false; // Reset the flag after completion
         }
+      } else {
+        isCheckingRef.current = false; // Reset flag if no token
       }
     };
 
-    //    const intervalId = setInterval(checkTokenValidity, 15000); // Poll every 1 minute
+    const intervalId = setInterval(checkTokenValidity, 15000); // Poll every 15 seconds
     return () => clearInterval(intervalId); // Cleanup on component unmount
-  }, []); // No need to depend on authToken, as localStorage is the single source of truth
-
+  }, [isConnected, account]); // Add necessary dependencies
   // Handle network changes
   useEffect(() => {
     if (selectedNetworkId) {
