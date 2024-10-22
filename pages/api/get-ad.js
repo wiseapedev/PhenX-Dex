@@ -34,11 +34,15 @@ export default async function handler(req, res) {
         .eq('is_active', true)
         .limit(1)
         .single();
-
+      // Check if no ad is active
+      if (!data) {
+        return res.status(200).json({message: 'No active ad found'});
+      }
       if (error) {
-        return res.status(500).json({error: 'Error fetching ad'});
+        return res.status(200).json({error: 'No active ad found'});
       }
 
+      // If ad is active, return the ad data
       if (data) {
         // Check if the ad is within its active period
         const currentDate = new Date();

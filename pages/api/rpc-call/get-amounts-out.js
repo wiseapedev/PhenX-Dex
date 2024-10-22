@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     // Respond with the amounts output
     return res.status(200).json({amounts: amountsOut});
   } catch (error) {
-    console.error('Error fetching amounts out:', error);
+    //   console.error('Error fetching amounts out:', error);
     return res.status(500).json({error: 'Failed to fetch amounts out'});
   }
 }

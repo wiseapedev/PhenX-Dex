@@ -18,73 +18,42 @@ export const metadata = {
   title: 'AppKit',
   description: 'AppKit Example',
 };
-/* const config = getDefaultConfig({
-  appName: 'RainbowKit App',
-  projectId: '0aef2c24e12ca37c7ee7ee5f5bd8f56e',
-  chains: [
-    mainnet,
-         polygon,
-    optimism,
-    arbitrum,
-    base,
-    zora, 
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
-  ],
-  ssr: true,
-}); */
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {hasError: false};
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI
+    return {hasError: true};
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // You can also log the error to an error reporting service
+    console.error('Error caught in ErrorBoundary: ', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return <h1>Something went wrong. Please refresh the page.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
 
 function MyApp({Component, pageProps}: AppProps) {
-  /*   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.clear();
-    }
-  }, []); */
-  /*   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.location.href = 'https://phenx.xyz/';
-    }
-  }, []); */
-  useEffect(() => {
-    const handleGlobalError = (event) => {
-      // Check if the error message contains the specific "application error" string
-      if (event.message && event.message.includes('application error')) {
-        console.error('Application error detected:', event.message);
-        window.location.reload(); // Reload the page on specific error
-      }
-    };
-
-    // Listen for error events globally
-    window.addEventListener('error', handleGlobalError);
-
-    // Clean up the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('error', handleGlobalError);
-    };
-  }, []);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 0);
-  }, []);
-  const [isMobile, setIsMobile] = useState(false);
-  // This could be placed in a file that's executed in the Node.js environment,
-  // such as next.config.js or a custom server setup.
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768); // 768px as a threshold for mobile devices
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Initial check
-
-    return () => window.removeEventListener('resize', handleResize);
+    }, 1000);
   }, []);
 
-  // components/LoadingScreen.js
   function LoadingScreen() {
     return (
       <div className='load-container'>
@@ -106,26 +75,28 @@ function MyApp({Component, pageProps}: AppProps) {
     return <LoadingScreen />;
   }
   return (
-    <AppKit>
-      <ToastContainer
-        position='top-left'
-        autoClose={2000} // Adjust the auto close delay as needed
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme='dark'
-      />
+    <ErrorBoundary>
+      <AppKit>
+        <ToastContainer
+          position='top-left'
+          autoClose={2000} // Adjust the auto close delay as needed
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='dark'
+        />
 
-      <BlockchainProvider>
-        <StakeProvider>
-          <Component {...pageProps} />
-        </StakeProvider>
-      </BlockchainProvider>
-    </AppKit>
+        <BlockchainProvider>
+          <StakeProvider>
+            <Component {...pageProps} />
+          </StakeProvider>
+        </BlockchainProvider>
+      </AppKit>
+    </ErrorBoundary>
   );
 }
 

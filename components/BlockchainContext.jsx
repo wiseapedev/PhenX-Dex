@@ -46,8 +46,14 @@ export const BlockchainContext = createContext({
   targetSymbol: '',
   tier: '',
 });
-import delay from './delay';
-
+// import delay from './delay';
+async function delay() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 1000);
+  });
+}
 export const BlockchainProvider = ({children}) => {
   // const provider = useEthersProvider();
   // const {address: account} = useAccount();
@@ -74,51 +80,61 @@ export const BlockchainProvider = ({children}) => {
 
   const {address: account, chainId} = useWeb3ModalAccount();
   const selectedNetworkId = useMemo(() => chainId, [chainId]);
-  const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+  const [authToken, setAuthToken] = useState(null);
 
-  // Authentication logic
-  useEffect(() => {
-    let isMounted = true; // Avoid updating state after unmount
+  const authenticateCheckRef = useRef(false); // Persistent reference across renders
 
-    const authenticate = async () => {
-      if (isConnected && account) {
-        try {
-          const response = await fetch('/api/auth', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({walletAddress: account}),
-          });
+  const authenticate = async () => {
+    if (isConnected && account) {
+      try {
+        const response = await fetch('/api/auth', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({walletAddress: account}),
+        });
 
-          const data = await response.json();
-          if (data.token && isMounted) {
-            if (data.token !== authToken) {
-              localStorage.setItem('authToken', data.token);
-              setAuthToken(data.token);
-              toast.success('Authentication successful');
-            }
-          } else {
-            console.error('Authentication failed');
+        const data = await response.json();
+        if (data.token) {
+          if (data.token !== authToken) {
+            localStorage.setItem('authToken', data.token);
+            setAuthToken(data.token);
+            toast.success('Authentication successful');
           }
-        } catch (error) {
-          console.error('Error authenticating:', error);
+        } else {
+          console.error('Authentication failed');
         }
+      } catch (error) {
+        console.error('Error authenticating:', error);
       }
+    }
+  };
+
+  useEffect(() => {
+    const authenticateCheck = async () => {
+      authenticateCheckRef.current = true; // Set the flag to prevent overlapping calls
+
+      if (isConnected && account) {
+        await authenticate(); // Await the authenticate function to complete
+      }
+
+      authenticateCheckRef.current = false; // Reset the flag
     };
 
-    if (isConnected && account) {
-      authenticate();
+    if (!authenticateCheckRef.current && isConnected && account) {
+      authenticateCheck(); // Trigger the async function
     }
 
     return () => {
-      isMounted = false; // Cleanup to prevent memory leaks
+      authenticateCheckRef.current = false; // Reset the flag on component unmount
     };
   }, [account, isConnected]); // Only triggers on account or connection state changes
+
   const isCheckingRef = useRef(false); // Persistent reference across renders
 
-  // Polling for token validity
   useEffect(() => {
     const checkTokenValidity = async () => {
       if (isCheckingRef.current) return; // Prevent overlapping checks
+      if (authenticateCheckRef.current) return; // Skip if authentication is in progress
       isCheckingRef.current = true;
 
       const token = localStorage.getItem('authToken');
@@ -138,6 +154,10 @@ export const BlockchainProvider = ({children}) => {
             localStorage.removeItem('authToken');
             setAuthToken(null);
             toast.error('Authentication token expired. Please log in again.');
+          } else if (data && data.isValid && isConnected && account) {
+            if (token !== authToken) {
+              setAuthToken(token);
+            }
           }
         } catch (error) {
           console.error('Failed to verify token:', error);
@@ -148,11 +168,11 @@ export const BlockchainProvider = ({children}) => {
         isCheckingRef.current = false; // Reset flag if no token
       }
     };
-
+    checkTokenValidity();
     const intervalId = setInterval(checkTokenValidity, 15000); // Poll every 15 seconds
     return () => clearInterval(intervalId); // Cleanup on component unmount
   }, [isConnected, account]); // Add necessary dependencies
-  // Handle network changes
+
   useEffect(() => {
     if (selectedNetworkId) {
       if (selectedNetworkId !== chain_id) {
@@ -392,13 +412,13 @@ export const BlockchainProvider = ({children}) => {
           amounts = data.amounts; // Log the amounts array from the response
           console.log('Swap amounts:', data.amounts); // Log the amounts array from the response
         } else {
-          console.error('Error:', data.error); // Handle error if any
+          //  console.error('Error:', data.error); // Handle error if any
         }
       } catch (error) {
-        console.error('Error fetching swap amounts:', error); // Catch any fetch errors
+        //   console.error('Error fetching swap amounts:', error); // Catch any fetch errors
       }
 
-      await delay();
+      await delay(100);
       let ethPriceInUsdc = amounts[1];
       ethPriceInUsdc = ethers.formatUnits(ethPriceInUsdc, 6);
       ethPriceInUsdc = Number(ethPriceInUsdc);
@@ -473,14 +493,7 @@ export const BlockchainProvider = ({children}) => {
         .map(async (key) => {
           const balanceData = await getDollarValue(ALL_TOKENS[key]);
 
-          async function delay2() {
-            return new Promise((resolve) => {
-              setTimeout(() => {
-                resolve();
-              }, 100);
-            });
-          }
-          await delay2();
+          await delay(200);
 
           return {
             key,
@@ -687,10 +700,10 @@ export const BlockchainProvider = ({children}) => {
           if (response.ok) {
             amountOut = data.amounts;
           } else {
-            console.error('Error:', data.error); // Handle error if any
+            throw new Error('Error fetching swap amounts:', data.error);
           }
         } catch (error) {
-          console.error('Error fetching swap amounts:', error); // Catch any fetch errors
+          //    console.error('Error fetching swap amounts:', error); // Catch any fetch errors
         }
 
         formattedBalance = ethers.formatUnits(tokenBalance, Token.decimals);

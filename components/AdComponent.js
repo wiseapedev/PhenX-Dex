@@ -10,6 +10,12 @@ const AdComponent = ({handleAdChart}) => {
         const response = await fetch('/api/get-ad');
         const data = await response.json();
 
+        // Check if the response contains the 'No active ad found' message
+        if (data.message === 'No active ad found') {
+          setAd(null);
+          return;
+        }
+
         if (response.ok) {
           setAd(data);
         } else {
