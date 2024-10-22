@@ -2578,13 +2578,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
         />
         {showTokenList === 'sellToken' && (
           <TokenList
-            ALL_TOKENS={ALL_TOKENS}
             handleBuyTokenChange={handleBuyTokenChange}
             handleSellTokenChange={handleSellTokenChange}
             type='sellToken'
             handleShowTokenList={handleShowTokenList}
             key={chain_id}
-            setShowTokenList={setShowTokenList}
             buyToken={buyToken}
             sellToken={sellToken}
             handleContractImport={handleContractImport}
@@ -2592,13 +2590,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
         )}
         {showTokenList === 'buyToken' && (
           <TokenList
-            ALL_TOKENS={ALL_TOKENS}
             handleBuyTokenChange={handleBuyTokenChange}
             handleSellTokenChange={handleSellTokenChange}
             type='buyToken'
             handleShowTokenList={handleShowTokenList}
             key={chain_id}
-            setShowTokenList={setShowTokenList}
             buyToken={buyToken}
             sellToken={sellToken}
             handleContractImport={handleContractImport}
