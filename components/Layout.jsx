@@ -3,6 +3,7 @@ import {useEffect, useContext, useState, useMemo, useRef} from 'react';
 import {BlockchainContext} from './BlockchainContext';
 import dynamic from 'next/dynamic';
 import NavBar from './NavBar';
+import Loader from './Loader';
 import FooterBar from './Footer';
 
 const SwapNoSSR = dynamic(() => import('./Swap'), {
@@ -57,19 +58,6 @@ const Layout = ({buyLink, buyLinkKey}) => {
     );
   }
 
-  function Loader() {
-    return (
-      <div className='load-container'>
-        <div className='loader loader11'>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className='whole-container'>
       {memoNavBar}
@@ -77,16 +65,16 @@ const Layout = ({buyLink, buyLinkKey}) => {
 
       {!account && <WrongNetwork />}
 
-      {account && authToken && tokensReady ? (
+      {account && authToken && tokensReady && (
         <SwapNoSSR
           buyLink={buyLink}
           buyLinkKey={buyLinkKey}
           chain_id={chain_id}
           key={chain_id}
         />
-      ) : (
-        account && authToken && <Loader />
       )}
+
+      {!tokensReady && <Loader />}
 
       {memoFooterBar}
     </div>

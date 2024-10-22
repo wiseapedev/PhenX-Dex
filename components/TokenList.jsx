@@ -371,7 +371,18 @@ function TokenList({
 
   // Ensure that all required values are available before rendering
   if (loading || !dollarRef || !account || Object.keys(tokens).length === 0) {
-    return <div>Loading tokens...</div>; // Display loading state until everything is ready
+    return (
+      <div className={`token-list-container ${fadeIn ? 'fade-in' : ''}`}>
+        <div className='token-list'>
+          <div className='loader loader11'>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>{' '}
+        </div>
+      </div>
+    );
   }
 
   // Render the token list

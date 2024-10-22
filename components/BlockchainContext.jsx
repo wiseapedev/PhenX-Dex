@@ -169,7 +169,7 @@ export const BlockchainProvider = ({children}) => {
       }
     };
     checkTokenValidity();
-    const intervalId = setInterval(checkTokenValidity, 15000); // Poll every 15 seconds
+    const intervalId = setInterval(checkTokenValidity, 60000); // Poll every 15 seconds
     return () => clearInterval(intervalId); // Cleanup on component unmount
   }, [isConnected, account]); // Add necessary dependencies
 

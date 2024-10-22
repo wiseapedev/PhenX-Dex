@@ -146,6 +146,7 @@
   opacity: 0.4;
 }
 .wrong-network-container {
+  margin-top: 5vh;
   z-index: 10;
   display: flex;
   position: fixed;
