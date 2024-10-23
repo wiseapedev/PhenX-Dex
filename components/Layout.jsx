@@ -64,15 +64,16 @@ const Layout = ({buyLink, buyLinkKey}) => {
       <div className='bg' />
 
       {!account && <WrongNetwork />}
-      {!tokensReady && <Loader />}
 
-      {account && authToken && tokensReady && (
+      {account && authToken && tokensReady ? (
         <SwapNoSSR
           buyLink={buyLink}
           buyLinkKey={buyLinkKey}
           chain_id={chain_id}
           key={chain_id}
         />
+      ) : (
+        account && authToken && <Loader />
       )}
 
       {memoFooterBar}
