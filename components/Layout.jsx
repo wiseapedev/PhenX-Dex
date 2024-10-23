@@ -64,6 +64,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
       <div className='bg' />
 
       {!account && <WrongNetwork />}
+      {!tokensReady && <Loader />}
 
       {account && authToken && tokensReady && (
         <SwapNoSSR
@@ -73,8 +74,6 @@ const Layout = ({buyLink, buyLinkKey}) => {
           key={chain_id}
         />
       )}
-
-      {!tokensReady && <Loader />}
 
       {memoFooterBar}
     </div>

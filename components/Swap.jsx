@@ -90,7 +90,9 @@ const Swap = ({buyLink, buyLinkKey}) => {
   const routerAddressV3 = CHAINS[chain_id].uniswapRouterAddressV3;
   const routerAddress = CHAINS[chain_id].udxRouterAddress;
   const wethAddress = CHAINS[chain_id].wethAddress;
+  const ethAddress = CHAINS[chain_id].ethAddress;
   const uniswapFactoryV2Address = CHAINS[chain_id].uniswapFactoryV2Address;
+
   let weth = wethAddress;
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -1414,7 +1416,53 @@ const Swap = ({buyLink, buyLinkKey}) => {
           }
         }
 
-        const price = await getPriceData();
+        let price;
+        if (
+          (ALL_TOKENS[sellToken].symbol === 'ETH' &&
+            ALL_TOKENS[buyToken].symbol === 'WETH') ||
+          (ALL_TOKENS[sellToken].symbol === 'WETH' &&
+            ALL_TOKENS[buyToken].symbol === 'ETH')
+        ) {
+          let buyTokenIsWETH = ALL_TOKENS[buyToken].symbol === 'WETH';
+          let sellTokenIsWETH = ALL_TOKENS[sellToken].symbol === 'WETH';
+          console.log('buyTokenIsWETH', buyTokenIsWETH);
+          console.log('sellTokenIsWETH', sellTokenIsWETH);
+          console.log('wethAddress', wethAddress);
+          console.log('ethAddress', ethAddress);
+
+          price = {
+            fromTokenAddress: sellTokenIsWETH ? wethAddress : ethAddress,
+            tokenIn: sellTokenIsWETH ? wethAddress : ethAddress,
+            toTokenAddress: buyTokenIsWETH ? wethAddress : ethAddress,
+            tokenOut: buyTokenIsWETH ? wethAddress : ethAddress,
+            decimals: ALL_TOKENS[buyToken].decimals,
+            amount: parsedSellAmount,
+            amountIn: parsedSellAmount || '0',
+            amountOut: parsedSellAmount || '0',
+            buyAmount: parsedSellAmount || '0',
+            slippage: 0,
+            to: account,
+            recipient: account,
+            fee: 0,
+            isV3Only: false,
+            isV2Only: false,
+            isV2ToV3: false,
+            isV3ToV2: false,
+            swapType: false,
+            sqrtPriceLimitX96: 0,
+            deadline: Math.floor(Date.now() / 1000) + 60 * 2,
+            feeAddress: feeAddress,
+            v3QuoteFeeIn: 0,
+            v3QuoteFeeOut: 0,
+            v3QuoteFee: 0,
+            isWethToEth: sellTokenIsWETH,
+            isEthToWeth: buyTokenIsWETH,
+          };
+          console.log('price', price);
+        } else {
+          price = await getPriceData();
+        }
+
         let swapDataFormat;
 
         swapDataFormat = {
@@ -1442,6 +1490,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
           v3QuoteFeeOut: price.v3QuoteFeeOut,
           v3QuoteFee: price.v3QuoteFee,
         };
+        console.log('swapDataFormat', swapDataFormat);
+
         setSwapData(swapDataFormat);
 
         let formatBuyAmount = ethers.formatUnits(
@@ -1893,15 +1943,19 @@ const Swap = ({buyLink, buyLinkKey}) => {
               let estimatedGas = await wethContract.deposit.estimateGas({
                 value: swapData.amount,
               });
+              let gasFees = await getGasFees();
               estimatedGas = addGasBuffer(estimatedGas);
               transactionResponse = await wethContract.deposit({
                 value: swapData.amount,
                 gasLimit: estimatedGas,
+                maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                maxFeePerGas: gasFees.maxFeePerGas,
               });
 
               return;
             }
             async function withdrawEth() {
+              let gasFees = await getGasFees();
               const wethContract = new ethers.Contract(
                 wethAddress,
                 wethABI,
@@ -1913,7 +1967,11 @@ const Swap = ({buyLink, buyLinkKey}) => {
               estimatedGas = addGasBuffer(estimatedGas);
               transactionResponse = await wethContract.withdraw(
                 swapData.amount,
-                {gasLimit: estimatedGas}
+                {
+                  gasLimit: estimatedGas,
+                  maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                  maxFeePerGas: gasFees.maxFeePerGas,
+                }
               );
               return;
             }
@@ -2250,7 +2308,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
             console.error('Failed to swap:', error);
 
             if (
-              (retryCount < 5 &&
+              (retryCount < 2 &&
                 error.message &&
                 error.message.includes('revert')) ||
               error.code === 'INSUFFICIENT_FUNDS'

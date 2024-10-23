@@ -630,6 +630,7 @@ const CHAINS = {
     chain_id: 1,
     usdcAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     wethAddress: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    ethAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     uniswapRouterAddressV2: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
     uniswapFactoryAddressV2: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
     uniswapRouterAddressV3: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
@@ -641,6 +642,8 @@ const CHAINS = {
     chain_id: 8453,
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     wethAddress: '0x4200000000000000000000000000000000000006',
+    ethAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+
     uniswapRouterAddressV2: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24',
     uniswapFactoryAddressV2: '0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6',
     uniswapRouterAddressV3: '0x2626664c2603336E57B271c5C0b26F421741e481',
