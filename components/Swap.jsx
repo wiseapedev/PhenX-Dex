@@ -1589,6 +1589,134 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
 
           return () => clearInterval(intervalId); // Clean up the interval on component unmount
         }, [sellToken]);
+        async function getGasFees() {
+          try {
+            /*            const payload = {
+              jsonrpc: '2.0',
+              id: 1,
+              method: 'bn_gasPrice',
+              params: [{chainid: 1}], // Replace with the appropriate chain ID, 1 for Ethereum Mainnet
+            };
+      
+            const data = await providerHTTP.send(
+              payload.method,
+              payload.params
+            );
+            console.log('data', data); */
+            async function fetchGasPrice(chain_id) {
+              try {
+                const response = await fetch('/api/rpc-call/get-gas-price', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
+                  },
+
+                  body: JSON.stringify({chain_id}),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                  console.log('Gas Price:', data);
+                  return data.gasPrice;
+                } else {
+                  console.error('Error:', data.error);
+                }
+              } catch (error) {
+                console.error('Failed to fetch gas price:', error);
+              }
+            }
+            const data = await fetchGasPrice(chain_id);
+            console.log('data', data);
+            const estimatedPrices = data.blockPrices[0].estimatedPrices;
+
+            // Select the appropriate gas price level (e.g., fast, standard, or safe low)
+            const recommended = estimatedPrices.find(
+              (price) => price.confidence === 95
+            ); // 99% confidence level
+
+            const maxPriorityFeePerGas = ethers.parseUnits(
+              String(recommended.maxPriorityFeePerGas),
+              'gwei'
+            );
+            const maxFeePerGas = ethers.parseUnits(
+              String(recommended.maxFeePerGas),
+              'gwei'
+            );
+
+            console.log(
+              'maxPriorityFeePerGas',
+              maxPriorityFeePerGas.toString()
+            );
+            console.log('maxFeePerGas', maxFeePerGas.toString());
+
+            return {
+              maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
+              maxFeePerGas: maxFeePerGas.toString(),
+            };
+          } catch (error) {
+            console.error('Failed to getGasFees:', error);
+          }
+        }
+
+        async function getNonEthGasFees() {
+          try {
+            async function fetchFeeData(chain_id) {
+              try {
+                const response = await fetch('/api/rpc-call/get-fee-data', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
+                  },
+                  body: JSON.stringify({chain_id}),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                  console.log('Fee Data:', data.feeData);
+                  return data.feeData;
+                } else {
+                  console.error('Error:', data.error);
+                }
+              } catch (error) {
+                console.error('Failed to fetch fee data:', error);
+              }
+            }
+            const feeData = await fetchFeeData(chain_id);
+            // 0.1 Gwei in Wei
+            const zeroPointOneGwei = BigInt(10000000);
+
+            // Extract gasPrice from feeData
+            const gasPrice = BigInt(feeData.gasPrice || 0);
+
+            // Set maxPriorityFeePerGas to 0.1 Gwei
+            const maxPriorityFeePerGas = zeroPointOneGwei;
+
+            // Calculate maxFeePerGas by adding gasPrice and maxPriorityFeePerGas
+            const maxFeePerGas = maxPriorityFeePerGas + gasPrice;
+
+            // Log the values for debugging
+            console.log('gasPrice', gasPrice.toString());
+            console.log(
+              'maxPriorityFeePerGas',
+              maxPriorityFeePerGas.toString()
+            );
+            console.log('maxFeePerGas', maxFeePerGas.toString());
+
+            // Return the gas fees as strings
+            return {
+              gasPrice: gasPrice.toString(),
+              maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
+              maxFeePerGas: maxFeePerGas.toString(),
+            };
+          } catch (error) {
+            console.error('Failed to getNonEthGasFees:', error);
+          }
+        }
+
         const handleApprove = async () => {
           try {
             toast.info('Please approve the transaction in your wallet');
@@ -1602,10 +1730,30 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
             );
             let requiredAmount = swapData.amount;
             requiredAmount = String(requiredAmount);
+            let gasFees;
+            if (chain_id === 1) {
+              gasFees = await getGasFees();
+            } else {
+              gasFees = await getNonEthGasFees();
+            }
+            const estimatedGas = await tokenContract.approve.estimateGas(
+              swapData.isV3Only ? routerAddress : routerAddress,
+              largeAmount,
+              {
+                maxFeePerGas: gasFees.maxFeePerGas,
+                maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+              }
+            );
+            console.log('Estimated Gas:', estimatedGas.toString());
 
             const approveTx = await tokenContract.approve(
               swapData.isV3Only ? routerAddress : routerAddress,
-              largeAmount
+              largeAmount,
+              {
+                gasLimit: estimatedGas,
+                maxFeePerGas: gasFees.maxFeePerGas,
+                maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+              }
             );
             console.log('Transaction Hash:', approveTx.hash);
             const approvalReceipt = await approveTx.wait();
@@ -1740,79 +1888,6 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                 console.error('Failed to preventOverMax:', error);
               }
             }
-            async function getGasFees() {
-              try {
-                /*            const payload = {
-                  jsonrpc: '2.0',
-                  id: 1,
-                  method: 'bn_gasPrice',
-                  params: [{chainid: 1}], // Replace with the appropriate chain ID, 1 for Ethereum Mainnet
-                };
-
-                const data = await providerHTTP.send(
-                  payload.method,
-                  payload.params
-                );
-                console.log('data', data); */
-                async function fetchGasPrice(chain_id) {
-                  try {
-                    const response = await fetch(
-                      '/api/rpc-call/get-gas-price',
-                      {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
-                        },
-
-                        body: JSON.stringify({chain_id}),
-                      }
-                    );
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                      console.log('Gas Price:', data);
-                      return data.gasPrice;
-                    } else {
-                      console.error('Error:', data.error);
-                    }
-                  } catch (error) {
-                    console.error('Failed to fetch gas price:', error);
-                  }
-                }
-                const data = await fetchGasPrice(chain_id);
-                console.log('data', data);
-                const estimatedPrices = data.blockPrices[0].estimatedPrices;
-
-                // Select the appropriate gas price level (e.g., fast, standard, or safe low)
-                const recommended = estimatedPrices.find(
-                  (price) => price.confidence === 95
-                ); // 99% confidence level
-
-                const maxPriorityFeePerGas = ethers.parseUnits(
-                  String(recommended.maxPriorityFeePerGas),
-                  'gwei'
-                );
-                const maxFeePerGas = ethers.parseUnits(
-                  String(recommended.maxFeePerGas),
-                  'gwei'
-                );
-
-                console.log(
-                  'maxPriorityFeePerGas',
-                  maxPriorityFeePerGas.toString()
-                );
-                console.log('maxFeePerGas', maxFeePerGas.toString());
-
-                return {
-                  maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
-                  maxFeePerGas: maxFeePerGas.toString(),
-                };
-              } catch (error) {
-                console.error('Failed to getGasFees:', error);
-              }
-            }
 
             /*    async function getGasFees() {
   try {
@@ -1846,62 +1921,6 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
     console.error('Failed to getGasFees:', error);
   }
 } */
-            async function getNonEthGasFees() {
-              try {
-                async function fetchFeeData(chain_id) {
-                  try {
-                    const response = await fetch('/api/rpc-call/get-fee-data', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
-                      },
-                      body: JSON.stringify({chain_id}),
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                      console.log('Fee Data:', data.feeData);
-                      return data.feeData;
-                    } else {
-                      console.error('Error:', data.error);
-                    }
-                  } catch (error) {
-                    console.error('Failed to fetch fee data:', error);
-                  }
-                }
-                const feeData = await fetchFeeData(chain_id);
-                // 0.1 Gwei in Wei
-                const zeroPointOneGwei = BigInt(10000000);
-
-                // Extract gasPrice from feeData
-                const gasPrice = BigInt(feeData.gasPrice || 0);
-
-                // Set maxPriorityFeePerGas to 0.1 Gwei
-                const maxPriorityFeePerGas = zeroPointOneGwei;
-
-                // Calculate maxFeePerGas by adding gasPrice and maxPriorityFeePerGas
-                const maxFeePerGas = maxPriorityFeePerGas + gasPrice;
-
-                // Log the values for debugging
-                console.log('gasPrice', gasPrice.toString());
-                console.log(
-                  'maxPriorityFeePerGas',
-                  maxPriorityFeePerGas.toString()
-                );
-                console.log('maxFeePerGas', maxFeePerGas.toString());
-
-                // Return the gas fees as strings
-                return {
-                  gasPrice: gasPrice.toString(),
-                  maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
-                  maxFeePerGas: maxFeePerGas.toString(),
-                };
-              } catch (error) {
-                console.error('Failed to getNonEthGasFees:', error);
-              }
-            }
 
             let gasFees;
             if (chain_id === 1) {
