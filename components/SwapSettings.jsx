@@ -13,6 +13,8 @@ import {
 } from './SVGMAIN.js';
 import {ethers} from 'ethers';
 import MemPool from './MemPool';
+import {toast} from 'react-toastify';
+
 function SwapSettings({
   setShowChartState,
   showChart,
@@ -393,7 +395,10 @@ function SwapSettings({
         <img
           className='swap-icon'
           src='/audit.png'
-          onClick={() => setShowAudits(!showAudits)}
+          //     onClick={() => setShowAudits(!showAudits)}
+          onClick={() => {
+            toast('Maintenance 25th/26th of October');
+          }}
         />{' '}
         <img
           className='swap-icon'

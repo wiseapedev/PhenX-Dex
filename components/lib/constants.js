@@ -3,17 +3,30 @@ export const MAX_ALLOWANCE =
 
 export const exchangeProxy = '0xDef1C0ded9bec7F1a1670819833240f027b25EfF';
 
-/* 
-const ETH_TOKENS = {
-  eth: {
+const ETH_TOKENS_DISPLAY = {
+  1: {
+    is_partner: true,
+
     chain_id: 1,
     name: 'Ether',
     symbol: 'ETH',
     decimals: 18,
     address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     logo_uri: 'https://www.dextools.io/resources/chains/med/ether.png',
+    dollarValue: 0,
   },
-  usdc: {
+  2: {
+    chain_id: 1,
+    is_partner: true,
+
+    name: 'Wrapped Ether',
+    symbol: 'WETH',
+    decimals: 18,
+    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    logo_uri: 'https://www.dextools.io/resources/chains/med/ether.png',
+    dollarValue: 0,
+  },
+  3: {
     is_partner: true,
     chain_id: 1,
     name: 'USD Coin',
@@ -23,15 +36,8 @@ const ETH_TOKENS = {
     logo_uri:
       'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
   },
-  weth: {
-    chain_id: 1,
-    name: 'Wrapped Ether',
-    symbol: 'WETH',
-    decimals: 18,
-    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    logo_uri: 'https://www.dextools.io/resources/chains/med/ether.png',
-  },
-  pnx: {
+
+  4: {
     is_partner: true,
     //  isPromo: true,
     chain_id: 1,
@@ -39,20 +45,27 @@ const ETH_TOKENS = {
     address: '0xd166b7d9824cc5359360b47389aba9341ce12619',
     symbol: 'PNX',
     decimals: 9,
+    dollarValue: 0,
+
     logo_uri:
       'https://www.dextools.io/resources/tokens/logos/ether/0xd166b7d9824cc5359360b47389aba9341ce12619.png?1722864698511',
   },
-  mdai: {
+  5: {
     chain_id: 1,
-    is_partner: true,
+    is_partner: false,
     name: 'MindAI',
     address: '0xb549116ac57b47c1b365a890e1d04fd547dfff97',
     symbol: 'MDAI',
     decimals: 18,
+    dollarValue: 0,
+
     logo_uri:
       'https://www.dextools.io/resources/tokens/logos/ether/0xb549116ac57b47c1b365a890e1d04fd547dfff97.png?1710539741076',
   },
-  devve: {
+  6: {
+    dollarValue: 0,
+    is_partner: false,
+
     chain_id: 1,
     name: 'DevvE',
     address: '0x8248270620aa532e4d64316017be5e873e37cc09',
@@ -61,7 +74,9 @@ const ETH_TOKENS = {
     logo_uri:
       'https://www.dextools.io/resources/tokens/logos/ether/0x8248270620aa532e4d64316017be5e873e37cc09.png?1707335270850',
   },
-  dogecoin20: {
+  /* 7: {
+    dollarValue: 0,
+
     chain_id: 1,
     name: 'Dogecoin20',
     address: '0x2541A36BE4cD39286ED61a3E6AFC2307602489d6',
@@ -70,7 +85,7 @@ const ETH_TOKENS = {
     logo_uri:
       'https://www.dextools.io/resources/tokens/logos/ether/0x2541a36be4cd39286ed61a3e6afc2307602489d6.png?1712013377127',
   },
-  bank: {
+    bank: {
     chain_id: 1,
     name: 'Bank AI',
     address: '0xe18ab3568fa19e0ed38bc1d974eddd501e61e12d',
@@ -88,14 +103,13 @@ const ETH_TOKENS = {
     decimals: 18,
     logo_uri:
       'https://www.dextools.io/resources/tokens/logos/ether/0x3fca2cd116121decd03043fbaba39f60651de903.png?1712970083014',
-  }, */
-/*  
+  },
+
   romu: {
     chain_id: 1,
     name: 'RoboMuMu',
     is_partner: true,
     isPromo: true,
-
     address: '0x2B04Dfd108F80a0a12E9E0FbA1bf3DE342a87f85',
     symbol: 'ROMU',
     decimals: 18,
@@ -454,9 +468,6 @@ const ETH_TOKENS = {
     logo_uri: 'https://i.ibb.co/GF0KY55/IMG-9144.png',
   },
 
-
-
-
   rddt: {
     chain_id: 1,
     name: 'Reddit',
@@ -483,8 +494,6 @@ const ETH_TOKENS = {
     decimals: 18,
     logo_uri: 'https://i.ibb.co/hRGYfjY/IMG-8983.jpg',
   },
-
-
 
   ator: {
     chain_id: 1,
@@ -548,18 +557,18 @@ const ETH_TOKENS = {
     logo_uri:
       'https://www.dextools.io/resources/tokens/logos/ether/0xa9fbcc25435ad713a9468d8c89dd7baae8914e3a.jpeg?1695037825204',
   },
- */
-/*     usdt: {
-      is_partner: true,
-      chain_id: 1,
-      name: 'USDT',
-      symbol: 'USDT',
-      decimals: 6,
-      address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-      logo_uri:
-        'https://www.dextools.io/resources/tokens/logos/3/mantle/0x201eba5cc46d216ce6dc03f6a759e8e766e956ae.png?1707291114',
-    }, */
-/*   hodlessbot: {
+
+  usdt: {
+    is_partner: true,
+    chain_id: 1,
+    name: 'USDT',
+    symbol: 'USDT',
+    decimals: 6,
+    address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    logo_uri:
+      'https://www.dextools.io/resources/tokens/logos/3/mantle/0x201eba5cc46d216ce6dc03f6a759e8e766e956ae.png?1707291114',
+  },
+  hodlessbot: {
     chain_id: 1,
     name: 'Hodless BOT',
     symbol: 'HBOT',
@@ -578,8 +587,9 @@ const ETH_TOKENS = {
     decimals: 18,
     logo_uri:
       'https://www.dextools.io/resources/tokens/logos/ether/0xa0e7626287bd02cbe3531c65148261bf0c0ed98b.png?1699350137877',
-  }, 
-};*/
+  },
+ */
+};
 const BASE_TOKENS = {
   1: {
     id: 1,
@@ -652,6 +662,6 @@ const CHAINS = {
     udxRouterAddress: '0xd94Fe4376Fc177EA46016dccab814D7c821AD70c',
   },
 };
-// export {ETH_TOKENS};
+export {ETH_TOKENS_DISPLAY};
 export {BASE_TOKENS};
 export {CHAINS};

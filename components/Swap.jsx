@@ -57,16 +57,15 @@ import fetchBlockNumber from './rpc-calls/fetchBlockNumber';
 import getAmountOutV2 from './rpc-calls/getAmountOutV2.js';
 import getUniswapQuoteV3 from './rpc-calls/getUniswapQuoteV3.js';
 
-const Irouter = new Interface(routerABI);
+// const Irouter = new Interface(routerABI);
 
-const Swap = ({buyLink, buyLinkKey}) => {
+const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
   const {
     signer,
     provider,
     account,
     tokenListOpenRef,
     ETH_TOKENS,
-    ALL_TOKENS,
     chain_id,
     saverInputAmount,
     authToken,
@@ -376,6 +375,13 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
     const inputRef = useRef(null);
     function handleInputAmountChange(value) {
+      if (!account) {
+        toast.info('Please connect your wallet, to trade any token');
+        updateData('savedInputAmount', 0);
+        saverInputAmount.current = 0;
+        inputRef.current.value = '';
+        return;
+      }
       console.log('handleInputAmountChange', value);
       updateData('savedInputAmount', value);
     }
@@ -755,6 +761,7 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
     useEffect(() => {
       const handle = setInterval(() => {
+        if (!account) return;
         const inputAmount = Number(savedInputAmount.current);
         const OutputAmount = Number(savedOutputAmount.current);
         const Slippage = String(savedSlippage.current);
@@ -788,6 +795,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
     useEffect(() => {
       const handle = setInterval(() => {
+        if (!account) return;
+
         const inputAmount = Number(savedInputAmount.current);
 
         // if input amount is 0, reset swap data
@@ -804,6 +813,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
     useEffect(() => {
       if (sellAmount > 0 && sellToken && buyToken) {
+        if (!account) return;
+
         console.log('✅ fetchPrice');
         fetchPrice();
       }
@@ -816,6 +827,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
       let intervalId;
 
       const fetchNewBlockNumber = async () => {
+        if (!account) return;
+
         if (inSwap.current === true) {
           return;
         }
@@ -1528,6 +1541,8 @@ const Swap = ({buyLink, buyLinkKey}) => {
 
         useEffect(() => {
           const checkAllowance = async () => {
+            if (!account) return;
+
             try {
               if (ALL_TOKENS[sellToken].symbol === 'ETH') {
                 if (isApprovalNeeded) {

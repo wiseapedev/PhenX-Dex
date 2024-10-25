@@ -258,6 +258,7 @@ export default TokenList;
 
 import {useState, useEffect, useContext, useRef, useMemo} from 'react';
 import {BlockchainContext} from './BlockchainContext';
+import {ETH_TOKENS_DISPLAY} from './lib/constants';
 
 function TokenList({
   type,
@@ -268,7 +269,7 @@ function TokenList({
   sellToken,
   handleContractImport,
 }) {
-  const {dollarRef, account, chain_id, ALL_TOKENS} =
+  const {dollarRef, account, authToken, chain_id, ALL_TOKENS} =
     useContext(BlockchainContext);
   const [tokens, setTokens] = useState({});
   const [loading, setLoading] = useState(true); // Add loading state
@@ -280,6 +281,7 @@ function TokenList({
 
   // Function to handle search and contract import
   const handleSearchAndImport = (value) => {
+    if (!account) return;
     setSearchTerm(value);
     if (value.length === 42) {
       setTimeout(() => {
@@ -291,6 +293,8 @@ function TokenList({
   // Track and trigger updates when dollarRef changes
   useEffect(() => {
     const checkNewDollarRef = () => {
+      if (!account) return;
+
       if (dollarRef?.current !== previousDollarRef.current) {
         setDollarRefTrigger((prev) => prev + 1);
         previousDollarRef.current = dollarRef?.current;
@@ -339,6 +343,8 @@ function TokenList({
             {}
           );
           setTokens(sortedTokens); // Update the token state
+        } else if (!account) {
+          setTokens(ETH_TOKENS_DISPLAY); // Use default tokens if account is not available
         }
       } catch (error) {
         console.error('Error fetching tokens:', error);
@@ -357,6 +363,10 @@ function TokenList({
 
   // Filter and sort tokens based on search term
   const filteredAndSortedTokens = useMemo(() => {
+    if (!account) {
+      return Object.entries(tokens);
+    }
+
     return Object.entries(tokens)
       .filter(
         ([, token]) =>
@@ -370,10 +380,11 @@ function TokenList({
   }, [tokens, searchTerm]);
 
   // Ensure that all required values are available before rendering
-  if (loading || !dollarRef || !account || Object.keys(tokens).length === 0) {
+
+  if (loading || Object.keys(tokens).length === 0) {
     return (
       <div className={`token-list-container ${fadeIn ? 'fade-in' : ''}`}>
-        <div className='token-list'>
+        <div className='token-list' ref={tokenListRef}>
           <div className='loader loader11'>
             <div></div>
             <div></div>

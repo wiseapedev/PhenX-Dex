@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import NavBar from './NavBar';
 import Loader from './Loader';
 import FooterBar from './Footer';
+import {ETH_TOKENS_DISPLAY} from './lib/constants';
 
 const SwapNoSSR = dynamic(() => import('./Swap'), {
   ssr: false, // Disable server-side rendering for the Swap component
@@ -63,14 +64,24 @@ const Layout = ({buyLink, buyLinkKey}) => {
       {memoNavBar}
       <div className='bg' />
 
-      {!account && <WrongNetwork />}
-
+      {/*       {!account && <WrongNetwork />}
+       */}
+      {!account && (
+        <SwapNoSSR
+          buyLink={buyLink}
+          buyLinkKey={buyLinkKey}
+          chain_id={chain_id}
+          key={chain_id}
+          ALL_TOKENS={ETH_TOKENS_DISPLAY}
+        />
+      )}
       {account && authToken && tokensReady ? (
         <SwapNoSSR
           buyLink={buyLink}
           buyLinkKey={buyLinkKey}
           chain_id={chain_id}
           key={chain_id}
+          ALL_TOKENS={ALL_TOKENS}
         />
       ) : (
         account && authToken && <Loader />

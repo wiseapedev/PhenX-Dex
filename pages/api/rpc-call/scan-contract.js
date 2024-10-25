@@ -8,7 +8,7 @@ const RPC_URLS = {
 };
 
 // Retry function for provider initialization
-async function initializeProvider(chain_id, retries = 3, delayMs = 1000) {
+async function initializeProvider(chain_id, retries = 3, delayMs = 3000) {
   try {
     const provider = new ethers.JsonRpcProvider(RPC_URLS[chain_id]);
     // Trigger a simple call to detect the network
