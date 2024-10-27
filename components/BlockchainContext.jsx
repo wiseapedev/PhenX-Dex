@@ -66,6 +66,7 @@ export const BlockchainProvider = ({children}) => {
     })
   );
   const limit = (task) => limiter.current.schedule(task); */
+  const bannedSymbols = ['WBNB', 'USD0 [www.usual.finance]', 'WETH'];
 
   const [ETH_TOKENS, setEthTokens] = useState({});
   const [ALL_TOKENS, setAllTokens] = useState({});
@@ -180,6 +181,8 @@ export const BlockchainProvider = ({children}) => {
           setChainId(8453);
         } else if (selectedNetworkId === 1) {
           setChainId(1);
+        } else if (selectedNetworkId === 56) {
+          setChainId(56);
         }
       }
       console.log('selectedNetworkId', selectedNetworkId);
@@ -252,7 +255,6 @@ export const BlockchainProvider = ({children}) => {
       console.log('data', data);
       const userTokens = data.userTokens;
       console.log('userTokens', userTokens);
-      const bannedSymbols = ['USD0 [www.usual.finance]'];
 
       const formattedUserTokens = userTokens
         .filter(
@@ -267,6 +269,7 @@ export const BlockchainProvider = ({children}) => {
           decimals: token.contract_decimals,
           id: tokensDbLength + index, // Start IDs from the length of tokensDB
           is_partner: tokensDB[token.contract_address]?.is_partner || false,
+          is_v2: tokensDB[token.contract_address]?.is_v2 || false,
           logo_uri: 'https://i.ibb.co/cT4kT4T/phenxlogo-1.png',
           name: token.contract_name,
           symbol: token.contract_ticker_symbol,
@@ -420,7 +423,11 @@ export const BlockchainProvider = ({children}) => {
 
       await delay(100);
       let ethPriceInUsdc = amounts[1];
-      ethPriceInUsdc = ethers.formatUnits(ethPriceInUsdc, 6);
+      let decimals = 6;
+      if (chain_id === 56) {
+        decimals = 18;
+      }
+      ethPriceInUsdc = ethers.formatUnits(ethPriceInUsdc, decimals);
       ethPriceInUsdc = Number(ethPriceInUsdc);
       ethPriceInUsdc = ethPriceInUsdc.toFixed(0);
       ethDollarPrice.current = ethPriceInUsdc;
@@ -492,8 +499,12 @@ export const BlockchainProvider = ({children}) => {
         .filter((key) => ALL_TOKENS[key].chain_id === chain_id)
         .map(async (key) => {
           const balanceData = await getDollarValue(ALL_TOKENS[key]);
+          // return if banned symbol
+          if (bannedSymbols.includes(ALL_TOKENS[key].symbol)) {
+            return;
+          }
 
-          await delay(200);
+          await delay(50);
 
           return {
             key,

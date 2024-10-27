@@ -13,6 +13,8 @@ function Iframe({buyToken, chain_id, subTab}) {
     let chainName = 'ethereum';
     if (chain_id === 8453) {
       chainName = 'base';
+    } else if (chain_id === 56) {
+      chainName = 'bsc';
     }
     if (currentTab === 'Chart') {
       /*     iframeSrc = `https://dexscreener.com/ethereum/${contractAddress}?embed=1&theme=dark&info=0`; */

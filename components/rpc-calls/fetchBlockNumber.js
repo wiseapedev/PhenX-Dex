@@ -1,7 +1,7 @@
 async function fetchBlockNumber(chain_id, authToken) {
   try {
     if (!chain_id) {
-      //  console.error('Invalid or missing parameters for block number');
+      console.error('Invalid or missing parameters for block number');
       return null;
     }
     const response = await fetch('/api/rpc-call/get-block-number', {

@@ -10,6 +10,8 @@ function PendingTransaction({transaction, swapData, chainId}) {
     explorerLink = `https://etherscan.io/tx/${hash}`;
   } else if (chainId === 8453) {
     explorerLink = `https://basescan.org/tx/${hash}`;
+  } else if (chainId === 56) {
+    explorerLink = `https://bscscan.com/tx/${hash}`;
   }
 
   useEffect(() => {

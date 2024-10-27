@@ -4,6 +4,7 @@ function normalizeTokenProperties(token) {
   return {
     id: token.id || null,
     is_partner: token.isPartner || token.is_partner || false,
+    is_v2: token.isV2 || token.is_v2 || false,
     chain_id: token.chainId || token.chain_id || null,
     name: token.name || '',
     symbol: token.symbol || '',
@@ -45,6 +46,16 @@ function mergeTokens(chain_id, ETH_TOKENS) {
     });
   }
   if (chain_id === 8453) {
+    Object.keys(ETH_TOKENS).forEach((key) => {
+      const token = ETH_TOKENS[key];
+      if (token.chain_id === chain_id) {
+        mergedTokens[token.id] = token;
+        // Track the highest ID
+        maxId = Math.max(maxId, token.id || 0);
+      }
+    });
+  }
+  if (chain_id === 56) {
     Object.keys(ETH_TOKENS).forEach((key) => {
       const token = ETH_TOKENS[key];
       if (token.chain_id === chain_id) {

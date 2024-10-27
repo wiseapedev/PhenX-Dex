@@ -646,6 +646,7 @@ const CHAINS = {
     uniswapRouterAddressV3: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
     uniswapQuoterV3: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     udxRouterAddress: '0xfa60C635dE9Ea9337C88e3Cb7b00d997bCD8e05c',
+    nativeSymbol: 'ETH',
   },
   8453: {
     name: 'Base',
@@ -653,13 +654,28 @@ const CHAINS = {
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     wethAddress: '0x4200000000000000000000000000000000000006',
     ethAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-
     uniswapRouterAddressV2: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24',
     uniswapFactoryAddressV2: '0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6',
     uniswapRouterAddressV3: '0x2626664c2603336E57B271c5C0b26F421741e481',
     uniswapFactoryAddressV3: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
     uniswapQuoterV3: '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a',
     udxRouterAddress: '0xd94Fe4376Fc177EA46016dccab814D7c821AD70c',
+    nativeSymbol: 'ETH',
+  },
+  56: {
+    name: 'BSC',
+    chain_id: 56,
+    usdcAddress: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+    wethAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    ethAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    uniswapRouterAddressV2: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+    uniswapFactoryAddressV2: '0xca143ce32fe78f1f7019d7d551a6402fc5350c73',
+    uniswapRouterAddressV3: '0xB971eF87ede563556b2ED4b1C0b0019111Dd85d2',
+    uniswapFactoryAddressV3: '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865',
+    uniswapQuoterV3: '0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997',
+    //
+    udxRouterAddress: '0xBb6B7B7B6137F7CE228BC25992A9964fBE167342',
+    nativeSymbol: 'BNB',
   },
 };
 export {ETH_TOKENS_DISPLAY};

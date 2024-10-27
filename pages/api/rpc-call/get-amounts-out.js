@@ -3,13 +3,7 @@ import {ethers} from 'ethers';
 import {rpcAuthMiddleware} from '../middleware/rpcAuthMiddleware';
 import {CHAINS} from './CHAINS';
 import uniswapRouterABI from './abis/UniswapRouter.json';
-
-// Define a mapping of chain IDs to their corresponding RPC URLs
-const RPC_URLS = {
-  1: process.env.ETH_RPC, // Ethereum Mainnet
-  8453: process.env.BASE_RPC, // Base
-  // Add more chains here as needed
-};
+import RPC_URLS from './RPC_URLS';
 
 export default async function handler(req, res) {
   const middlewarePromise = new Promise((resolve, reject) => {

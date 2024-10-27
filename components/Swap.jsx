@@ -70,7 +70,8 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
     saverInputAmount,
     authToken,
   } = useContext(BlockchainContext);
-
+  const nativeSymbol = CHAINS[chain_id].nativeSymbol;
+  const isBSC = chain_id === 56;
   const isETH = chain_id === 1;
   function findKeyBySymbol(symbol) {
     let token = symbol;
@@ -171,7 +172,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
   const [showChart, setShowChart] = useState(false);
   const [showAudits, setShowAudits] = useState(false);
 
-  const [sellToken, setSellToken] = useState(findKeyBySymbol('ETH'));
+  const [sellToken, setSellToken] = useState(findKeyBySymbol(nativeSymbol));
   const [sellTokenDisplayBalance, setSellTokenDisplayBalance] = useState(0);
   const [buyTokenDisplayBalance, setBuyTokenDisplayBalance] = useState(0);
   const [showTokenList, setShowTokenList] = useState(false);
@@ -272,7 +273,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
         const token = ALL_TOKENS[tokenKey];
         const tokenAddress = token.address;
         let balance;
-        if (token.symbol === 'ETH') {
+        if (token.symbol === nativeSymbol) {
           try {
             const response = await fetch('/api/rpc-call/get-balance', {
               method: 'POST',
@@ -353,7 +354,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
   const handleSellTokenChange = (key, isPort) => {
     setSellToken(key);
     if (isPort === true) {
-      setBuyToken(findKeyBySymbol('ETH'));
+      setBuyToken(findKeyBySymbol(nativeSymbol));
       setMainTab('Swap');
       setSubTab('Trade');
     }
@@ -361,7 +362,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
   const handleBuyTokenChange = (key, isPort) => {
     setBuyToken(key);
     if (isPort === true) {
-      setSellToken(findKeyBySymbol('ETH'));
+      setSellToken(findKeyBySymbol(nativeSymbol));
       setMainTab('Swap');
       setSubTab('Trade');
     }
@@ -412,13 +413,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
               className='token-select-box'
               onClick={() => setShowTokenList('sellToken')}>
               <img
-                src={ALL_TOKENS[sellToken].logo_uri}
-                alt={ALL_TOKENS[sellToken].name}
+                src={ALL_TOKENS[sellToken]?.logo_uri}
+                alt={ALL_TOKENS[sellToken]?.name}
                 width={25}
                 height={25}
                 style={{borderRadius: '50%'}}
               />{' '}
-              <div className='med-text'>{ALL_TOKENS[sellToken].symbol}</div>
+              <div className='med-text'>{ALL_TOKENS[sellToken]?.symbol}</div>
               <DownArrow />{' '}
             </div>
           </div>
@@ -529,13 +530,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
               onClick={() => setShowTokenList('buyToken')}>
               {newListing && <div className='new-listing'>NEW</div>}
               <img
-                src={ALL_TOKENS[buyToken].logo_uri}
-                alt={ALL_TOKENS[buyToken].name}
+                src={ALL_TOKENS[buyToken]?.logo_uri}
+                alt={ALL_TOKENS[buyToken]?.name}
                 width={25}
                 height={25}
                 style={{borderRadius: '50%'}}
               />{' '}
-              <div className='med-text'>{ALL_TOKENS[buyToken].symbol}</div>
+              <div className='med-text'>{ALL_TOKENS[buyToken]?.symbol}</div>
               <DownArrow />
             </div>
           </div>
@@ -923,6 +924,8 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
       if (!ALL_TOKENS[sellToken] || !ALL_TOKENS[buyToken] || !sellAmount) {
         return <div className='swap-button disable'>......</div>;
       }
+      const v2Only = ALL_TOKENS[buyToken].is_v2 || ALL_TOKENS[sellToken].is_v2;
+      console.log('✅✅✅ v2Only:', v2Only);
 
       try {
         const sellTokenDecimals = ALL_TOKENS[sellToken]?.decimals;
@@ -940,11 +943,14 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
             const defineSwapType = () => {
               const buyTokenSymbol = ALL_TOKENS[buyToken].symbol;
               const sellTokenSymbol = ALL_TOKENS[sellToken].symbol;
-              if (sellTokenSymbol === 'ETH' && buyTokenSymbol !== 'ETH') {
+              if (
+                sellTokenSymbol === nativeSymbol &&
+                buyTokenSymbol !== nativeSymbol
+              ) {
                 return 'ETH/TOKEN';
               } else if (
-                sellTokenSymbol !== 'ETH' &&
-                buyTokenSymbol === 'ETH'
+                sellTokenSymbol !== nativeSymbol &&
+                buyTokenSymbol === nativeSymbol
               ) {
                 return 'TOKEN/ETH';
               } else {
@@ -999,7 +1005,11 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
 
               // Ensure we always attempt to fetch V3 Quote, even if V2 failed
               try {
+                if (v2Only) {
+                  throw new Error('Manual override V2 only');
+                }
                 console.log('Attempting to fetch V3 quote');
+
                 v3Quote = await getUniswapQuoteV3(
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
@@ -1084,6 +1094,9 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                   parsedSellAmount,
                   chain_id
                 ); */
+                if (v2Only) {
+                  throw new Error('Manual override V2 only');
+                }
                 v3Quote = await getUniswapQuoteV3(
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
@@ -1185,6 +1198,9 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                   parsedSellAmount,
                   chain_id
                 ); */
+                if (v2Only) {
+                  throw new Error('Manual override V2 only');
+                }
                 const directV3Quote = await getUniswapQuoteV3(
                   String(pathV3.tokenIn),
                   String(pathV3.tokenOut),
@@ -1221,6 +1237,9 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                   amountsOutV2ToV3[1],
                   chain_id
                 ); */
+                if (v2Only) {
+                  throw new Error('Manual override V2 only');
+                }
                 const v2ToV3 = await getUniswapQuoteV3(
                   wethAddress,
                   ALL_TOKENS[buyToken].address,
@@ -1241,6 +1260,9 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                   parsedSellAmount,
                   chain_id
                 ); */
+                if (v2Only) {
+                  throw new Error('Manual override V2 only');
+                }
                 const v3ToV2 = await getUniswapQuoteV3(
                   ALL_TOKENS[sellToken].address,
                   wethAddress,
@@ -1431,10 +1453,10 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
 
         let price;
         if (
-          (ALL_TOKENS[sellToken].symbol === 'ETH' &&
+          (ALL_TOKENS[sellToken].symbol === nativeSymbol &&
             ALL_TOKENS[buyToken].symbol === 'WETH') ||
           (ALL_TOKENS[sellToken].symbol === 'WETH' &&
-            ALL_TOKENS[buyToken].symbol === 'ETH')
+            ALL_TOKENS[buyToken].symbol === nativeSymbol)
         ) {
           let buyTokenIsWETH = ALL_TOKENS[buyToken].symbol === 'WETH';
           let sellTokenIsWETH = ALL_TOKENS[sellToken].symbol === 'WETH';
@@ -1544,7 +1566,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
             if (!account) return;
 
             try {
-              if (ALL_TOKENS[sellToken].symbol === 'ETH') {
+              if (ALL_TOKENS[sellToken].symbol === nativeSymbol) {
                 if (isApprovalNeeded) {
                   // Check if the state needs updating
                   setIsApprovalNeeded(false);
@@ -1687,7 +1709,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
             }
             const feeData = await fetchFeeData(chain_id);
             // 0.1 Gwei in Wei
-            const zeroPointOneGwei = BigInt(10000000);
+            const zeroPointOneGwei = BigInt(2000000000);
 
             // Extract gasPrice from feeData
             const gasPrice = BigInt(feeData.gasPrice || 0);
@@ -1699,16 +1721,10 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
             const maxFeePerGas = maxPriorityFeePerGas + gasPrice;
 
             // Log the values for debugging
-            console.log('gasPrice', gasPrice.toString());
-            console.log(
-              'maxPriorityFeePerGas',
-              maxPriorityFeePerGas.toString()
-            );
-            console.log('maxFeePerGas', maxFeePerGas.toString());
 
             // Return the gas fees as strings
             return {
-              gasPrice: gasPrice.toString(),
+              gasPrice: maxFeePerGas.toString(),
               maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
               maxFeePerGas: maxFeePerGas.toString(),
             };
@@ -1736,25 +1752,35 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
             } else {
               gasFees = await getNonEthGasFees();
             }
-            const estimatedGas = await tokenContract.approve.estimateGas(
-              swapData.isV3Only ? routerAddress : routerAddress,
-              largeAmount,
-              {
-                maxFeePerGas: gasFees.maxFeePerGas,
-                maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-              }
-            );
+            console.log('Gas Fees:', gasFees);
+            const estimatedGas = isBSC
+              ? await tokenContract.approve.estimateGas(
+                  routerAddress,
+                  largeAmount,
+                  {
+                    gasPrice: gasFees.gasPrice,
+                  }
+                )
+              : await tokenContract.approve.estimateGas(
+                  routerAddress,
+                  largeAmount,
+                  {
+                    maxFeePerGas: gasFees.maxFeePerGas,
+                    maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                  }
+                );
             console.log('Estimated Gas:', estimatedGas.toString());
 
-            const approveTx = await tokenContract.approve(
-              swapData.isV3Only ? routerAddress : routerAddress,
-              largeAmount,
-              {
-                gasLimit: estimatedGas,
-                maxFeePerGas: gasFees.maxFeePerGas,
-                maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-              }
-            );
+            const approveTx = isBSC
+              ? await tokenContract.approve(routerAddress, largeAmount, {
+                  gasLimit: estimatedGas,
+                })
+              : await tokenContract.approve(routerAddress, largeAmount, {
+                  gasLimit: estimatedGas,
+                  maxFeePerGas: gasFees.maxFeePerGas,
+                  maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                });
+
             console.log('Transaction Hash:', approveTx.hash);
             const approvalReceipt = await approveTx.wait();
             if (approvalReceipt.status === 1) {
@@ -1809,7 +1835,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                 let userBalanceBN;
                 let result;
 
-                if (ALL_TOKENS[sellToken].symbol === 'ETH') {
+                if (ALL_TOKENS[sellToken].symbol === nativeSymbol) {
                   // Get balance as BigInt
                   try {
                     const response = await fetch('/api/rpc-call/get-balance', {
@@ -1982,8 +2008,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
               transactionResponse = await wethContract.deposit({
                 value: swapData.amount,
                 gasLimit: estimatedGas,
-                maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                maxFeePerGas: gasFees.maxFeePerGas,
+                ...(isBSC
+                  ? {gasPrice: gasFees.gasPrice}
+                  : {
+                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                      maxFeePerGas: gasFees.maxFeePerGas,
+                    }),
               });
 
               return;
@@ -2003,21 +2033,25 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                 swapData.amount,
                 {
                   gasLimit: estimatedGas,
-                  maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                  maxFeePerGas: gasFees.maxFeePerGas,
+                  ...(isBSC
+                    ? {gasPrice: gasFees.gasPrice}
+                    : {
+                        maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                        maxFeePerGas: gasFees.maxFeePerGas,
+                      }),
                 }
               );
               return;
             }
 
             if (
-              ALL_TOKENS[sellToken].symbol === 'ETH' &&
+              ALL_TOKENS[sellToken].symbol === nativeSymbol &&
               ALL_TOKENS[buyToken].symbol === 'WETH'
             ) {
               await depositEth();
             } else if (
               ALL_TOKENS[sellToken].symbol === 'WETH' &&
-              ALL_TOKENS[buyToken].symbol === 'ETH'
+              ALL_TOKENS[buyToken].symbol === nativeSymbol
             ) {
               await withdrawEth();
             } else {
@@ -2033,8 +2067,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                     safeInputAmount,
                     reduceAmountOut(swapData.amountOut),
                     {
-                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                      maxFeePerGas: gasFees.maxFeePerGas,
+                      ...(isBSC
+                        ? {gasPrice: gasFees.gasPrice}
+                        : {
+                            maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                            maxFeePerGas: gasFees.maxFeePerGas,
+                          }),
                     }
                   );
                   console.log('estimatedGas', estimatedGas);
@@ -2047,8 +2085,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                     reduceAmountOut(swapData.amountOut),
 
                     {
-                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                      maxFeePerGas: gasFees.maxFeePerGas,
+                      ...(isBSC
+                        ? {gasPrice: gasFees.gasPrice}
+                        : {
+                            maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                            maxFeePerGas: gasFees.maxFeePerGas,
+                          }),
+
                       gasLimit: addGasBuffer(estimatedGas),
                     }
                   );
@@ -2085,8 +2128,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                     swapData.recipient,
                     reduceAmountOut(swapData.amountOut),
                     {
-                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                      maxFeePerGas: gasFees.maxFeePerGas,
+                      ...(isBSC
+                        ? {gasPrice: gasFees.gasPrice}
+                        : {
+                            maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                            maxFeePerGas: gasFees.maxFeePerGas,
+                          }),
                       value: safeInputAmount,
                     }
                   );
@@ -2115,8 +2162,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                     swapData.recipient,
                     reduceAmountOut(swapData.amountOut),
                     {
-                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                      maxFeePerGas: gasFees.maxFeePerGas,
+                      ...(isBSC
+                        ? {gasPrice: gasFees.gasPrice}
+                        : {
+                            maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                            maxFeePerGas: gasFees.maxFeePerGas,
+                          }),
                       value: safeInputAmount,
                       gasLimit: addGasBuffer(estimatedGas),
                     }
@@ -2132,8 +2183,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                       safeInputAmount,
                       reduceAmountOut(swapData.amountOut),
                       {
-                        maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                        maxFeePerGas: gasFees.maxFeePerGas,
+                        ...(isBSC
+                          ? {gasPrice: gasFees.gasPrice}
+                          : {
+                              maxPriorityFeePerGas:
+                                gasFees.maxPriorityFeePerGas,
+                              maxFeePerGas: gasFees.maxFeePerGas,
+                            }),
                       }
                     );
                   console.log('estimatedGas', estimatedGas);
@@ -2147,8 +2203,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                     safeInputAmount,
                     reduceAmountOut(swapData.amountOut),
                     {
-                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
-                      maxFeePerGas: gasFees.maxFeePerGas,
+                      ...(isBSC
+                        ? {gasPrice: gasFees.gasPrice}
+                        : {
+                            maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                            maxFeePerGas: gasFees.maxFeePerGas,
+                          }),
                     }
                   );
                 }
@@ -2163,8 +2223,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                       swapData.to,
                       swapData.deadline,
                       {
-                        maxFeePerGas: gasFees.maxFeePerGas,
-                        maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                        ...(isBSC
+                          ? {gasPrice: gasFees.gasPrice}
+                          : {
+                              maxPriorityFeePerGas:
+                                gasFees.maxPriorityFeePerGas,
+                              maxFeePerGas: gasFees.maxFeePerGas,
+                            }),
                         value: safeInputAmount,
                       }
                     );
@@ -2175,8 +2240,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                       swapData.to,
                       swapData.deadline,
                       {
-                        maxFeePerGas: gasFees.maxFeePerGas,
-                        maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                        ...(isBSC
+                          ? {gasPrice: gasFees.gasPrice}
+                          : {
+                              maxPriorityFeePerGas:
+                                gasFees.maxPriorityFeePerGas,
+                              maxFeePerGas: gasFees.maxFeePerGas,
+                            }),
                         gasLimit: addGasBuffer(estimatedGas),
                         value: safeInputAmount,
                       }
@@ -2191,8 +2261,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                       swapData.to,
                       swapData.deadline,
                       {
-                        maxFeePerGas: gasFees.maxFeePerGas,
-                        maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        ...(isBSC
+                          ? {gasPrice: gasFees.gasPrice}
+                          : {
+                              maxPriorityFeePerGas:
+                                gasFees.maxPriorityFeePerGas,
+                              maxFeePerGas: gasFees.maxFeePerGas,
+                            }),
                         from: account,
                       }
                     );
@@ -2204,9 +2279,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                       swapData.to,
                       swapData.deadline,
                       {
-                        //    maxFeePerGas: gasFees.maxFeePerGas,
-                        //   maxPriorityFeePerGas: gasFees.priorityFeePerGas,
-                        gasPrice: gasFees.maxFeePerGas,
+                        ...(isBSC
+                          ? {gasPrice: gasFees.gasPrice}
+                          : {
+                              maxPriorityFeePerGas:
+                                gasFees.maxPriorityFeePerGas,
+                              maxFeePerGas: gasFees.maxFeePerGas,
+                            }),
                         gasLimit: addGasBuffer(estimatedGas),
                       }
                     );
@@ -2224,8 +2303,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                       swapData.to,
                       swapData.deadline,
                       {
-                        maxFeePerGas: gasFees.maxFeePerGas,
-                        maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        ...(isBSC
+                          ? {gasPrice: gasFees.gasPrice}
+                          : {
+                              maxPriorityFeePerGas:
+                                gasFees.maxPriorityFeePerGas,
+                              maxFeePerGas: gasFees.maxFeePerGas,
+                            }),
                       }
                     );
                   transactionResponse =
@@ -2240,8 +2324,13 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                       swapData.to,
                       swapData.deadline,
                       {
-                        maxFeePerGas: gasFees.maxFeePerGas,
-                        maxPriorityFeePerGas: gasFees.priorityFeePerGas,
+                        ...(isBSC
+                          ? {gasPrice: gasFees.gasPrice}
+                          : {
+                              maxPriorityFeePerGas:
+                                gasFees.maxPriorityFeePerGas,
+                              maxFeePerGas: gasFees.maxFeePerGas,
+                            }),
                         gasLimit: addGasBuffer(estimatedGas),
                       }
                     );
@@ -2259,8 +2348,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                     reduceAmountOut(swapData.amountOut),
                     swapData.deadline,
                     {
-                      maxFeePerGas: gasFees.maxFeePerGas,
-                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                      ...(isBSC
+                        ? {gasPrice: gasFees.gasPrice}
+                        : {
+                            maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                            maxFeePerGas: gasFees.maxFeePerGas,
+                          }),
                     }
                   );
                 transactionResponse = await routerContract.v2TokenToV3Token(
@@ -2272,8 +2365,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                   reduceAmountOut(swapData.amountOut),
                   swapData.deadline,
                   {
-                    maxFeePerGas: gasFees.maxFeePerGas,
-                    maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                    ...(isBSC
+                      ? {gasPrice: gasFees.gasPrice}
+                      : {
+                          maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                          maxFeePerGas: gasFees.maxFeePerGas,
+                        }),
                     gasLimit: addGasBuffer(estimatedGas),
                   }
                 );
@@ -2290,8 +2387,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                     reduceAmountOut(swapData.amountOut),
                     swapData.deadline,
                     {
-                      maxFeePerGas: gasFees.maxFeePerGas,
-                      maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                      ...(isBSC
+                        ? {gasPrice: gasFees.gasPrice}
+                        : {
+                            maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                            maxFeePerGas: gasFees.maxFeePerGas,
+                          }),
                     }
                   );
                 transactionResponse = await routerContract.v3TokenToV2Token(
@@ -2303,8 +2404,12 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
                   reduceAmountOut(swapData.amountOut),
                   swapData.deadline,
                   {
-                    maxFeePerGas: gasFees.maxFeePerGas,
-                    maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                    ...(isBSC
+                      ? {gasPrice: gasFees.gasPrice}
+                      : {
+                          maxPriorityFeePerGas: gasFees.maxPriorityFeePerGas,
+                          maxFeePerGas: gasFees.maxFeePerGas,
+                        }),
                     gasLimit: addGasBuffer(estimatedGas),
                   }
                 );
@@ -2341,35 +2446,40 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
           } catch (error) {
             console.error('Failed to swap:', error);
 
+            // Check for insufficient funds errors
             if (
-              (retryCount < 2 &&
-                error.message &&
-                error.message.includes('revert')) ||
-              error.code === 'INSUFFICIENT_FUNDS'
-            ) {
-              async function delay(ms) {
-                return new Promise((resolve) => setTimeout(resolve, ms));
-              }
-              await delay(1000);
-
-              return handleSwap(retryCount + 1);
-            } else if (error.code === 'INSUFFICIENT_FUNDS') {
-              toast.error(
-                'Insufficient funds for transfer. Please check your balance.'
-              );
-            } else if (error.message && error.message.includes('slippage')) {
-              toast.error('Slippage too low. Try increasing slippage.');
-              /*             } else if (error.message && error.message.includes('gas')) {
-              toast.error('Gas fee too low. Try increasing the gas fee.'); */
-            } else if (error.message && error.message.includes('revert')) {
-              toast.error('Transaction failed due to contract revert.');
-            } else if (
               error.code === -32000 &&
-              error.message.includes('insufficient funds for transfer')
+              error.message &&
+              error.message.includes('insufficient funds for gas')
             ) {
               toast.error(
                 'Insufficient funds for gas. Please ensure you have enough ETH for the transaction fees.'
               );
+            } else if (
+              error.code === -32000 &&
+              error.message &&
+              error.message.includes('failed with')
+            ) {
+              toast.error(
+                'Transaction failed due to insufficient gas funds. Please adjust your gas settings or add more ETH.'
+              );
+            } else if (error.code === 'INSUFFICIENT_FUNDS') {
+              toast.error(
+                'Insufficient funds for transfer. Please check your balance.'
+              );
+            } else if (
+              error.message &&
+              error.message.includes('insufficient funds')
+            ) {
+              toast.error('Slippage too low. Try increasing slippage.');
+              /* } else if (error.message && error.message.includes('gas')) {
+                toast.error('Gas fee too low. Try increasing the gas fee.'); */
+            } else if (error.message && error.message.includes('slippage')) {
+              toast.error('Slippage too low. Try increasing slippage.');
+              /* } else if (error.message && error.message.includes('gas')) {
+              toast.error('Gas fee too low. Try increasing the gas fee.'); */
+            } else if (error.message && error.message.includes('revert')) {
+              toast.error('Transaction failed due to contract revert.');
             } else {
               // Fallback for other types of errors
               toast.error(
@@ -2527,7 +2637,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
 
   let chartTokenAddress;
   try {
-    if (ALL_TOKENS[buyToken].symbol === 'ETH') {
+    if (ALL_TOKENS[buyToken].symbol === nativeSymbol) {
       chartTokenAddress = ALL_TOKENS[sellToken].address;
     } else {
       chartTokenAddress = ALL_TOKENS[buyToken].address;

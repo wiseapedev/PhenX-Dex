@@ -18,7 +18,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
 
   useEffect(() => {
     setTokensReady(false); // Reset tokensReady on chain_id change
-  }, [chain_id]);
+  }, [chain_id, account, authToken]);
 
   useEffect(() => {
     if (
@@ -28,7 +28,7 @@ const Layout = ({buyLink, buyLinkKey}) => {
       Object.keys(ALL_TOKENS).length > 0 &&
       authToken
     ) {
-      setTimeout(() => setTokensReady(true), 500); // Small delay for smooth rendering
+      setTimeout(() => setTokensReady(true), 1000); // Small delay for smooth rendering
     }
   }, [ETH_TOKENS, ALL_TOKENS, chain_id, authToken, account]);
 

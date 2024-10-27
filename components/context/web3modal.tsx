@@ -21,6 +21,13 @@ const baseChain = {
   explorerUrl: 'https://basescan.org',
   rpcUrl: 'https://base-rpc.publicnode.com',
 };
+const bsc = {
+  chainId: 56,
+  name: 'Binance Smart Chain',
+  currency: 'BNB',
+  explorerUrl: 'https://bscscan.com',
+  rpcUrl: 'https://bsc-dataseed.binance.org',
+};
 
 // 3. Create a metadata object
 const metadata = {
@@ -51,7 +58,7 @@ const ethersConfig = defaultConfig({
 // 5. Create a AppKit instance
 createWeb3Modal({
   ethersConfig,
-  chains: [mainnet, baseChain],
+  chains: [mainnet, baseChain, bsc],
   projectId,
   enableSwaps: false,
   isSiweEnabled: false,

@@ -31,6 +31,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
     saverInputAmount,
     authToken,
   } = useContext(BlockchainContext);
+  const nativeSymbol = CHAINS[chain_id].nativeSymbol;
 
   const wethAddress = CHAINS[chain_id].wethAddress;
   const uniswapRouterAddress = CHAINS[chain_id].uniswapRouterAddressV2;
@@ -64,7 +65,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
       let oneEthInUSDC = ethDollarPrice.current;
       oneEthInUSDC = Number(oneEthInUSDC);
 
-      if (Token.symbol === 'ETH' || Token.symbol === 'WETH') {
+      if (Token.symbol === nativeSymbol || Token.symbol === 'WETH') {
         if (isTokenList) {
           let balance;
 
@@ -92,7 +93,7 @@ function DollarValue({Token, isTokenList, isOutputToken}) {
             if (balance === 0) {
               return;
             }
-          } else if (Token.symbol === 'ETH') {
+          } else if (Token.symbol === nativeSymbol) {
             try {
               const response = await fetch('/api/rpc-call/get-balance', {
                 method: 'POST',
