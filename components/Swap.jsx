@@ -848,7 +848,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
             console.log('✅✅✅ chain_id:', chain_id);
  */
             if (chain_id !== 1) {
-              const isMoreThan3 = blockNumber > blockNumberRef.current + 10;
+              const isMoreThan3 = blockNumber > blockNumberRef.current + 5;
               if (!isMoreThan3) {
                 return;
               }
@@ -867,7 +867,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
       };
       fetchNewBlockNumber();
       // Start polling every 1.2 seconds
-      intervalId = setInterval(fetchNewBlockNumber, 12000);
+      intervalId = setInterval(fetchNewBlockNumber, 2000);
 
       // Clean up the interval on component unmount or when dependencies change
       return () => {
