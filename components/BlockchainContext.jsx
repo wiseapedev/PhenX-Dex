@@ -35,6 +35,7 @@ import fetchBlockNumber from './rpc-calls/fetchBlockNumber';
 import {toast} from 'react-toastify';
 
 import {useDisconnect} from '@web3modal/ethers/react';
+import {ETH_TOKENS_DISPLAY} from './lib/constants';
 
 import {BrowserProvider, Contract, formatUnits} from 'ethers';
 import Bottleneck from 'bottleneck';
@@ -313,6 +314,7 @@ export const BlockchainProvider = ({children}) => {
 
         const tokensDB = await res.json();
         const walletTokens = await fetchWalletTokensAndFormat(tokensDB);
+        dollarRef.current = ETH_TOKENS_DISPLAY;
 
         setEthTokens(walletTokens);
         console.log('walletTokens', walletTokens);

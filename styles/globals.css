@@ -8,7 +8,6 @@
 html,
 body {
   background: linear-gradient(rgb(19, 19, 19) 0%, rgb(19, 19, 19) 100%);
-
   padding: 0;
   margin: 0;
   font-family: 'Inter';
@@ -612,7 +611,7 @@ input:focus {
   border: solid 1px var(--border);
 }
 .small-text {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--text-gray);
   width: fit-content;
   font-weight: 500;
@@ -630,7 +629,7 @@ input:focus {
   color: var(--text);
   outline: none;
   border: none;
-  font-size: 1.7rem;
+  font-size: 2rem;
   width: 60%;
   margin-top: 1px;
   margin-bottom: 1px;
@@ -718,8 +717,8 @@ input:focus {
 
 .med-text {
   margin-left: 0px;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: 500;
   text-align: center;
   color: var(--text);
   overflow: hidden;
@@ -737,11 +736,10 @@ input:focus {
   box-shadow: rgba(0, 0, 0, 0.24) 12px 16px 24px,
     rgba(0, 0, 0, 0.24) 12px 8px 12px, rgba(0, 0, 0, 0.32) 4px 4px 8px;
   padding: 8px 0px;
-  width: 400px;
+  width: 500px;
   overflow: hidden auto;
   height: 90vh;
   max-height: 700px;
-  max-width: 420px;
   display: flex;
   flex-direction: column;
   border-radius: 20px;
@@ -916,21 +914,20 @@ input:focus {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 48px;
+  height: 52px;
   border-radius: 10px;
   border: none;
   color: var(--text);
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   transition: all 0.1s ease-in-out;
-  opacity: 0.8;
+  opacity: 0.7;
   /*   border: solid 1px var(--primary-color);
  */
-  background: var(--box-hover);
+  background: var(--button-gradient);
 }
 .swap-button:hover {
   box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.3); /* Very light green blurry box shadow */
-  background: var(--box-hover);
   color: var(--text);
   cursor: pointer;
   opacity: 1;
@@ -1102,7 +1099,7 @@ input:focus {
   padding: 0px 10px;
   border-radius: 5px;
   color: var(--primary-color);
-  font-size: 0.7rem;
+  font-size: 0.9rem;
   font-weight: 600;
   margin-right: 4px;
   height: 15px;
@@ -1140,6 +1137,8 @@ input:focus {
   font-size: 2rem;
 }
 .dollar-value {
+  font-size: 1.2rem;
+
   margin-right: 3px;
 }
 .nav-left {
@@ -1534,7 +1533,7 @@ input:focus {
 .swap-container {
   transition: all 1s ease-in-out;
   position: relative;
-  width: 450px;
+  max-width: 550px;
   overflow: visible;
   overflow: hidden;
   border-radius: 25px;

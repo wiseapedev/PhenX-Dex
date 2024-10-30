@@ -717,13 +717,8 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
         <div className='saver-text-gray'>
           Trading on the PhenX router saves you up to
           <span className='saver-text'> 16% on gas fees</span> compared to the
-          Uniswap router.
-        </div>
-        <div className='saver-text-gray'>
-          While all DEXs charge a swap fee ranging from 0.25% to 1.5%,{' '}
-          <span className='saver-text'>PhenX charges 0%. </span>
-        </div>
-        <div className='saver-text-gray'>
+          Uniswap router. While all DEXs charge a swap fee ranging from 0.25% to
+          1.5%, <span className='saver-text'>PhenX charges 0%. </span>
           PhenX seamlessly aggregates liquidity, ensuring you always get the
           <span className='saver-text'> best price for your trades. </span>
         </div>
@@ -801,7 +796,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
         const inputAmount = Number(savedInputAmount.current);
 
         // if input amount is 0, reset swap data
-        if (inputAmount === 0) {
+        if (inputAmount === 0 || inputAmount === '0' || inputAmount === '') {
           if (swapData && sellAmount !== 0) {
             //        toast.error('Please enter an amount to swap');
             setSellAmount(0);
@@ -2767,10 +2762,19 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
     type: 2,
     value: '1000000000000000',
   };
+  const swapContainer = useRef(null);
+  useEffect(() => {
+    if (showChart === true) {
+      swapContainer.current.style.maxWidth = '450px';
+    } else {
+      swapContainer.current.style.maxWidth = '';
+    }
+  }, [showChart]);
+
   return (
     <div className='main-container'>
       <AdComponent handleAdChart={handleAdChart} />
-      <div className='swap-container'>
+      <div className='swap-container' ref={swapContainer}>
         {' '}
         <SwapSettings
           setShowChartState={setShowChartState}
@@ -2821,7 +2825,8 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
          */}{' '}
         <QuoteView /> {isETH && showAudits && memoAudits}
       </div>
-      {!showChart && <SwapFeeCompare />}
+      {/*       {!showChart && <SwapFeeCompare />}
+       */}{' '}
       {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}
     </div>
   );

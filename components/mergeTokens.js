@@ -78,9 +78,31 @@ function mergeTokens(chain_id, ETH_TOKENS) {
   } */
 
   // Assign new unique IDs to custom tokens and merge them
+  /*   Object.keys(customTokens).forEach((key) => {
+    const token = customTokens[key];
+    // custom token symbol not match mergetoken symbol
+     
+    if (token.chain_id === chain_id) {
+      // If the custom token doesn't have an ID, assign one
+      if (!token.id) {
+        maxId += 1;
+        token.id = maxId;
+      }
+      mergedTokens[token.id] = token;
+    }
+  }); */
   Object.keys(customTokens).forEach((key) => {
     const token = customTokens[key];
-    if (token.chain_id === chain_id) {
+
+    // Check if symbol or contract address matches any in mergedTokens
+    const isDuplicate = Object.values(mergedTokens).some(
+      (mergedToken) =>
+        mergedToken.symbol === token.symbol ||
+        mergedToken.contractAddress === token.contractAddress
+    );
+
+    // Skip adding if there's a match by symbol or contract address
+    if (token.chain_id === chain_id && !isDuplicate) {
       // If the custom token doesn't have an ID, assign one
       if (!token.id) {
         maxId += 1;

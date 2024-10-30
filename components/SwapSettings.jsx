@@ -381,9 +381,9 @@ function SwapSettings({
       {showSettings && <GasSlipComponent />}
       <div className='swap-icons-left'>
         <div className='swap-tabs-container'>
-          <div className='swap-tab nav-active'>Swap</div>
+          {/*         <div className='swap-tab nav-active'>Swap</div>
           <div className='swap-tab disable'>Bridge</div>{' '}
-          <div className='swap-tab disable'>Limit</div>
+          <div className='swap-tab disable'>Limit</div> */}
         </div>
       </div>{' '}
       {/*       <div className='swap-tabs-container'>
@@ -397,7 +397,7 @@ function SwapSettings({
           src='/audit.png'
           //     onClick={() => setShowAudits(!showAudits)}
           onClick={() => {
-            toast('Maintenance 25th/26th of October');
+            toast('Maintenance in progress');
           }}
         />{' '}
         <img
