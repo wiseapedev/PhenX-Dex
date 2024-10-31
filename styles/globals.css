@@ -125,7 +125,6 @@ input:focus {
   font-size: 0.9rem;
   transition: all 0.1s ease-in-out;
   opacity: 0.8;
-  background: var(--box-inner);
   transition: all 0.1s ease-in-out;
   letter-spacing: 3px;
   textalign: 'center';
@@ -374,7 +373,8 @@ input:focus {
 }
 .nav-container {
   position: fixed;
-  background: rgba(0, 0, 0, 0.4);
+  /*   background: rgba(0, 0, 0, 0.4);
+ */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   height: 5vh;
@@ -391,7 +391,8 @@ input:focus {
 
 .footer-container {
   position: fixed;
-  background: rgba(0, 0, 0, 0.4);
+  /*   background: rgba(0, 0, 0, 0.4);
+ */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   height: 5vh;
@@ -736,7 +737,7 @@ input:focus {
   box-shadow: rgba(0, 0, 0, 0.24) 12px 16px 24px,
     rgba(0, 0, 0, 0.24) 12px 8px 12px, rgba(0, 0, 0, 0.32) 4px 4px 8px;
   padding: 8px 0px;
-  width: 500px;
+  width: 400px;
   overflow: hidden auto;
   height: 90vh;
   max-height: 700px;
@@ -1513,7 +1514,7 @@ input:focus {
   align-items: center;
   height: 90%;
   width: 65%;
-  padding: 10px;
+  padding: 0px 10px;
 }
 .iframe-container {
   transition: all 3s ease-in-out;
@@ -1533,16 +1534,17 @@ input:focus {
 .swap-container {
   transition: all 1s ease-in-out;
   position: relative;
-  max-width: 550px;
+  max-width: 500px;
+  width: 100%;
   overflow: visible;
   overflow: hidden;
-  border-radius: 25px;
+  border-radius: 15px;
   padding: 10px;
   transition: all 0.5s ease-in-out;
 
-  /*   background: var(--box-darker);
+  background: var(--box-darker);
   border: solid 1px var(--border);
-  box-shadow: var(--box-shadow); */
+  box-shadow: var(--box-shadow);
 }
 .left-section {
   width: 30%;
@@ -1604,8 +1606,9 @@ input:focus {
 .general-box {
   transition: all 0.5s ease-in-out;
   margin-top: 10px;
-  background-color: var(--box-darker);
+  /*   background-color: var(--box-darker);
   border: 1px solid var(--border);
+ */
   padding: 8px;
 
   border-radius: 15px;
@@ -1637,8 +1640,12 @@ input:focus {
   background-color: var(--box-darker);
 }
 .gwei-info {
-  font-size: 0.7rem;
+  padding-inline-start: 7px;
+  font-size: 1.1rem;
+  font-weight: 500;
   color: var(--text-gray);
+  border-radius: 12px;
+  padding: 5px 10px;
 }
 .auto-button {
   display: flex;
@@ -2188,10 +2195,11 @@ input:focus {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 450px;
+  width: 300px;
   border-radius: 15px;
   background: var(--box-darker);
   padding: 15px;
+  margin-left: 10px;
   transition: all 0.5s ease-in-out;
   box-shadow: var(--box-shadow);
   background: var(--box-darker);
@@ -2436,6 +2444,7 @@ input:focus {
     padding: 5px;
     width: 95%;
     margin-bottom: 50px;
+    margin-left: 0px;
   }
 
   .basic-button {

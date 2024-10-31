@@ -188,10 +188,10 @@ const Swap = () => {
     return (
       <div className='flex-col'>
         <div className='token-input-box'>
-          <div className='flex-row'>
+          {/*           <div className='flex-row'>
             <div className='small-text'>You Deposit</div>
             <div className='small-text'></div>
-          </div>
+          </div> */}
           <div className='flex-row'>
             <input
               className='token-input'
@@ -295,10 +295,10 @@ const Swap = () => {
       <div className='flex-col'>
         <div className='token-input-box'>
           {' '}
-          <div className='flex-row'>
+          {/*           <div className='flex-row'>
             <div className='small-text'>Staked Balance</div>
             <div className='small-text'></div>
-          </div>
+          </div> */}
           <div className='flex-row'>
             <input
               className='token-input'
@@ -418,10 +418,10 @@ const Swap = () => {
     return (
       <div className='flex-col'>
         <div className='token-input-box'>
-          <div className='flex-row'>
+          {/*         <div className='flex-row'>
             <div className='small-text'>Pending Rewards</div>
             <div className='small-text'></div>
-          </div>
+          </div> */}
           <div className='flex-row'>
             <input
               className='token-input'

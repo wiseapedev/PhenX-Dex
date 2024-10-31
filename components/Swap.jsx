@@ -2771,17 +2771,24 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
     }
   }, [showChart]);
 
+  const memoSwapSettings = useMemo(
+    () => (
+      <SwapSettings
+        setShowChartState={setShowChartState}
+        showChart={showChart}
+        setShowAudits={setShowAudits}
+        showAudits={showAudits}
+      />
+    ),
+    []
+  );
+
   return (
     <div className='main-container'>
       <AdComponent handleAdChart={handleAdChart} />
       <div className='swap-container' ref={swapContainer}>
         {' '}
-        <SwapSettings
-          setShowChartState={setShowChartState}
-          showChart={showChart}
-          setShowAudits={setShowAudits}
-          showAudits={showAudits}
-        />
+        {memoSwapSettings}
         {showTokenList === 'sellToken' && (
           <TokenList
             handleBuyTokenChange={handleBuyTokenChange}
@@ -2825,8 +2832,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
          */}{' '}
         <QuoteView /> {isETH && showAudits && memoAudits}
       </div>
-      {/*       {!showChart && <SwapFeeCompare />}
-       */}{' '}
+      {!showChart && <SwapFeeCompare />}
       {showChart && <div className='mid-section'>{memoCharts}</div>}{' '}
     </div>
   );

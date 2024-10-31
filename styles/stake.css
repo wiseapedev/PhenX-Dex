@@ -100,6 +100,7 @@
   transform: scale(1.05);
 }
 .StakingCard {
+  border: solid 1px var(--border);
   width: 90%;
   border-radius: 25px;
   padding: 10px;
@@ -115,6 +116,7 @@
   border-radius: 10px;
   color: var(--text-gray);
   cursor: pointer;
+  font-size: 1.2rem;
 }
 .tab {
   display: flex;
@@ -132,17 +134,18 @@
   color: var(--text);
 }
 .Tactive {
-  background-color: var(--box-darker);
+  /*   background-color: var(--box-darker);
   margin-bottom: 2px;
-  border-bottom: 2px solid var(--primary-color);
+  border-bottom: 2px solid var(--primary-color); */
+  color: var(--text);
 }
 .stake-container {
   position: relative;
   transition: all 1s ease-in-out;
   display: flex;
   flex-direction: row;
-  margin-top: 7vh;
-  height: 90%;
+  margin-top: 0vh;
+  height: 80%;
   opacity: 0.4;
 }
 .wrong-network-container {

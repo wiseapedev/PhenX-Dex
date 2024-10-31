@@ -506,7 +506,7 @@ export const BlockchainProvider = ({children}) => {
             return;
           }
 
-          await delay(50);
+          //   await delay(50);
 
           return {
             key,

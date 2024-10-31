@@ -31,16 +31,71 @@ function SwapSettings({
     useAutoSlippage,
     savedAddedPriority,
     providerHTTP,
+    authToken,
+    chain_id,
+    account,
   } = useContext(BlockchainContext);
   const [showSettings, setShowSettings] = useState(false);
   const Settingsicon = useRef(null);
+
   function CurrentGwei({providerHTTP}) {
     const GWEI = useRef(0);
     const [CurrentGwei, setCurrentGwei] = useState(0);
 
     async function getGasFees() {
       try {
-        const feeData = await providerHTTP.getFeeData();
+        async function getNonEthGasFees() {
+          try {
+            async function fetchFeeData(chain_id) {
+              try {
+                const response = await fetch('/api/rpc-call/get-fee-data', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`, // Send JWT token in the Authorization header
+                  },
+                  body: JSON.stringify({chain_id}),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                  console.log('Fee Data:', data.feeData);
+                  return data.feeData;
+                } else {
+                  console.error('Error:', data.error);
+                }
+              } catch (error) {
+                console.error('Failed to fetch fee data:', error);
+              }
+            }
+            const feeData = await fetchFeeData(chain_id);
+            // 0.1 Gwei in Wei
+            const zeroPointOneGwei = BigInt(2000000000);
+
+            // Extract gasPrice from feeData
+            const gasPrice = BigInt(feeData.gasPrice || 0);
+
+            // Set maxPriorityFeePerGas to 0.1 Gwei
+            const maxPriorityFeePerGas = zeroPointOneGwei;
+
+            // Calculate maxFeePerGas by adding gasPrice and maxPriorityFeePerGas
+            const maxFeePerGas = maxPriorityFeePerGas + gasPrice;
+
+            // Log the values for debugging
+
+            // Return the gas fees as strings
+            return {
+              gasPrice: maxFeePerGas.toString(),
+              maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
+              maxFeePerGas: maxFeePerGas.toString(),
+            };
+          } catch (error) {
+            console.error('Failed to getNonEthGasFees:', error);
+          }
+        }
+
+        const feeData = await getNonEthGasFees();
         console.log('feeData', feeData);
         const baseFeePerGas = feeData.gasPrice;
         //    console.log('baseFeePerGas', baseFeePerGas);
@@ -56,9 +111,9 @@ function SwapSettings({
           let currentFee = Number(baseFeePerGasGwei).toFixed(2);
           if (currentFee > 50) {
             currentFee = `${GWEI.current} High`;
-          } else if (currentFee > 30) {
-            currentFee = `${GWEI.current} High`;
           } else if (currentFee > 20) {
+            currentFee = `${GWEI.current} High`;
+          } else if (currentFee > 10) {
             currentFee = `${GWEI.current} Average`;
           } else {
             currentFee = `${GWEI.current} Low`;
@@ -77,10 +132,12 @@ function SwapSettings({
 
       return () => clearInterval(interval);
     }, []);
-    return (
-      <div className='gwei-info'>(Last Block Base Fee: {CurrentGwei})</div>
-    );
+    if (!authToken || !account) {
+      return <></>;
+    }
+    return <div className='gwei-info'> Network Gas: {CurrentGwei}</div>;
   }
+
   const GasSlipComponent = () => {
     const priorityGasRef = useRef(savedPriorityGas.current);
     const slippageRef = useRef(null);
@@ -381,6 +438,7 @@ function SwapSettings({
       {showSettings && <GasSlipComponent />}
       <div className='swap-icons-left'>
         <div className='swap-tabs-container'>
+          <CurrentGwei />
           {/*         <div className='swap-tab nav-active'>Swap</div>
           <div className='swap-tab disable'>Bridge</div>{' '}
           <div className='swap-tab disable'>Limit</div> */}
