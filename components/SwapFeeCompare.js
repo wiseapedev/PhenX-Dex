@@ -82,6 +82,7 @@ function SwapFeeCompare() {
       </div>{' '}
       <SwapFeeItem name='Maestro' percentage={1} />
       <SwapFeeItem name='MetaMask' percentage={0.875} />
+      <SwapFeeItem name='Phantom' percentage={0.85} />
       <SwapFeeItem name='Coinbase' percentage={0.6} />
       <SwapFeeItem name='BananaGun' percentage={0.5} />
       <SwapFeeItem name='Binance' percentage={0.45} />
