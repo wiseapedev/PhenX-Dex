@@ -1,4 +1,4 @@
-import {useState, useEffect, useContext, useRef, use} from 'react';
+import {useState, useEffect, useContext, useRef, useMemo} from 'react';
 import {BlockchainContext} from './BlockchainContext';
 import {
   Settings,
@@ -38,11 +38,14 @@ function SwapSettings({
   const [showSettings, setShowSettings] = useState(false);
   const Settingsicon = useRef(null);
 
-  function CurrentGwei({providerHTTP}) {
+  function CurrentGwei() {
     const GWEI = useRef(0);
     const [CurrentGwei, setCurrentGwei] = useState(0);
 
     async function getGasFees() {
+      if (!authToken || !account) {
+        return;
+      }
       try {
         async function getNonEthGasFees() {
           try {
@@ -132,11 +135,14 @@ function SwapSettings({
 
       return () => clearInterval(interval);
     }, []);
+
     if (!authToken || !account) {
       return <></>;
     }
     return <div className='gwei-info'> Network Gas: {CurrentGwei}</div>;
   }
+
+  const memoCurrentGwei = useMemo(() => <CurrentGwei />, [account]);
 
   const GasSlipComponent = () => {
     const priorityGasRef = useRef(savedPriorityGas.current);
@@ -438,7 +444,7 @@ function SwapSettings({
       {showSettings && <GasSlipComponent />}
       <div className='swap-icons-left'>
         <div className='swap-tabs-container'>
-          <CurrentGwei />
+          {memoCurrentGwei}
           {/*         <div className='swap-tab nav-active'>Swap</div>
           <div className='swap-tab disable'>Bridge</div>{' '}
           <div className='swap-tab disable'>Limit</div> */}

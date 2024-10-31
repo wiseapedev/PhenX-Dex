@@ -2780,7 +2780,7 @@ const Swap = ({buyLink, buyLinkKey, ALL_TOKENS}) => {
         showAudits={showAudits}
       />
     ),
-    []
+    [showChart]
   );
 
   return (
